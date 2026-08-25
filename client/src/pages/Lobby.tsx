@@ -8,7 +8,7 @@ export function Lobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
     themes, addCustomWord, removeCustomWord, customThemeWords,
-    updateConfig, navigate
+    updateConfig, resetScores, navigate
   } = useGame();
   
   const [copied, setCopied] = useState(false);
@@ -161,6 +161,8 @@ export function Lobby() {
                     <AvatarDisplay avatar={player.avatar} size="1.5rem" />
                     <span>
                       {player.name}
+                      {player.isWinner && <span title="Vencedor da rodada anterior" style={{ marginLeft: '4px' }}>👑</span>}
+                      <span className="text-muted" style={{ marginLeft: '8px', fontSize: '0.8rem' }}>{player.score} pts</span>
                       {player.id === playerId && ' (você)'}
                     </span>
                   </span>
@@ -321,6 +323,19 @@ export function Lobby() {
                     ))}
                   </div>
                 </div>
+
+                <div className="spacer-4" />
+                
+                <button 
+                  className="btn btn-ghost btn-sm w-full" 
+                  onClick={() => {
+                    if (window.confirm('Tem certeza que deseja zerar a pontuação de todos?')) {
+                      resetScores();
+                    }
+                  }}
+                >
+                  🔄 Zerar Pontuação
+                </button>
               </div>
             ) : (
               <div className="read-only-config" style={{ background: 'var(--bg-glass)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>

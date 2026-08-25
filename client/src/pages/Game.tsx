@@ -562,6 +562,7 @@ export function Game() {
             <div key={v.playerId} className="vote-result">
               <span style={{ minWidth: '80px', fontSize: '0.9rem', fontWeight: 500 }}>
                 {v.playerName}
+                {roomState.players.find(p => p.id === v.playerId)?.isWinner && <span title="Vencedor" style={{ marginLeft: '4px' }}>👑</span>}
               </span>
               <div className="vote-bar-container">
                 <div

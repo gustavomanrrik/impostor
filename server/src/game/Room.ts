@@ -89,6 +89,8 @@ export class Room {
       hasSeenWord: false,
       hasVoted: false,
       hasRequestedVote: false,
+      score: 0,
+      isWinner: false,
     };
 
     this.players.set(playerId, player);
@@ -268,6 +270,11 @@ export class Room {
 
     if (!this.stateMachine.canTransition(GameState.STARTING)) {
       return { success: false, error: 'Não é possível iniciar neste momento.' };
+    }
+
+    // Limpar coroas (isWinner) antes de começar
+    for (const p of this.players.values()) {
+      p.isWinner = false;
     }
 
     // Calcular número de impostores
@@ -475,6 +482,29 @@ export class Room {
 
     const impostorsFound = impostorsDiscovered === this.impostorIds.size;
 
+    // Distribuir pontos
+    for (const [id, p] of this.players.entries()) {
+      const isImpostor = this.impostorIds.has(id);
+      
+      if (impostorsFound) {
+        // Jogadores normais ganham
+        if (!isImpostor) {
+          p.score += 100;
+          p.isWinner = true;
+        } else {
+          p.isWinner = false;
+        }
+      } else {
+        // Impostores ganham
+        if (isImpostor) {
+          p.score += 150;
+          p.isWinner = true;
+        } else {
+          p.isWinner = false;
+        }
+      }
+    }
+
     this.stateMachine.forceState(GameState.RESULT);
 
     return {
@@ -517,6 +547,19 @@ export class Room {
     return true;
   }
 
+  // ─── Score Management ───────────────────────
+
+  resetScores(playerId: string): boolean {
+    if (!this.isHost(playerId)) return false;
+
+    for (const p of this.players.values()) {
+      p.score = 0;
+      p.isWinner = false;
+    }
+
+    return true;
+  }
+
   // ─── Public State ─────────────────────────────
 
   getPublicState(): RoomPublicState {
@@ -530,6 +573,8 @@ export class Room {
       hasVoted: p.hasVoted || false,
       hasRequestedVote: p.hasRequestedVote || false,
       hasVotedSkip: p.hasVotedSkip || false,
+      score: p.score || 0,
+      isWinner: p.isWinner || false,
     }));
 
     return {

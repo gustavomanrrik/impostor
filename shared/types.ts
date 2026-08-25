@@ -41,6 +41,8 @@ export interface Player {
   hasRequestedVote?: boolean;
   votedFor?: string; // ID do jogador votado
   hasVotedSkip?: boolean;
+  score: number;
+  isWinner?: boolean;
 }
 
 // Configuração da sala
@@ -139,6 +141,8 @@ export interface PublicPlayer {
   hasVoted: boolean;
   hasRequestedVote: boolean;
   hasVotedSkip?: boolean;
+  score: number;
+  isWinner?: boolean;
 }
 
 // Histórico de partida (localStorage)

@@ -57,6 +57,7 @@ interface GameContextType {
   nextRound: () => void;
   changeTheme: () => void;
   sendReaction: (reaction: string) => void;
+  resetScores: () => void;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   
   // Custom Theme Collaboration
@@ -397,6 +398,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:changeTheme');
   }, []);
 
+  const resetScores = useCallback(() => {
+    getSocket().emit('room:resetScores');
+  }, []);
+
   const sendReaction = useCallback((reaction: string) => {
     getSocket().emit('game:reaction', reaction);
   }, []);
@@ -406,7 +411,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     roomState, playerId, myWord, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
-    sendReaction, activeReactions,
+    sendReaction, resetScores, activeReactions,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,

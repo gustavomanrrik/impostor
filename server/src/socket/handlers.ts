@@ -209,6 +209,19 @@ export function registerSocketHandlers(
       console.log(`[Room ${room.code}] Jogo iniciado! Rodada ${room.getPublicState().round}`);
     });
 
+    // ─── RESET SCORES ─────────────────────────────
+    socket.on('room:resetScores', () => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      if (room.resetScores(playerId)) {
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      }
+    });
+
     // ─── PULAR RODADA ─────────────────────────
 
     socket.on('game:voteSkip', () => {
