@@ -44,8 +44,8 @@ interface GameContextType {
   themes: ThemeListItem[];
 
   // Actions
-  createRoom: (playerName: string, config: any, customTheme?: any) => void;
-  joinRoom: (playerName: string, roomCode: string) => void;
+  createRoom: (playerName: string, avatar: string, config: any, customTheme?: any) => void;
+  joinRoom: (playerName: string, avatar: string, roomCode: string) => void;
   leaveRoom: () => void;
   updateConfig: (updates: any) => void;
   setCustomTheme: (theme: any) => void;
@@ -56,6 +56,8 @@ interface GameContextType {
   voteSkip: () => void;
   nextRound: () => void;
   changeTheme: () => void;
+  sendReaction: (reaction: string) => void;
+  activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   
   // Custom Theme Collaboration
   customThemeWords: string[];
@@ -119,6 +121,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [showSuspense, setShowSuspense] = useState(false);
   const [customThemeWords, setCustomThemeWords] = useState<string[]>([]);
+  const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
   const hasSetupListeners = useRef(false);
 
   // ─── Toast ───────────────────────
@@ -312,24 +315,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       addToast('success', 'Reconectado com sucesso!');
     });
 
+    socket.on('game:reactionReceived', (data) => {
+      const reactionId = Math.random().toString(36).substring(2, 9);
+      const randomTop = Math.random() * 40 + 20; // fixed initial top position
+      setActiveReactions(prev => [...prev, { id: reactionId, playerId: data.playerId, reaction: data.reaction, top: randomTop }]);
+      setTimeout(() => {
+        setActiveReactions(prev => prev.filter(r => r.id !== reactionId));
+      }, 4000);
+    });
+
     return () => {
       // Don't remove listeners on cleanup since we use ref guard
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Actions ───────────────────────
-  const createRoom = useCallback((playerName: string, config: any, customTheme?: any) => {
+  const createRoom = useCallback((playerName: string, avatar: string, config: any, customTheme?: any) => {
     connectSocket();
     savePlayerName(playerName);
     const socket = getSocket();
-    socket.emit('room:create', { playerName, config, customTheme });
+    socket.emit('room:create', { playerName, avatar, config, customTheme });
   }, []);
 
-  const joinRoom = useCallback((playerName: string, roomCode: string) => {
+  const joinRoom = useCallback((playerName: string, avatar: string, roomCode: string) => {
     connectSocket();
     savePlayerName(playerName);
     const socket = getSocket();
-    socket.emit('room:join', { playerName, roomCode });
+    socket.emit('room:join', { playerName, avatar, roomCode });
   }, []);
 
   const leaveRoom = useCallback(() => {
@@ -385,11 +397,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:changeTheme');
   }, []);
 
+  const sendReaction = useCallback((reaction: string) => {
+    getSocket().emit('game:reaction', reaction);
+  }, []);
+
   const value: GameContextType = {
     page, navigate,
     roomState, playerId, myWord, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
+    sendReaction, activeReactions,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,

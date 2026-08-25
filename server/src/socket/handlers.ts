@@ -19,7 +19,7 @@ export function registerSocketHandlers(
     // ─── CRIAR SALA ─────────────────────────
 
     socket.on('room:create', (data) => {
-      const { playerName, config, customTheme } = data;
+      const { playerName, avatar, config, customTheme } = data;
 
       if (!playerName || playerName.trim().length === 0) {
         socket.emit('error', { code: 'INVALID_NAME', message: 'Nome inválido.' });
@@ -33,7 +33,7 @@ export function registerSocketHandlers(
         room.setCustomTheme({ ...customTheme, words });
       }
 
-      const player = room.addPlayer(socket.id, playerName.trim());
+      const player = room.addPlayer(socket.id, playerName.trim(), avatar);
 
       if (!player) {
         socket.emit('error', { code: 'JOIN_FAILED', message: 'Não foi possível criar a sala.' });
@@ -51,7 +51,7 @@ export function registerSocketHandlers(
     // ─── ENTRAR EM SALA ─────────────────────────
 
     socket.on('room:join', (data) => {
-      const { playerName, roomCode } = data;
+      const { playerName, avatar, roomCode } = data;
 
       if (!playerName || playerName.trim().length === 0) {
         socket.emit('error', { code: 'INVALID_NAME', message: 'Nome inválido.' });
@@ -76,7 +76,7 @@ export function registerSocketHandlers(
         return;
       }
 
-      const player = room.addPlayer(socket.id, playerName.trim());
+      const player = room.addPlayer(socket.id, playerName.trim(), avatar);
 
       if (!player) {
         socket.emit('error', { code: 'JOIN_FAILED', message: 'Não foi possível entrar. Talvez o nome já esteja em uso.' });
@@ -90,6 +90,7 @@ export function registerSocketHandlers(
       socket.to(room.code).emit('room:playerJoined', {
         id: player.id,
         name: player.name,
+        avatar: player.avatar,
         isHost: player.isHost,
         isConnected: true,
         hasSeenWord: false,
@@ -303,6 +304,17 @@ export function registerSocketHandlers(
           console.log(`[Room ${room.code}] Resultado: impostores ${gameResult.impostorsFound ? 'descobertos' : 'escaparam'}!`);
         }, 3000); // Delay de 3s para suspense
       }
+    });
+
+    // ─── REAÇÕES ─────────────────────────
+
+    socket.on('game:reaction', (reaction: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      io.to(room.code).emit('game:reactionReceived', { playerId, reaction });
     });
 
     // ─── PRÓXIMA RODADA ─────────────────────────

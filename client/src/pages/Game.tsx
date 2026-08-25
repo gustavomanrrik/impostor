@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 
 export function Game() {
-  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast } = useGame();
+  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, sendReaction, activeReactions } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
   const [wordSeen, setWordSeen] = useState(false);
   const [selectedVote, setSelectedVote] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [hasRequestedVote, setHasRequestedVote] = useState(false);
   const [showConfirmVoteRequest, setShowConfirmVoteRequest] = useState(false);
+  const [isAnimatingJudgement, setIsAnimatingJudgement] = useState(false);
+  const [customReaction, setCustomReaction] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  useEffect(() => {
+    if (roomState?.state === GameState.RESULT && gameResult) {
+      // Começa a animar o julgamento assim que o resultado chegar
+      setIsAnimatingJudgement(true);
+      const timer = setTimeout(() => {
+        setIsAnimatingJudgement(false);
+      }, 4500); // 4.5 segundos de suspense
+      return () => clearTimeout(timer);
+    }
+  }, [roomState?.state, gameResult]);
 
   if (!roomState) return null;
 
@@ -87,22 +101,48 @@ export function Game() {
   // ─── DISCUSSION PHASE ───────────────────────
   if (roomState.state === GameState.DISCUSSION) {
     return (
-      <div className="page" style={{ position: 'relative' }}>
-        <button 
-          className="btn btn-ghost"
-          style={{ position: 'absolute', top: 0, right: 0, padding: '8px', color: currentPlayer?.hasVotedSkip ? 'var(--accent-primary)' : 'var(--text-muted)' }}
-          onClick={() => {
-            if (!currentPlayer?.hasVotedSkip) {
-              voteSkip();
-            }
-          }}
-          disabled={currentPlayer?.hasVotedSkip}
-          title="Pular rodada (todos precisam votar)"
-        >
-          {currentPlayer?.hasVotedSkip ? '❗️ Votou para Pular' : '❕ Pular Rodada'}
-        </button>
+      <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
+        {/* Floating Reactions overlay */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 100 }}>
+          {activeReactions.map(r => {
+            const isMe = r.playerId === playerId;
+            return (
+              <div
+                key={r.id}
+                style={{
+                  position: 'absolute',
+                  top: `${r.top}%`,
+                  left: isMe ? 'auto' : '10px',
+                  right: isMe ? '10px' : 'auto',
+                  animation: 'floatUp 4s ease-out forwards',
+                }}
+                className="reaction-bubble"
+              >
+                <span className="avatar">{roomState.players.find(p => p.id === r.playerId)?.avatar}</span>
+                <span className="text">{r.reaction}</span>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Top actions bar */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+          <button 
+            className="btn btn-ghost btn-sm"
+            style={{ color: currentPlayer?.hasVotedSkip ? 'var(--accent-primary)' : 'var(--text-muted)' }}
+            onClick={() => {
+              if (!currentPlayer?.hasVotedSkip) {
+                voteSkip();
+              }
+            }}
+            disabled={currentPlayer?.hasVotedSkip}
+            title="Pular rodada (todos precisam votar)"
+          >
+            {currentPlayer?.hasVotedSkip ? '❗️ Votou para Pular' : '❕ Pular Rodada'}
+          </button>
+        </div>
 
-        <div className="status-badge voting" style={{ marginBottom: '12px', marginTop: '32px' }}>
+        <div className="status-badge voting" style={{ marginBottom: '12px' }}>
           💬 FASE DE DISCUSSÃO
         </div>
 
@@ -157,11 +197,108 @@ export function Game() {
           {/* Players who requested */}
           <div style={{ marginTop: '8px' }}>
             {roomState.players.filter(p => p.hasRequestedVote).map(p => (
-              <span key={p.id} style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', marginRight: '8px' }}>
-                🗳️ {p.name}
+              <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px' }}>
+                🗳️ {p.avatar} {p.name}
               </span>
             ))}
           </div>
+        </div>
+
+        {/* Quick Chat / Reactions */}
+        <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
+          <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '8px', textAlign: 'center' }}>Reações Rápidas</p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
+            {['🤔 Suspeito', '😱 Quem foi?', '👀 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
+              <button
+                key={phrase}
+                className="btn btn-ghost btn-sm"
+                style={{ background: 'var(--bg-glass)' }}
+                onClick={() => sendReaction(phrase)}
+              >
+                {phrase}
+              </button>
+            ))}
+          </div>
+          
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (customReaction.trim()) {
+                sendReaction(customReaction.trim());
+                setCustomReaction('');
+              }
+            }}
+            style={{ display: 'flex', gap: '8px', position: 'relative' }}
+          >
+            <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
+              <button 
+                type="button" 
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                style={{
+                  position: 'absolute',
+                  left: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem',
+                  opacity: 0.7
+                }}
+              >
+                😊
+              </button>
+              <input
+                type="text"
+                className="input"
+                style={{ width: '100%', padding: '8px 12px 8px 36px', fontSize: '0.9rem' }}
+                placeholder="Ou digite algo..."
+                maxLength={30}
+                value={customReaction}
+                onChange={(e) => setCustomReaction(e.target.value)}
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="btn btn-primary btn-sm"
+              disabled={!customReaction.trim()}
+            >
+              Enviar
+            </button>
+
+            {showEmojiPicker && (
+              <div style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: 0,
+                marginBottom: '8px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--bg-glass-strong)',
+                padding: '8px',
+                borderRadius: '8px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: '4px',
+                zIndex: 50,
+                boxShadow: 'var(--shadow-lg)'
+              }}>
+                {['😂', '😱', '🤔', '🤡', '💀', '❤️', '👀', '👍', '👎', '🔥'].map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      setCustomReaction(prev => prev + emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                    style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '4px' }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </form>
         </div>
 
         {/* Request vote button */}
@@ -229,7 +366,7 @@ export function Game() {
           <div className="text-muted" style={{ fontSize: '0.85rem', textAlign: 'center' }}>
             <p style={{ marginBottom: '4px' }}>Aguardando:</p>
             {roomState.players.filter(p => !p.hasVoted).map(p => (
-              <span key={p.id} style={{ marginRight: '8px' }}>• {p.name}</span>
+              <span key={p.id} style={{ marginRight: '8px' }}>• {p.avatar} {p.name}</span>
             ))}
           </div>
         </div>
@@ -260,6 +397,7 @@ export function Game() {
               <div className="vote-radio">
                 <div className="vote-radio-inner" />
               </div>
+              <span style={{ fontSize: '1.2rem' }}>{player.avatar}</span>
               <span style={{ fontWeight: 500 }}>{player.name}</span>
             </div>
           ))}
@@ -301,10 +439,48 @@ export function Game() {
   if (roomState.state === GameState.RESULT && gameResult) {
     const playerWon = isImpostor ? !gameResult.impostorsFound : gameResult.impostorsFound;
     const maxVotes = Math.max(...gameResult.votes.map(v => v.voteCount), 1);
+    const eliminated = gameResult.eliminatedPlayer;
+    const eliminatedAvatar = eliminated ? roomState.players.find(p => p.id === eliminated.id)?.avatar : '❓';
+
+    if (isAnimatingJudgement && eliminated) {
+      const wasImpostor = gameResult.impostors.some(i => i.id === eliminated.id);
+      return (
+        <div className="page" style={{ 
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', 
+          background: wasImpostor ? 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(15,23,42,1) 100%)' : 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, rgba(15,23,42,1) 100%)' 
+        }}>
+          <h2 className="text-center" style={{ marginBottom: '40px', fontSize: '1.5rem', animation: 'fadeIn 1s ease-in' }}>
+            O grupo decidiu...
+          </h2>
+          
+          <div style={{ position: 'relative', width: '150px', height: '150px', animation: 'shake 0.5s infinite alternate' }}>
+            <div style={{ fontSize: '6rem', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {eliminatedAvatar}
+            </div>
+            {/* Grades da prisão (CSS simples) */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'repeating-linear-gradient(90deg, transparent, transparent 30px, #333 30px, #333 40px)', animation: 'slideDown 1s ease-out forwards', opacity: 0.8 }} />
+          </div>
+
+          <h3 style={{ marginTop: '20px', animation: 'fadeIn 2s ease-in' }}>{eliminated.name}</h3>
+
+          <div style={{ marginTop: '30px', animation: 'fadeIn 3.5s ease-in', fontSize: '1.5rem', fontWeight: 'bold', color: wasImpostor ? 'var(--success)' : 'var(--danger)' }}>
+            {wasImpostor ? 'ERA UM IMPOSTOR!' : 'NÃO ERA O IMPOSTOR...'}
+          </div>
+        </div>
+      );
+    }
+
+    if (isAnimatingJudgement && !eliminated) {
+      return (
+        <div className="page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <h2 className="text-center" style={{ animation: 'fadeIn 1s ease-in' }}>Empate! Ninguém foi eliminado.</h2>
+        </div>
+      );
+    }
 
     return (
       <div className="page">
-        <div className="result-emoji">
+        <div className="result-emoji" style={{ animation: playerWon ? 'bounce 2s infinite' : 'shake 1s' }}>
           {gameResult.impostorsFound ? '🎉' : '😈'}
         </div>
 

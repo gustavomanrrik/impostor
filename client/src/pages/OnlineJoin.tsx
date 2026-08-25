@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { getSavedPlayerName } from '../services/localStorage';
+import { getSavedPlayerName, getSavedAvatar, saveAvatar } from '../services/localStorage';
+import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
 export function OnlineJoin() {
   const { navigate, joinRoom } = useGame();
   const [playerName, setPlayerName] = useState(getSavedPlayerName());
+  const [avatar, setAvatar] = useState(getSavedAvatar() || getRandomAvatar());
   const [roomCode, setRoomCode] = useState('');
 
   // Check URL for room code
@@ -18,7 +20,8 @@ export function OnlineJoin() {
 
   const handleJoin = () => {
     if (!playerName.trim() || !roomCode.trim()) return;
-    joinRoom(playerName.trim(), roomCode.trim());
+    saveAvatar(avatar);
+    joinRoom(playerName.trim(), avatar, roomCode.trim());
   };
 
   return (
@@ -34,17 +37,21 @@ export function OnlineJoin() {
 
       <div className="card">
         <div className="input-group">
-          <label className="input-label" htmlFor="join-name">Seu nome</label>
-          <input
-            id="join-name"
-            className="input"
-            type="text"
-            placeholder="Digite seu nome..."
-            value={playerName}
-            onChange={e => setPlayerName(e.target.value)}
-            maxLength={20}
-            autoComplete="off"
-          />
+          <label className="input-label" htmlFor="join-name">Seu nome e Avatar</label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <AvatarSelector selected={avatar} onSelect={setAvatar} />
+            <input
+              id="join-name"
+              className="input"
+              type="text"
+              placeholder="Digite seu nome..."
+              value={playerName}
+              onChange={e => setPlayerName(e.target.value)}
+              maxLength={20}
+              autoComplete="off"
+              style={{ flex: 1 }}
+            />
+          </div>
         </div>
 
         <div className="spacer-4" />

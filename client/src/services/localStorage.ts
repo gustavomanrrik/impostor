@@ -3,8 +3,10 @@
 // ============================================
 import type { GameHistoryEntry } from '@shared/types';
 
+const PLAYER_NAME_KEY = 'impostor_player_name';
+const AVATAR_KEY = 'impostor_avatar';
+
 const KEYS = {
-  PLAYER_NAME: 'impostor_playerName',
   PLAYED_GROUPS: 'impostor_playedGroups',
   HISTORY: 'impostor_history',
   SOUND_ENABLED: 'impostor_soundEnabled',
@@ -13,14 +15,26 @@ const KEYS = {
   LAST_PLAYER_ID: 'impostor_lastPlayerId',
 };
 
-// ─── Player Name ───────────────────────
+// ─── Player Name & Avatar ───────────────────────
 
 export function getSavedPlayerName(): string {
-  return localStorage.getItem(KEYS.PLAYER_NAME) || '';
+  return localStorage.getItem(PLAYER_NAME_KEY) || '';
 }
 
 export function savePlayerName(name: string): void {
-  localStorage.setItem(KEYS.PLAYER_NAME, name);
+  if (name.trim()) {
+    localStorage.setItem(PLAYER_NAME_KEY, name.trim());
+  }
+}
+
+export function getSavedAvatar(): string | null {
+  return localStorage.getItem(AVATAR_KEY);
+}
+
+export function saveAvatar(avatar: string): void {
+  if (avatar) {
+    localStorage.setItem(AVATAR_KEY, avatar);
+  }
 }
 
 // ─── Played Groups ───────────────────────

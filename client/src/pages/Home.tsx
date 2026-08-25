@@ -17,16 +17,26 @@ export function Home() {
 
       <div className="spacer-8" />
 
-      {/* Main Buttons */}
       <button
         className="btn btn-primary btn-xl"
         onClick={() => navigate('online-create')}
         aria-label="Jogar online"
         id="btn-online"
+        style={{ width: '100%', maxWidth: '300px' }}
       >
-        🌐 ONLINE
+        🌐 CRIAR SALA ONLINE
       </button>
-      <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '6px', marginBottom: '16px', textAlign: 'center' }}>
+
+      <button
+        className="btn btn-ghost"
+        onClick={() => navigate('online-join')}
+        style={{ color: 'var(--accent-primary)', marginTop: '8px', border: '1px solid rgba(139, 92, 246, 0.3)', background: 'var(--bg-glass)', width: '100%', maxWidth: '300px', padding: '12px' }}
+        id="btn-join-room"
+      >
+        Entrar com código →
+      </button>
+      
+      <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '6px', marginBottom: '24px', textAlign: 'center' }}>
         Jogue com pessoas em dispositivos diferentes
       </p>
 
@@ -35,11 +45,12 @@ export function Home() {
         onClick={() => navigate('local-setup')}
         aria-label="Jogar localmente"
         id="btn-local"
+        style={{ width: '100%', maxWidth: '300px' }}
       >
-        📱 LOCAL
+        📱 JOGAR LOCAL
       </button>
       <p className="text-muted" style={{ fontSize: '0.85rem', marginTop: '6px', textAlign: 'center' }}>
-        Jogue no mesmo dispositivo
+        Passem o celular entre si
       </p>
 
       <div className="spacer-8" />
@@ -59,15 +70,6 @@ export function Home() {
 
       <div className="spacer-8" />
 
-      {/* Enter room with code */}
-      <button
-        className="btn btn-ghost"
-        onClick={() => navigate('online-join')}
-        style={{ color: 'var(--accent-primary)' }}
-        id="btn-join-room"
-      >
-        Entrar em uma sala com código →
-      </button>
     </div>
   );
 }

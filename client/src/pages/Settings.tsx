@@ -3,15 +3,17 @@ import { useGame } from '../context/GameContext';
 import {
   isSoundEnabled, setSoundEnabled,
   isAnimationsEnabled, setAnimationsEnabled,
-  clearHistory, clearPlayedGroups, getSavedPlayerName, savePlayerName,
+  clearHistory, clearPlayedGroups, getSavedPlayerName, savePlayerName, getSavedAvatar, saveAvatar
 } from '../services/localStorage';
 import { setSoundsEnabled } from '../services/sounds';
+import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
 export function Settings() {
   const { navigate, addToast } = useGame();
   const [sound, setSound] = React.useState(isSoundEnabled());
   const [animations, setAnimations] = React.useState(isAnimationsEnabled());
   const [playerName, setPlayerName] = React.useState(getSavedPlayerName());
+  const [avatar, setAvatar] = React.useState(getSavedAvatar() || getRandomAvatar());
 
   return (
     <div className="page">
@@ -25,18 +27,28 @@ export function Settings() {
 
       <div className="card" style={{ marginBottom: '12px' }}>
         <div className="input-group">
-          <label className="input-label" htmlFor="settings-name">Nome padrão</label>
-          <input
-            id="settings-name"
-            className="input"
-            value={playerName}
-            onChange={e => {
-              setPlayerName(e.target.value);
-              savePlayerName(e.target.value);
-            }}
-            maxLength={20}
-            placeholder="Seu nome..."
-          />
+          <label className="input-label" htmlFor="settings-name">Nome e Avatar padrão</label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <AvatarSelector 
+              selected={avatar} 
+              onSelect={(val) => {
+                setAvatar(val);
+                saveAvatar(val);
+              }} 
+            />
+            <input
+              id="settings-name"
+              className="input"
+              value={playerName}
+              onChange={e => {
+                setPlayerName(e.target.value);
+                savePlayerName(e.target.value);
+              }}
+              maxLength={20}
+              placeholder="Seu nome..."
+              style={{ flex: 1 }}
+            />
+          </div>
         </div>
       </div>
 

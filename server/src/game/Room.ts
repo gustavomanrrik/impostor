@@ -24,6 +24,7 @@ export class Room {
   private customTheme: CustomTheme | null = null;
   private disconnectTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private skipVotes: Set<string> = new Set();
+  private totalSubmittedWords: number = 0;
 
   // Socket IDs mapeados para player IDs (para reconexão)
   private socketToPlayer: Map<string, string> = new Map();
@@ -58,7 +59,7 @@ export class Room {
 
   // ─── Player Management ─────────────────────
 
-  addPlayer(socketId: string, name: string): Player | null {
+  addPlayer(socketId: string, name: string, avatar: string): Player | null {
     if (this.players.size >= 8) return null;
     if (this.state !== GameState.LOBBY) return null;
 
@@ -75,6 +76,7 @@ export class Room {
     const player: Player = {
       id: playerId,
       name,
+      avatar,
       isHost,
       isConnected: true,
       hasSeenWord: false,
@@ -211,10 +213,16 @@ export class Room {
       this.config.theme = 'custom';
     }
     const cleanWord = word.trim();
-    if (!cleanWord || this.customTheme.words.includes(cleanWord)) {
-      return false;
+    if (!cleanWord) return false;
+
+    // Incrementa sempre para esconder de quem enviou que a palavra foi repetida
+    this.totalSubmittedWords++;
+
+    const isDuplicate = this.customTheme.words.some(w => w.toLowerCase() === cleanWord.toLowerCase());
+    if (!isDuplicate) {
+      this.customTheme.words.push(cleanWord);
     }
-    this.customTheme.words.push(cleanWord);
+    
     return true;
   }
 
@@ -222,7 +230,11 @@ export class Room {
     if (!this.customTheme) return false;
     const initialLength = this.customTheme.words.length;
     this.customTheme.words = this.customTheme.words.filter(w => w !== word);
-    return this.customTheme.words.length < initialLength;
+    if (this.customTheme.words.length < initialLength) {
+      this.totalSubmittedWords = Math.max(0, this.totalSubmittedWords - 1);
+      return true;
+    }
+    return false;
   }
 
   getCustomThemeWords(): string[] {
@@ -238,6 +250,13 @@ export class Room {
 
     if (this.players.size < 3) {
       return { success: false, error: 'São necessários pelo menos 3 jogadores.' };
+    }
+
+    // Validar custom theme
+    if (this.config.theme === 'custom' && this.customTheme) {
+      if (this.customTheme.words.length < 4) {
+        return { success: false, error: `O tema precisa de 4 palavras ÚNICAS. No momento temos apenas ${this.customTheme.words.length}.` };
+      }
     }
 
     if (!this.stateMachine.canTransition(GameState.STARTING)) {
@@ -497,6 +516,7 @@ export class Room {
     const publicPlayers: PublicPlayer[] = Array.from(this.players.values()).map(p => ({
       id: p.id,
       name: p.name,
+      avatar: p.avatar,
       isHost: p.isHost,
       isConnected: p.isConnected,
       hasSeenWord: p.hasSeenWord || false,
@@ -513,10 +533,10 @@ export class Room {
       hostId: this.hostId,
       voteRequestCount: this.voteRequests.size,
       voteRequestsNeeded: this.getVoteRequestsNeeded(),
-      votesRegistered: this.votes.size,
+      votesRegistered: Array.from(this.players.values()).filter(p => p.hasVoted).length,
       totalPlayers: this.players.size,
       round: this.round,
-      customThemeWordCount: this.customTheme?.words.length || 0,
+      customThemeWordCount: this.totalSubmittedWords,
     };
   }
 

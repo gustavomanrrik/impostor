@@ -31,6 +31,7 @@ export enum ImpostorMode {
 export interface Player {
   id: string;
   name: string;
+  avatar: string;
   isHost: boolean;
   isConnected: boolean;
   isImpostor?: boolean; // Só visível no resultado
@@ -130,6 +131,7 @@ export interface RoomPublicState {
 export interface PublicPlayer {
   id: string;
   name: string;
+  avatar: string;
   isHost: boolean;
   isConnected: boolean;
   hasSeenWord: boolean;
@@ -158,8 +160,8 @@ export interface GameHistoryEntry {
 // Eventos do Client → Server
 export interface ClientToServerEvents {
   // Lobby
-  'room:create': (data: { playerName: string; config: RoomConfig; customTheme?: CustomTheme }) => void;
-  'room:join': (data: { playerName: string; roomCode: string }) => void;
+  'room:create': (data: { playerName: string; avatar: string; config: RoomConfig; customTheme?: CustomTheme }) => void;
+  'room:join': (data: { playerName: string; avatar: string; roomCode: string }) => void;
   'room:leave': () => void;
   'room:updateConfig': (config: Partial<RoomConfig>) => void;
   'room:kick': (playerId: string) => void;
@@ -173,6 +175,7 @@ export interface ClientToServerEvents {
   'game:voteSkip': () => void; // Pular rodada
   'game:nextRound': () => void;
   'game:changeTheme': () => void;
+  'game:reaction': (reaction: string) => void;
 
   // Custom Theme
   'theme:setCustom': (theme: CustomTheme) => void;
@@ -206,6 +209,7 @@ export interface ServerToClientEvents {
   'game:voteRegistered': (data: { votesCount: number; totalPlayers: number }) => void;
   'game:result': (result: GameResult) => void;
   'game:roundReset': (roomState: RoomPublicState) => void;
+  'game:reactionReceived': (data: { playerId: string; reaction: string }) => void;
 
   // Reconnection
   'room:reconnected': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean }) => void;

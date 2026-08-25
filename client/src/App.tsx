@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { Home } from './pages/Home';
 import { OnlineCreate } from './pages/OnlineCreate';
@@ -12,13 +12,39 @@ import { Settings } from './pages/Settings';
 import { History } from './pages/History';
 import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
-
-function AppContent() {
+function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
   const { page, toasts, showSuspense } = useGame();
+
+  // Botão global de troca de tema no canto superior
+  const ThemeToggle = () => (
+    <button 
+      onClick={toggleTheme}
+      style={{
+        position: 'fixed',
+        top: '16px',
+        right: '16px',
+        zIndex: 50,
+        background: 'var(--bg-glass-strong)',
+        border: 'none',
+        borderRadius: '50%',
+        width: '40px',
+        height: '40px',
+        cursor: 'pointer',
+        fontSize: '1.2rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: 'var(--shadow-md)',
+      }}
+    >
+      {theme === 'light' ? '🌙' : '☀️'}
+    </button>
+  );
 
   return (
     <>
       <div className="bg-pattern" />
+      <ThemeToggle />
       <ToastContainer toasts={toasts} />
       {showSuspense && <SuspenseReveal />}
 
@@ -35,11 +61,23 @@ function AppContent() {
     </>
   );
 }
-
 export default function App() {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
   return (
     <GameProvider>
-      <AppContent />
+      <AppContent toggleTheme={toggleTheme} theme={theme} />
     </GameProvider>
   );
 }

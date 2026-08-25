@@ -74,6 +74,22 @@
   --font-body: 'Inter', sans-serif;
 }
 
+.light-theme {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card-hover: rgba(255, 255, 255, 1);
+  --bg-glass: rgba(0, 0, 0, 0.05);
+  --bg-glass-strong: rgba(0, 0, 0, 0.1);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-accent: #6d28d9;
+  
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.1);
+}
+
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
@@ -152,6 +168,7 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
 @media (min-width: 768px) {
   .page {
     padding-top: var(--space-16);
+    max-width: 650px;
   }
 }
 
@@ -1008,4 +1025,70 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
   height: 10px;
   border-radius: 2px;
   animation: confetti 2s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(-10px) scale(1.1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-20px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-80px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(-5deg); }
+  50% { transform: translateX(5px) rotate(5deg); }
+  75% { transform: translateX(-5px) rotate(-5deg); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.reaction-bubble {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.reaction-bubble .avatar {
+  font-size: 1.5rem;
+}
+.reaction-bubble .text {
+  font-size: 1rem;
 }

@@ -127,9 +127,12 @@ export function Lobby() {
           {roomState.players.map(player => (
             <div key={player.id} className="player-item">
               <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
-              <span className="player-name">
-                {player.name}
-                {player.id === playerId && ' (você)'}
+              <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.2rem' }}>{player.avatar || '👤'}</span>
+                <span>
+                  {player.name}
+                  {player.id === playerId && ' (você)'}
+                </span>
               </span>
               {player.isHost && <span className="player-badge">HOST</span>}
               {!player.isConnected && (
