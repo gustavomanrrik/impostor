@@ -5,7 +5,7 @@ import { AvatarDisplay } from '../components/AvatarDisplay';
 import { compressImage } from '../utils/image';
 
 export function Game() {
-  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, sendReaction, activeReactions } = useGame();
+  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, sendReaction, activeReactions, themes } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
   const [wordSeen, setWordSeen] = useState(false);
   const [selectedVote, setSelectedVote] = useState<string | null>(null);
@@ -32,19 +32,27 @@ export function Game() {
 
   const currentPlayer = roomState.players.find(p => p.id === playerId);
   const isHost = roomState.hostId === playerId;
+  
+  const themeName = roomState.config.theme === 'custom' 
+    ? 'Colaborativo' 
+    : themes.find(t => t.id === roomState.config.theme)?.name || 'Desconhecido';
 
   // ─── WORD REVEAL PHASE ───────────────────────
   if (roomState.state === GameState.WORD_REVEAL || (roomState.state === GameState.DISCUSSION && !wordSeen)) {
     return (
       <div className="page">
-        <h3 className="text-center" style={{ marginBottom: '8px' }}>Sua palavra é:</h3>
+        <h3 className="text-center" style={{ marginBottom: '4px' }}>Sua palavra é:</h3>
+        
+        <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Tema: <strong>{themeName}</strong>
+        </p>
 
         {wordVisible ? (
-          <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
             <div className="word-display word-visible text-gradient">
               {myWord || '...'}
             </div>
-            <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginBottom: '16px' }}>
+            <p className="text-muted text-center" style={{ fontSize: '0.85rem' }}>
               🤫 Não mostre sua palavra para ninguém.
             </p>
             <button
@@ -53,13 +61,13 @@ export function Game() {
             >
               👁 Esconder palavra
             </button>
-          </>
+          </div>
         ) : (
-          <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
             <div className="word-display word-hidden" aria-hidden="true" style={{ color: 'var(--text-muted)' }}>
               ••••••••
             </div>
-            <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginBottom: '16px' }}>
+            <p className="text-muted text-center" style={{ fontSize: '0.85rem' }}>
               Palavra escondida
             </p>
             <button
@@ -68,7 +76,7 @@ export function Game() {
             >
               👁 Mostrar palavra
             </button>
-          </>
+          </div>
         )}
 
         {!wordSeen && (
@@ -571,6 +579,13 @@ export function Game() {
         {/* Reveal */}
         <div className="result-words">
           <div className="card">
+            <div style={{ marginBottom: '12px' }}>
+              <span className="result-word-label">Tema</span>
+              <p className="result-word" style={{ color: 'var(--text)' }}>
+                {gameResult.themeName}
+              </p>
+            </div>
+            
             <div style={{ marginBottom: '12px' }}>
               <span className="result-word-label">
                 {gameResult.totalImpostors > 1 ? 'Os impostores eram:' : 'O impostor era:'}
