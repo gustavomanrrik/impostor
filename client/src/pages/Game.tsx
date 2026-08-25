@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
+import { AvatarDisplay } from '../components/AvatarDisplay';
+import { compressImage } from '../utils/image';
 
 export function Game() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, sendReaction, activeReactions } = useGame();
@@ -13,6 +15,7 @@ export function Game() {
   const [isAnimatingJudgement, setIsAnimatingJudgement] = useState(false);
   const [customReaction, setCustomReaction] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const reactionImageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (roomState?.state === GameState.RESULT && gameResult) {
@@ -106,6 +109,8 @@ export function Game() {
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 100 }}>
           {activeReactions.map(r => {
             const isMe = r.playerId === playerId;
+            const player = roomState.players.find(p => p.id === r.playerId);
+            const isImage = r.reaction.startsWith('data:image/');
             return (
               <div
                 key={r.id}
@@ -118,8 +123,14 @@ export function Game() {
                 }}
                 className="reaction-bubble"
               >
-                <span className="avatar">{roomState.players.find(p => p.id === r.playerId)?.avatar}</span>
-                <span className="text">{r.reaction}</span>
+                <div className="avatar" style={{ display: 'flex', alignItems: 'center' }}>
+                  <AvatarDisplay avatar={player?.avatar || ''} size="1.5rem" />
+                </div>
+                {isImage ? (
+                  <img src={r.reaction} alt="Reaction" style={{ maxHeight: '100px', maxWidth: '100px', borderRadius: '8px', objectFit: 'contain' }} />
+                ) : (
+                  <span className="text">{r.reaction}</span>
+                )}
               </div>
             );
           })}
@@ -197,8 +208,8 @@ export function Game() {
           {/* Players who requested */}
           <div style={{ marginTop: '8px' }}>
             {roomState.players.filter(p => p.hasRequestedVote).map(p => (
-              <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px' }}>
-                🗳️ {p.avatar} {p.name}
+              <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
               </span>
             ))}
           </div>
@@ -230,33 +241,74 @@ export function Game() {
             }}
             style={{ display: 'flex', gap: '8px', position: 'relative' }}
           >
-            <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
-              <button 
-                type="button" 
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                style={{
-                  position: 'absolute',
-                  left: '8px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  fontSize: '1.2rem',
-                  opacity: 0.7
-                }}
-              >
-                😊
-              </button>
+            <div style={{ position: 'relative', flex: 1, display: 'flex', gap: '4px' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  style={{
+                    position: 'absolute',
+                    left: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    opacity: 0.7
+                  }}
+                >
+                  😊
+                </button>
+                <input
+                  type="text"
+                  className="input"
+                  style={{ width: '100%', padding: '8px 40px', fontSize: '0.9rem' }}
+                  placeholder="Ou digite algo..."
+                  maxLength={30}
+                  value={customReaction}
+                  onChange={(e) => setCustomReaction(e.target.value)}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => reactionImageInputRef.current?.click()}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    opacity: 0.7
+                  }}
+                  title="Enviar Imagem"
+                >
+                  📸
+                </button>
+              </div>
               <input
-                type="text"
-                className="input"
-                style={{ width: '100%', padding: '8px 12px 8px 36px', fontSize: '0.9rem' }}
-                placeholder="Ou digite algo..."
-                maxLength={30}
-                value={customReaction}
-                onChange={(e) => setCustomReaction(e.target.value)}
+                type="file"
+                ref={reactionImageInputRef}
+                style={{ display: 'none' }}
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const base64Image = await compressImage(file, 150);
+                    sendReaction(base64Image);
+                  } catch (err) {
+                    console.error('Falha ao processar imagem:', err);
+                    alert('Erro ao enviar imagem. Tente outra.');
+                  }
+                  if (reactionImageInputRef.current) {
+                    reactionImageInputRef.current.value = '';
+                  }
+                }}
               />
             </div>
             <button 
@@ -366,7 +418,9 @@ export function Game() {
           <div className="text-muted" style={{ fontSize: '0.85rem', textAlign: 'center' }}>
             <p style={{ marginBottom: '4px' }}>Aguardando:</p>
             {roomState.players.filter(p => !p.hasVoted).map(p => (
-              <span key={p.id} style={{ marginRight: '8px' }}>• {p.avatar} {p.name}</span>
+              <span key={p.id} style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                • <AvatarDisplay avatar={p.avatar} size="1rem" /> {p.name}
+              </span>
             ))}
           </div>
         </div>
@@ -397,7 +451,7 @@ export function Game() {
               <div className="vote-radio">
                 <div className="vote-radio-inner" />
               </div>
-              <span style={{ fontSize: '1.2rem' }}>{player.avatar}</span>
+              <AvatarDisplay avatar={player.avatar} size="1.5rem" />
               <span style={{ fontWeight: 500 }}>{player.name}</span>
             </div>
           ))}
@@ -454,8 +508,8 @@ export function Game() {
           </h2>
           
           <div style={{ position: 'relative', width: '150px', height: '150px', animation: 'shake 0.5s infinite alternate' }}>
-            <div style={{ fontSize: '6rem', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {eliminatedAvatar}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AvatarDisplay avatar={eliminatedAvatar} size="6rem" />
             </div>
             {/* Grades da prisão (CSS simples) */}
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'repeating-linear-gradient(90deg, transparent, transparent 30px, #333 30px, #333 40px)', animation: 'slideDown 1s ease-out forwards', opacity: 0.8 }} />

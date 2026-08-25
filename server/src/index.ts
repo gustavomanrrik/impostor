@@ -52,7 +52,8 @@ app.get('/api/themes', (_req, res) => {
     id: t.id,
     name: t.name,
     icon: t.icon,
-    groupCount: t.pairs.easy.length + t.pairs.medium.length + t.pairs.hard.length
+    is18Plus: t.is18Plus,
+    groupCount: t.pairs.easy.length
   })));
 });
 

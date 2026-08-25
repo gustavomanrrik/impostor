@@ -38,7 +38,7 @@ export function OnlineJoin() {
       <div className="card">
         <div className="input-group">
           <label className="input-label" htmlFor="join-name">Seu nome e Avatar</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <AvatarSelector selected={avatar} onSelect={setAvatar} />
             <input
               id="join-name"
@@ -49,7 +49,7 @@ export function OnlineJoin() {
               onChange={e => setPlayerName(e.target.value)}
               maxLength={20}
               autoComplete="off"
-              style={{ flex: 1 }}
+              style={{ flex: 1, height: '48px' }}
             />
           </div>
         </div>

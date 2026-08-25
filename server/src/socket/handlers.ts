@@ -272,6 +272,21 @@ export function registerSocketHandlers(
       }
     });
 
+    // ─── VOTAR PULAR RODADA ───────────────────
+    socket.on('room:voteSkip', () => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      const result = room.voteSkip(playerId);
+      io.to(room.code).emit('room:updated', room.getPublicState());
+
+      if (result.skipped) {
+        console.log(`[Room ${room.code}] Rodada pulada!`);
+      }
+    });
+
     // ─── VOTAR ─────────────────────────
 
     socket.on('game:vote', (votedForId) => {

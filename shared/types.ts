@@ -68,6 +68,7 @@ export interface Theme {
   id: string;
   name: string;
   icon: string;
+  is18Plus?: boolean;
   pairs: ThemePairs;
 }
 

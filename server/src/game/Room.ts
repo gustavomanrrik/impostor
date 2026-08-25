@@ -57,6 +57,13 @@ export class Room {
     return this.hostId;
   }
 
+  // ─── Configuration ─────────────────────────
+  updateConfig(playerId: string, newConfig: Partial<RoomConfig>): boolean {
+    if (playerId !== this.hostId) return false;
+    this.config = { ...this.config, ...newConfig };
+    return true;
+  }
+
   // ─── Player Management ─────────────────────
 
   addPlayer(socketId: string, name: string, avatar: string): Player | null {
