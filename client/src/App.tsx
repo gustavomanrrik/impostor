@@ -12,8 +12,11 @@ import { Settings } from './pages/Settings';
 import { History } from './pages/History';
 import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
+import { Chat } from './components/Chat';
+
 function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
   const { page, toasts, showSuspense } = useGame();
+  const showChat = page === 'lobby' || page === 'game';
 
   // Botão global de troca de tema no canto superior
   const ThemeToggle = () => (
@@ -48,16 +51,26 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       <ToastContainer toasts={toasts} />
       {showSuspense && <SuspenseReveal />}
 
-      {page === 'home' && <Home />}
-      {page === 'online-create' && <OnlineCreate />}
-      {page === 'online-join' && <OnlineJoin />}
-      {page === 'lobby' && <Lobby />}
-      {page === 'game' && <Game />}
-      {page === 'local-setup' && <LocalSetup />}
-      {page === 'local-game' && <LocalGame />}
-      {page === 'how-to-play' && <HowToPlay />}
-      {page === 'settings' && <Settings />}
-      {page === 'history' && <History />}
+      <div className={`app-layout ${showChat ? 'with-chat' : ''}`}>
+        <div className="main-content">
+          {page === 'home' && <Home />}
+          {page === 'online-create' && <OnlineCreate />}
+          {page === 'online-join' && <OnlineJoin />}
+          {page === 'lobby' && <Lobby />}
+          {page === 'game' && <Game />}
+          {page === 'local-setup' && <LocalSetup />}
+          {page === 'local-game' && <LocalGame />}
+          {page === 'how-to-play' && <HowToPlay />}
+          {page === 'settings' && <Settings />}
+          {page === 'history' && <History />}
+        </div>
+        
+        {showChat && (
+          <div className="sidebar-content fade-in">
+            <Chat />
+          </div>
+        )}
+      </div>
     </>
   );
 }

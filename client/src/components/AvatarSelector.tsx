@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { compressImage } from '../utils/image';
 import { AvatarDisplay } from './AvatarDisplay';
 
-const AVATARS = ['🐵', '🐶', '🐺', '🐱', '🦁', '🐯', '🦒', '🦊', '🦝', '🐻', '🐼', '🐨', '🐸', '🐔', '🐧', '🦉', '🦄', '🐝', '🐢', '🦖'];
+const AVATARS = ['☻', '☺', '♥', '♦', '♣', '♠', '★', '☆', '☎', '♫', '☼', '☽', '☁', '☂', '☃', '☢', '☣', '☯', '☮', '♨'];
 
 export function getRandomAvatar(): string {
   return AVATARS[Math.floor(Math.random() * AVATARS.length)];
@@ -85,7 +85,7 @@ export function AvatarSelector({ selected, onSelect }: Props) {
           borderRadius: 'var(--radius-lg)',
           padding: '12px',
           boxShadow: 'var(--shadow-lg)',
-          zIndex: 100,
+          zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
           gap: '12px',

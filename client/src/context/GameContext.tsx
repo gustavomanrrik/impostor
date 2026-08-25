@@ -60,6 +60,10 @@ interface GameContextType {
   resetScores: () => void;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   
+  // Chat
+  chatMessages: ChatMessage[];
+  sendChatMessage: (text: string) => void;
+  
   // Custom Theme Collaboration
   customThemeWords: string[];
   addCustomWord: (word: string) => void;
@@ -123,6 +127,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [showSuspense, setShowSuspense] = useState(false);
   const [customThemeWords, setCustomThemeWords] = useState<string[]>([]);
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const hasSetupListeners = useRef(false);
 
   // ─── Toast ───────────────────────
@@ -406,12 +411,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:reaction', reaction);
   }, []);
 
+  const sendChatMessage = useCallback((text: string) => {
+    getSocket().emit('chat:sendMessage', text);
+  }, []);
+
   const value: GameContextType = {
     page, navigate,
     roomState, playerId, myWord, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
     sendReaction, resetScores, activeReactions,
+    chatMessages, sendChatMessage,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,

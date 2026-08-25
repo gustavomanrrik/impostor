@@ -300,6 +300,28 @@ export function registerSocketHandlers(
       }
     });
 
+    // ─── CHAT ─────────────────────────────
+    socket.on('chat:sendMessage', (text: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room || !text || text.trim() === '') return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      const player = room.getPublicState().players.find(p => p.id === playerId);
+      if (!player) return;
+
+      const message = {
+        id: Math.random().toString(36).substring(2, 9),
+        playerId,
+        playerName: player.name,
+        text: text.trim().substring(0, 200), // Limit text length
+        timestamp: Date.now(),
+      };
+
+      io.to(room.code).emit('chat:newMessage', message);
+    });
+
     // ─── VOTAR ─────────────────────────
 
     socket.on('game:vote', (votedForId) => {

@@ -27,6 +27,14 @@ export enum ImpostorMode {
   CUSTOM = 'CUSTOM',
 }
 
+export interface ChatMessage {
+  id: string;
+  playerId: string;
+  playerName: string;
+  text: string;
+  timestamp: number;
+}
+
 // Jogador
 export interface Player {
   id: string;
