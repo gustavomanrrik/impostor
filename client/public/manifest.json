@@ -1,0 +1,19 @@
+{
+  "name": "Impostor",
+  "short_name": "Impostor",
+  "description": "Jogo de palavras multiplayer - Descubra quem recebeu a palavra diferente!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0a1e",
+  "theme_color": "#0f0a1e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"]
+}
