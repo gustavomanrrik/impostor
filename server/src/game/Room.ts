@@ -560,14 +560,7 @@ export class Room {
   // ─── Helpers ─────────────────────────────
 
   private getImpostorCount(): number {
-    if (this.config.impostorMode === ImpostorMode.CUSTOM) {
-      return Math.min(this.config.customImpostorCount, this.players.size - 1);
-    }
-
-    // Automático
-    const count = this.players.size;
-    if (count <= 4) return 1;
-    return 2; // 5-8 jogadores
+    return Math.max(1, Math.min(this.config.customImpostorCount, this.players.size - 1));
   }
 
   private getVoteRequestsNeeded(): number {

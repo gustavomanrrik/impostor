@@ -164,10 +164,7 @@ export function Game() {
 
         {roomState.config.showImpostorCount && (
           <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
-            Há {roomState.config.impostorMode === 'AUTO'
-              ? (roomState.totalPlayers <= 4 ? '1 impostor' : '2 impostores')
-              : `${roomState.config.customImpostorCount} impostor${roomState.config.customImpostorCount > 1 ? 'es' : ''}`
-            } entre vocês.
+            Há {roomState.config.customImpostorCount} impostor{roomState.config.customImpostorCount > 1 ? 'es' : ''} entre vocês.
           </p>
         )}
 

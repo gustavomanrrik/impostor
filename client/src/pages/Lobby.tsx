@@ -221,28 +221,46 @@ export function Lobby() {
               <div className="config-panel">
                 <div className="input-group">
                   <label className="input-label">Tema</label>
-                  <div className="theme-grid">
-                    {themes.map(theme => (
-                      <div
-                        key={theme.id}
-                        className={`theme-card ${config.theme === theme.id ? 'selected' : ''}`}
-                        onClick={() => handleThemeSelect(theme.id)}
-                        style={theme.is18Plus && !hasConfirmed18 ? { filter: 'blur(3px)' } : {}}
-                      >
-                        <span className="theme-icon">{theme.icon}</span>
-                        <span className="theme-name">{theme.name}</span>
-                        <span className="theme-count">{theme.groupCount} grupos</span>
-                      </div>
-                    ))}
-                    
-                    <div
-                      className={`theme-card ${config.theme === 'custom' ? 'selected' : ''}`}
-                      onClick={() => updateConfig({ theme: 'custom' })}
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => document.getElementById('theme-grid-container')?.scrollBy({ left: -200, behavior: 'smooth' })}
+                      style={{ position: 'absolute', left: -20, zIndex: 10, background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      title="Anterior"
                     >
-                      <span className="theme-icon">🤝</span>
-                      <span className="theme-name">Colaborativo</span>
-                      <span className="theme-count">Envio Livre</span>
+                      ◀
+                    </button>
+                    <div className="theme-grid" id="theme-grid-container" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {themes.map(theme => (
+                        <div
+                          key={theme.id}
+                          className={`theme-card ${config.theme === theme.id ? 'selected' : ''}`}
+                          onClick={() => handleThemeSelect(theme.id)}
+                          style={theme.is18Plus && !hasConfirmed18 ? { filter: 'blur(3px)' } : {}}
+                        >
+                          <span className="theme-icon">{theme.icon}</span>
+                          <span className="theme-name">{theme.name}</span>
+                          <span className="theme-count">{theme.groupCount} grupos</span>
+                        </div>
+                      ))}
+                      
+                      <div
+                        className={`theme-card ${config.theme === 'custom' ? 'selected' : ''}`}
+                        onClick={() => updateConfig({ theme: 'custom' })}
+                      >
+                        <span className="theme-icon">🤝</span>
+                        <span className="theme-name">Colaborativo</span>
+                        <span className="theme-count">Envio Livre</span>
+                      </div>
                     </div>
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => document.getElementById('theme-grid-container')?.scrollBy({ left: 200, behavior: 'smooth' })}
+                      style={{ position: 'absolute', right: -20, zIndex: 10, background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      title="Próximo"
+                    >
+                      ▶
+                    </button>
                   </div>
                 </div>
 
@@ -267,23 +285,21 @@ export function Lobby() {
                         </button>
                       </div>
                       
-                      {!config.useFlatMode && (
-                        <div className="difficulty-selector">
-                          {[
-                            { value: Difficulty.EASY, label: '😊 Fácil' },
-                            { value: Difficulty.MEDIUM, label: '🤔 Médio' },
-                            { value: Difficulty.HARD, label: '😈 Difícil' },
-                          ].map(d => (
-                            <div
-                              key={d.value}
-                              className={`difficulty-option ${config.difficulty === d.value ? 'selected' : ''}`}
-                              onClick={() => updateConfig({ difficulty: d.value })}
-                            >
-                              {d.label}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <div className="difficulty-selector">
+                        {[
+                          { value: Difficulty.EASY, label: '😊 Fácil' },
+                          { value: Difficulty.MEDIUM, label: '🤔 Médio' },
+                          { value: Difficulty.HARD, label: '😈 Difícil' },
+                        ].map(d => (
+                          <div
+                            key={d.value}
+                            className={`difficulty-option ${config.difficulty === d.value ? 'selected' : ''}`}
+                            onClick={() => updateConfig({ difficulty: d.value })}
+                          >
+                            {d.label}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </>
                 )}
@@ -292,35 +308,18 @@ export function Lobby() {
                 
                 <div className="input-group">
                   <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Impostores</label>
-                  <div className="difficulty-selector" style={{ marginBottom: '8px' }}>
-                    <div
-                      className={`difficulty-option ${config.impostorMode === ImpostorMode.AUTO ? 'selected' : ''}`}
-                      onClick={() => updateConfig({ impostorMode: ImpostorMode.AUTO })}
-                    >
-                      🤖 Automático
-                    </div>
-                    <div
-                      className={`difficulty-option ${config.impostorMode === ImpostorMode.CUSTOM ? 'selected' : ''}`}
-                      onClick={() => updateConfig({ impostorMode: ImpostorMode.CUSTOM })}
-                    >
-                      ✏️ Fixo
-                    </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {[1, 2, 3].map(n => (
+                      <div
+                        key={n}
+                        className={`difficulty-option ${config.customImpostorCount === n ? 'selected' : ''}`}
+                        onClick={() => updateConfig({ customImpostorCount: n, impostorMode: ImpostorMode.CUSTOM })}
+                        style={{ flex: 1 }}
+                      >
+                        {n}
+                      </div>
+                    ))}
                   </div>
-                  
-                  {config.impostorMode === ImpostorMode.CUSTOM && (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      {[1, 2, 3].map(n => (
-                        <div
-                          key={n}
-                          className={`difficulty-option ${config.customImpostorCount === n ? 'selected' : ''}`}
-                          onClick={() => updateConfig({ customImpostorCount: n })}
-                          style={{ flex: 1 }}
-                        >
-                          {n}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             ) : (
@@ -330,7 +329,8 @@ export function Lobby() {
                   {config.theme !== 'custom' && (
                     <><strong>Modo:</strong> {config.useFlatMode ? 'Palavras Soltas' : 'Pares'}<br/></>
                   )}
-                  <strong>Impostores:</strong> {config.impostorMode === ImpostorMode.AUTO ? 'Automático' : config.customImpostorCount}
+                  <strong>Dificuldade:</strong> {config.difficulty === Difficulty.EASY ? 'Fácil' : config.difficulty === Difficulty.MEDIUM ? 'Médio' : 'Difícil'}<br/>
+                  <strong>Impostores:</strong> {config.customImpostorCount}
                 </p>
               </div>
             )}
