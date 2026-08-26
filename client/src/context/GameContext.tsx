@@ -207,7 +207,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(true);
       // Try reconnection
       const data = getReconnectionData();
-      if (data && page !== 'home') {
+      if (data) {
         socket.emit('room:reconnect', data);
       }
     });

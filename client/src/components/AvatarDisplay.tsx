@@ -29,6 +29,22 @@ export function AvatarDisplay({ avatar, size = '1.2rem' }: Props) {
   }
 
   // Se for emoji (padrão)
-  const fontSize = size === '100%' ? '1.8rem' : size;
-  return <span style={{ fontSize }}>{avatar}</span>;
+  const pxSize = typeof size === 'number' ? `${size}px` : size;
+  return (
+    <div
+      style={{
+        width: pxSize,
+        height: pxSize,
+        borderRadius: 'var(--radius-full)',
+        border: '3px solid var(--text-primary)',
+        backgroundColor: 'var(--bg-glass-strong)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: `calc(${pxSize} * 0.6)`
+      }}
+    >
+      {avatar}
+    </div>
+  );
 }
