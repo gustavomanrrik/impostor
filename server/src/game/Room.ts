@@ -402,7 +402,8 @@ export class Room {
       p.isWinner = false;
       p.hasBeenDiscovered = false;
       p.discoveredNumbers = [];
-      p.testaLivesLeft = this.config.numbersLives || 0;
+      p.numbersLivesLeft = this.config.numbersLives || 0;
+      p.numbersLastChance = false;
     }
 
     const min = this.config.numbersMin || 1;
@@ -827,10 +828,19 @@ export class Room {
     const target = this.players.get(targetId);
     
     if (!player || !target || playerId === targetId) return false;
-    if (target.hasBeenDiscovered || player.hasBeenDiscovered) return false;
+    // Block if player is discovered and has no last chance, or if target is already discovered
+    if ((player.hasBeenDiscovered && !player.numbersLastChance) || target.hasBeenDiscovered) return false;
+
+    // Consume last chance
+    if (player.numbersLastChance) {
+      player.numbersLastChance = false;
+      // We will check game over at the end of this function since they consumed their last chance
+    }
 
     if (target.numberValue === guess) {
       target.hasBeenDiscovered = true;
+      target.numbersLastChance = true;
+      
       if (!player.discoveredNumbers) player.discoveredNumbers = [];
       player.discoveredNumbers.push(targetId);
       
@@ -842,14 +852,16 @@ export class Room {
       return true;
     } else {
       if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
-        if (player.testaLivesLeft !== undefined && player.testaLivesLeft > 0) {
-          player.testaLivesLeft--;
-          if (player.testaLivesLeft <= 0) {
-            player.hasBeenDiscovered = true; // Eliminated
+        if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
+          player.numbersLivesLeft--;
+          if (player.numbersLivesLeft <= 0) {
+            player.hasBeenDiscovered = true; // Eliminated (no last chance for dying of wrong guesses)
             this.checkNumbersGameOver();
           }
         }
       }
+      // Check game over in case this was a last chance guess
+      this.checkNumbersGameOver();
       return false; // Wrong guess
     }
   }
@@ -857,9 +869,10 @@ export class Room {
     private checkNumbersGameOver() {
       const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
       const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
+      const hasLastChance = activePlayers.some(p => p.numbersLastChance);
 
-    if (undiscovered.length <= 1) {
-      // Game over if 1 or 0 players left undiscovered!
+    if (undiscovered.length <= 1 && !hasLastChance) {
+      // Game over if 1 or 0 players left undiscovered and no one is taking a last chance!
       undiscovered.forEach(p => p.isWinner = true); 
       this.stateMachine.forceState(GameState.RESULT);
     }

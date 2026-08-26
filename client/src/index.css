@@ -206,6 +206,8 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 }
 
 .sidebar-content {

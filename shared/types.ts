@@ -77,6 +77,8 @@ export interface Player {
   numberValue?: number;
   discoveredNumbers?: string[]; // IDs of players whose number this player has discovered
   hasBeenDiscovered?: boolean;
+  numbersLastChance?: boolean; // Has been discovered, but still has 1 final guess left
+  numbersLivesLeft?: number; // Lives in survival mode
 }
 
 // Configuração da sala
@@ -200,6 +202,8 @@ export interface PublicPlayer {
   // Numbers
   numberValue?: number;
   hasBeenDiscovered?: boolean;
+  numbersLastChance?: boolean;
+  numbersLivesLeft?: number;
 }
 
 // Histórico de partida (localStorage)

@@ -246,8 +246,8 @@ export function Chat() {
       </div>
 
       {/* Predefined Reactions */}
-      <div style={{ padding: '8px 16px 0', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {['🤔 Suspeito', '😱 Quem foi?', '👀 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
+      <div style={{ padding: '8px 16px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
+        {['👀 Suspeito', '🤔 Quem foi?', '🤨 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
           <button
             key={phrase}
             className="btn btn-ghost"

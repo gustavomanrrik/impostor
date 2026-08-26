@@ -8,7 +8,7 @@ export function ReactionsOverlay() {
   if (!roomState) return null;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
       {activeReactions.map(r => {
         const isMe = r.playerId === playerId;
         const player = roomState.players.find(p => p.id === r.playerId);

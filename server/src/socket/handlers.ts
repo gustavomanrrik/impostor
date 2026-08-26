@@ -303,9 +303,7 @@ export function registerSocketHandlers(
         callback({ correct });
       }
 
-      if (correct) {
-        io.to(room.code).emit('room:updated', room.getPublicState());
-      }
+      io.to(room.code).emit('room:updated', room.getPublicState());
     });
 
     // ─── PULAR RODADA ─────────────────────────
