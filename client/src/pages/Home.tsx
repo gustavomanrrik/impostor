@@ -86,7 +86,7 @@ export function Home() {
       </div>
 
       {/* Footer / Credits */}
-      <div style={{ marginTop: '48px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+      <div style={{ marginTop: '120px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
         criado por <a href="https://linkedin.com/in/gustavo-manrrik" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Gustavo Manrrik</a>
       </div>
     </div>
