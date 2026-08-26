@@ -141,20 +141,36 @@ export function TestaGame() {
         <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Fim de Jogo!</h1>
         <p className="text-muted" style={{ marginBottom: '24px' }}>Todos adivinharam (ou desistiram).</p>
 
-        <div className="card" style={{ marginBottom: '24px' }}>
-          <h2 style={{ marginBottom: '16px' }}>Palavras da Rodada:</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
-            {roomState.players.map(p => (
-              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'var(--bg-glass)', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AvatarDisplay avatar={p.avatar} size="1.5rem" />
-                  {p.name} {p.id === playerId && '(Você)'}
-                </span>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold' }}>
-                  {p.testaWord}
-                </span>
-              </div>
-            ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
+          <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
+            <h2 style={{ marginBottom: '16px' }}>Palavras da Rodada:</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
+              {roomState.players.map(p => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'var(--bg-glass)', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AvatarDisplay avatar={p.avatar} size="1.5rem" />
+                    {p.name} {p.id === playerId && '(Você)'}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold' }}>
+                    {p.testaWord}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card" style={{ flex: '1 1 200px', margin: 0 }}>
+            <h2 style={{ marginBottom: '16px' }}>🏆 Ranking</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+              {[...roomState.players].sort((a, b) => b.score - a.score).map((p, i) => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed var(--border)', fontSize: '0.95rem' }}>
+                  <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>
+                    {i + 1}. {p.name}
+                  </span>
+                  <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{p.score} pts</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

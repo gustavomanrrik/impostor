@@ -24,7 +24,7 @@ const comidaGroups = [
   ['Mingau', 'Aveia'], ['Granola', 'Cereal'], ['Azeite', 'Óleo'], ['Vinagre', 'Limão'],
   ['Sal', 'Pimenta'], ['Açúcar', 'Adoçante'], ['Canela', 'Cravo'], ['Orégano', 'Manjericão'],
   ['Salsa', 'Cebolinha'], ['Coentro', 'Hortelã'], ['Gengibre', 'Cúrcuma'], ['Mostarda', 'Maionese'],
-  ['Molho shoyu', 'Molho tarê'], ['Molho inglês', 'Pimenta de cheiro'], ['Molho de tomate', 'Extrato de tomate'], ['Farofa', 'Farinha'],
+  ['Molho shoyu', 'Molho tarê'], ['Molho inglês', 'Pimenta de cheiro'], ['Molho de tomate', 'Molho branco'], ['Farofa', 'Farinha'],
   ['Purê de batata', 'Batata frita'], ['Batata palha', 'Batata rústica'], ['Salpicão', 'Maionese de batata'], ['Strogonoff', 'Fricassê'],
   ['Yakisoba', 'Lámen'], ['Temaki', 'Uramaki'], ['Ceviche', 'Poke'], ['Taco', 'Burrito'],
   ['Guacamole', 'Nachos'], ['Churrasco grego', 'Kebab'], ['Shawarma', 'Esfiha aberta'], ['Empanada', 'Quibe'],

@@ -624,6 +624,21 @@ export class Room {
     if (this.state !== GameState.RESULT && this.state !== GameState.DISCUSSION && this.state !== GameState.WORD_REVEAL) return false;
     this.stateMachine.forceState(GameState.LOBBY);
 
+    this.clearRoundState();
+    return true;
+  }
+
+  playAgain(playerId: string): { success: boolean; error?: string } {
+    if (!this.isHost(playerId)) return { success: false, error: 'Apenas o host pode reiniciar.' };
+    if (this.state !== GameState.RESULT && this.state !== GameState.DISCUSSION && this.state !== GameState.WORD_REVEAL) {
+      return { success: false, error: 'Não é possível reiniciar agora.' };
+    }
+    
+    this.clearRoundState();
+    return this.startGame(playerId);
+  }
+
+  private clearRoundState(): void {
     // Reset round state
     this.votes.clear();
     this.voteRequests.clear();
@@ -650,8 +665,6 @@ export class Room {
 
     this.impostorIds.clear();
     this.currentWords = null;
-
-    return true;
   }
 
   // ─── Score Management ───────────────────────

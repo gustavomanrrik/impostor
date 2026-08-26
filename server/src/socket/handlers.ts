@@ -418,9 +418,32 @@ export function registerSocketHandlers(
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId || !room.isHost(playerId)) return;
 
-      if (room.prepareNextRound()) {
-        io.to(room.code).emit('game:roundReset', room.getPublicState());
-        io.to(room.code).emit('room:updated', room.getPublicState());
+      const result = room.playAgain(playerId);
+      if (result.success) {
+        // Emit started which resets words and goes straight to game
+        io.to(room.code).emit('game:started', room.getPublicState());
+        
+        // Broadcast words again for impostor
+        if (room.config.gameType === GameType.IMPOSTOR) {
+          for (const p of room.getPlayers()) {
+            const playerSocket = getSocketByPlayerId(p.id);
+            if (playerSocket && p.word) {
+              playerSocket.emit('game:wordAssigned', {
+                word: p.word,
+                isImpostor: !!p.isImpostor,
+              });
+            }
+          }
+        } else if (room.config.gameType === GameType.NUMBERS) {
+           for (const p of room.getPlayers()) {
+            const playerSocket = getSocketByPlayerId(p.id);
+            if (playerSocket && p.numberValue) {
+              playerSocket.emit('game:numberAssigned', p.numberValue);
+            }
+          }
+        }
+      } else if (result.error) {
+        socket.emit('error', { code: 'START_ERROR', message: result.error });
       }
     });
 

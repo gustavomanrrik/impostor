@@ -65,7 +65,7 @@ export function ImpostorGame() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
             <div className="word-display word-hidden" aria-hidden="true" style={{ color: 'var(--text-muted)' }}>
-              ••••••••
+              {myWord || '••••••••'}
             </div>
             <p className="text-muted text-center" style={{ fontSize: '0.85rem' }}>
               Palavra escondida
@@ -178,21 +178,28 @@ export function ImpostorGame() {
 
         <div className="spacer-4" />
 
-        {/* Word peek */}
-        <div className="card" style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
-          {wordVisible ? (
-            <>
-              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem' }}>{myWord}</p>
-              <button className="btn btn-ghost btn-sm" onClick={() => setWordVisible(false)} style={{ marginTop: '8px' }}>
-                👁 Esconder
-              </button>
-            </>
-          ) : (
-            <button className="btn btn-ghost btn-sm" onClick={() => setWordVisible(true)}>
-              👁 Ver palavra
+        {/* Theme and Word peek */}
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Tema: <strong>{themeName}</strong>
+          </p>
+
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
+            <p 
+              className={wordVisible ? 'word-visible' : 'word-hidden'}
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
+            >
+              {myWord || '••••••••'}
+            </p>
+            <button 
+              className="btn btn-ghost btn-sm" 
+              onClick={() => setWordVisible(!wordVisible)} 
+              style={{ marginTop: '8px' }}
+            >
+              {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
             </button>
-          )}
+          </div>
         </div>
 
         {/* Vote request progress */}
@@ -555,31 +562,32 @@ export function ImpostorGame() {
           {isImpostor && !gameResult.impostorsFound && ' Você era o impostor.'}
         </div>
 
-        {/* Votes */}
-        <div className="card" style={{ marginTop: '20px' }}>
-          <p style={{ fontWeight: 600, marginBottom: '12px' }}>Resultado da votação</p>
-          {gameResult.votes.map((v, i) => (
-            <div key={v.playerId} className="vote-result">
-              <span style={{ minWidth: '80px', fontSize: '0.9rem', fontWeight: 500 }}>
-                {v.playerName}
-                {roomState.players.find(p => p.id === v.playerId)?.isWinner && <span title="Vencedor" style={{ marginLeft: '4px' }}>👑</span>}
-              </span>
-              <div className="vote-bar-container">
-                <div
-                  className={`vote-bar ${i === 0 && v.voteCount > 0 ? 'winner' : ''}`}
-                  style={{ width: `${(v.voteCount / maxVotes) * 100}%` }}
-                />
+        {/* Result Cards Container */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px', width: '100%', alignItems: 'stretch' }}>
+          {/* Votes */}
+          <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
+            <p style={{ fontWeight: 600, marginBottom: '12px' }}>Resultado da votação</p>
+            {gameResult.votes.map((v, i) => (
+              <div key={v.playerId} className="vote-result">
+                <span style={{ minWidth: '80px', fontSize: '0.9rem', fontWeight: 500 }}>
+                  {v.playerName}
+                  {roomState.players.find(p => p.id === v.playerId)?.isWinner && <span title="Vencedor" style={{ marginLeft: '4px' }}>👑</span>}
+                </span>
+                <div className="vote-bar-container">
+                  <div
+                    className={`vote-bar ${i === 0 && v.voteCount > 0 ? 'winner' : ''}`}
+                    style={{ width: `${(v.voteCount / maxVotes) * 100}%` }}
+                  />
+                </div>
+                <span className="vote-count">
+                  {v.voteCount} voto{v.voteCount !== 1 ? 's' : ''}
+                </span>
               </div>
-              <span className="vote-count">
-                {v.voteCount} voto{v.voteCount !== 1 ? 's' : ''}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Reveal */}
-        <div className="result-words">
-          <div className="card">
+          {/* Reveal */}
+          <div className="card" style={{ flex: '1 1 250px', margin: 0, padding: 'var(--space-4)' }}>
             <div style={{ marginBottom: '12px' }}>
               <span className="result-word-label">Tema</span>
               <p className="result-word" style={{ color: 'var(--text)' }}>
@@ -607,25 +615,42 @@ export function ImpostorGame() {
               </div>
             </div>
           </div>
+
+          {/* Ranking */}
+          <div className="card" style={{ flex: '1 1 200px', margin: 0, padding: 'var(--space-4)' }}>
+            <p style={{ fontWeight: 600, marginBottom: '12px' }}>🏆 Ranking</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[...roomState.players].sort((a, b) => b.score - a.score).map((p, i) => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed var(--border)', fontSize: '0.95rem' }}>
+                  <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>
+                    {i + 1}. {p.name}
+                  </span>
+                  <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{p.score} pts</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="spacer-6" />
 
         {/* Actions */}
         {isHost ? (
-          <div className="flex flex-col gap-3 w-full">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
             <button className="btn btn-primary btn-xl" onClick={nextRound}>
               🔄 Jogar novamente
             </button>
-            <button className="btn btn-secondary btn-lg w-full" onClick={changeTheme}>
-              🎯 Escolher outro tema
-            </button>
-            <button className="btn btn-ghost" onClick={leaveRoom}>
-              🚪 Sair da sala
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn btn-secondary" style={{ flex: 2, height: '44px' }} onClick={changeTheme}>
+                🎯 Novo tema
+              </button>
+              <button className="btn btn-ghost" style={{ flex: 1, height: '44px' }} onClick={leaveRoom}>
+                🚪 Sair
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 w-full">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
             <div className="status-badge waiting">
               ⏳ Aguardando o host decidir...
             </div>

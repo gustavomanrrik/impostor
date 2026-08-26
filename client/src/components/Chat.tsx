@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
+import { AvatarDisplay } from './AvatarDisplay';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, playerId } = useGame();
+  const { chatMessages, sendChatMessage, playerId, roomState } = useGame();
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +36,12 @@ export function Chat() {
             const isMe = msg.playerId === playerId;
             return (
               <div key={msg.id} className={`chat-message ${isMe ? 'chat-message-me' : ''}`}>
-                {!isMe && <span className="chat-message-name">{msg.playerName}</span>}
+                {!isMe && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <AvatarDisplay avatar={roomState?.players.find(p => p.id === msg.playerId)?.avatar || '👤'} size="20px" />
+                    <span className="chat-message-name" style={{ paddingLeft: 0, marginBottom: 0 }}>{msg.playerName}</span>
+                  </div>
+                )}
                 <div className="chat-message-bubble">
                   {msg.text}
                 </div>

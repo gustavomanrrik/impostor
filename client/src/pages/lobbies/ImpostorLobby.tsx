@@ -223,9 +223,9 @@ export function ImpostorLobby() {
                   <label className="input-label">Tema de Palavras</label>
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                     <button 
-                      className="btn-icon" 
+                      className="btn btn-secondary btn-icon" 
                       onClick={() => document.getElementById('theme-grid-container')?.scrollBy({ left: -200, behavior: 'smooth' })}
-                      style={{ position: 'absolute', left: -20, zIndex: 10, background: 'var(--bg-primary)', border: '3px solid var(--text-primary)' }}
+                      style={{ position: 'absolute', left: -24, zIndex: 10 }}
                       title="Anterior"
                     >
                       ◀
@@ -254,9 +254,9 @@ export function ImpostorLobby() {
                       </div>
                     </div>
                     <button 
-                      className="btn-icon" 
+                      className="btn btn-secondary btn-icon" 
                       onClick={() => document.getElementById('theme-grid-container')?.scrollBy({ left: 200, behavior: 'smooth' })}
-                      style={{ position: 'absolute', right: -20, zIndex: 10, background: 'var(--bg-primary)', border: '3px solid var(--text-primary)' }}
+                      style={{ position: 'absolute', right: -24, zIndex: 10 }}
                       title="Próximo"
                     >
                       ▶
