@@ -157,9 +157,9 @@ export function TestaLobby() {
               {roomState.players.map(player => (
                 <div key={player.id} className="player-item">
                   <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
-                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                     <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                    <span>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {player.name}
                       {player.isWinner && <span title="Vencedor da rodada anterior" style={{ marginLeft: '4px' }}>👑</span>}
                       <span className="text-muted" style={{ marginLeft: '8px', fontSize: '0.8rem' }}>{player.score} pts</span>

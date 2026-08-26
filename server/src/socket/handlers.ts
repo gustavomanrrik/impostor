@@ -343,7 +343,7 @@ export function registerSocketHandlers(
     });
 
     // ─── CHAT ─────────────────────────────
-    socket.on('chat:sendMessage', (text: string) => {
+      socket.on('chat:sendMessage', (text: string) => {
       const room = findRoomBySocket(socket);
       if (!room || !text || text.trim() === '') return;
 
@@ -358,6 +358,31 @@ export function registerSocketHandlers(
         playerId,
         playerName: player.name,
         text: text.trim().substring(0, 200), // Limit text length
+        timestamp: Date.now(),
+      };
+
+      io.to(room.code).emit('chat:newMessage', message);
+    });
+
+    socket.on('chat:sendImage', (imageUrl: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room || !imageUrl || !imageUrl.startsWith('data:image/')) return;
+
+      // Limit payload size to prevent abuse (~500KB base64 is ~666KB string length)
+      if (imageUrl.length > 700000) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      const player = room.getPublicState().players.find(p => p.id === playerId);
+      if (!player) return;
+
+      const message = {
+        id: Math.random().toString(36).substring(2, 9),
+        playerId,
+        playerName: player.name,
+        text: '',
+        imageUrl: imageUrl,
         timestamp: Date.now(),
       };
 

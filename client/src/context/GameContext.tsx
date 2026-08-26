@@ -69,6 +69,7 @@ interface GameContextType {
   // Chat
   chatMessages: ChatMessage[];
   sendChatMessage: (text: string) => void;
+  sendChatImage: (imageUrl: string) => void;
   
   // Custom Theme Collaboration
   customThemeWords: string[];
@@ -443,6 +444,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('chat:sendMessage', text);
   }, []);
 
+  const sendChatImage = useCallback((imageUrl: string) => {
+    getSocket().emit('chat:sendImage', imageUrl);
+  }, []);
+
   const value: GameContextType = {
     page, navigate,
     selectedGameType, setSelectedGameType,
@@ -450,7 +455,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
-    chatMessages, sendChatMessage,
+    chatMessages, sendChatMessage, sendChatImage,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,
