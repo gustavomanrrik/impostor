@@ -23,6 +23,7 @@ export function VoteSkipButton() {
           padding: '8px 12px',
           fontSize: '0.9rem',
           background: 'var(--bg-glass)',
+          color: 'var(--text-primary)',
         }}
         title="Pular / Desistir (todos precisam votar)"
       >
