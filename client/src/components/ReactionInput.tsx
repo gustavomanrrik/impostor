@@ -8,16 +8,24 @@ export function ReactionInput() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const reactionImageInputRef = useRef<HTMLInputElement>(null);
 
+  const handleSendReaction = (val: string) => {
+    sendReaction(val);
+  };
+
   return (
-    <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
-      <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '8px', textAlign: 'center' }}>Reações Rápidas</p>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
+    <div className="card" style={{ marginBottom: '16px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
         {['🤔 Suspeito', '😱 Quem foi?', '👀 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
           <button
             key={phrase}
-            className="btn btn-ghost btn-sm"
-            style={{ background: 'var(--bg-glass)' }}
-            onClick={() => sendReaction(phrase)}
+            className="btn btn-ghost"
+            style={{ 
+              fontSize: '0.8rem', 
+              padding: '4px 8px', 
+              border: '1px dashed var(--text-primary)',
+              borderRadius: 'var(--radius-sm)'
+            }}
+            onClick={() => handleSendReaction(phrase)}
           >
             {phrase}
           </button>

@@ -29,11 +29,9 @@ export function NumbersGame() {
           🔢 JOGO DOS NÚMEROS
         </div>
 
-        <div className="card" style={{ marginBottom: '24px', textAlign: 'center' }}>
-          <p className="text-muted" style={{ marginBottom: '8px' }}>Sua pontuação atual</p>
-          <h2 style={{ fontSize: '2.5rem', margin: 0, color: 'var(--primary)' }}>
-            {currentPlayer?.score || 0} <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>pts</span>
-          </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '2px solid var(--text-primary)', marginBottom: '16px' }}>
+          <span>Sua pontuação:</span>
+          <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary)' }}>{currentPlayer?.score || 0} pts</span>
         </div>
 
         <ReactionInput />
