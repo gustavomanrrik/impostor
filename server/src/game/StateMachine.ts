@@ -6,7 +6,7 @@ import { GameState } from '../../../shared/types.ts';
 // Transições válidas
 const validTransitions: Record<GameState, GameState[]> = {
   [GameState.LOBBY]: [GameState.STARTING],
-  [GameState.STARTING]: [GameState.WORD_REVEAL],
+  [GameState.STARTING]: [GameState.WORD_REVEAL, GameState.IN_GAME],
   [GameState.WORD_REVEAL]: [GameState.DISCUSSION],
   [GameState.DISCUSSION]: [GameState.VOTING],
   [GameState.VOTING_REQUEST]: [GameState.VOTING], // estado intermediário
