@@ -17,39 +17,34 @@ import { Chat } from './components/Chat';
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
 function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
-  const { page, toasts, showSuspense, isChatMinimized, roomState, playerId, voteSkip } = useGame();
+  const { page, toasts, showSuspense, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
   const showChat = page === 'lobby' || page === 'game';
   const [soundEnabled, setSoundEnabled] = useState(isSoundsEnabled());
 
   // Botões globais no canto superior
   const GlobalToggles = () => {
-    const isIngame = roomState && (roomState.state === 'IN_GAME' || roomState.state === 'WORD_REVEAL' || roomState.state === 'DISCUSSION');
-    const me = roomState?.players.find(p => p.id === playerId);
-    
     return (
       <div style={{ position: 'fixed', top: '16px', right: showChat && !isChatMinimized ? 'calc(350px + 16px)' : '16px', zIndex: 50, display: 'flex', gap: '8px', transition: 'right 0.3s ease' }}>
-        {isIngame && me && !me.isWinner && !me.hasBeenDiscovered && (
+        {roomState && (
           <button 
-            onClick={() => voteSkip()}
-            disabled={me.hasVotedSkip}
+            onClick={leaveRoom}
             style={{
-              background: me.hasVotedSkip ? 'var(--accent-primary)' : 'var(--bg-glass-strong)',
-              color: me.hasVotedSkip ? 'var(--bg-primary)' : 'inherit',
-              border: '2px dashed var(--text-primary)',
+              background: 'var(--bg-glass-strong)',
+              border: 'none',
               borderRadius: 'var(--radius-sm)',
               padding: '0 16px',
               height: '40px',
-              cursor: me.hasVotedSkip ? 'not-allowed' : 'pointer',
+              cursor: 'pointer',
               fontSize: '0.9rem',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               boxShadow: 'var(--shadow-md)',
+              color: 'var(--text-primary)'
             }}
-            title="Pular / Desistir (todos precisam votar)"
+            title="Sair da Sala"
           >
-            {me.hasVotedSkip ? 'Votado!' : 'Pular Rodada'}
+            Sair
           </button>
         )}
         

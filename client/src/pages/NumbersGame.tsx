@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
+import { VoteSkipButton } from '../components/VoteSkipButton';
 
 export function NumbersGame() {
-  const { roomState, playerId, nextRound, leaveRoom, addToast, guessNumber } = useGame();
+  const { roomState, playerId, nextRound, leaveRoom, addToast, guessNumber, myNumber } = useGame();
   const [guesses, setGuesses] = useState<Record<string, string>>({});
+  const [personalNotes, setPersonalNotes] = useState('');
 
   if (!roomState) return null;
 
@@ -38,39 +40,54 @@ export function NumbersGame() {
           O servidor sorteou um número secreto para cada um de vocês. Façam perguntas ("seu número é maior que 50?") e tentem descobrir o número exato dos outros!
         </p>
 
-        <div className="card text-center" style={{ marginBottom: '32px', border: '4px dashed var(--text-primary)' }}>
-          <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>O seu número secreto é:</h3>
-          <div style={{ 
-            margin: '16px auto', 
-            fontSize: '4rem', 
-            fontFamily: 'monospace',
-            fontWeight: 900,
-            background: 'var(--text-primary)',
-            color: 'var(--bg-primary)',
-            padding: '16px 32px',
-            borderRadius: 'var(--radius-sm)',
-            display: 'inline-block',
-            transform: 'rotate(-2deg)'
-          }}>
-            {currentPlayer?.numberValue}
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch', marginBottom: '32px' }}>
+          <div className="card text-center" style={{ flex: '1 1 300px', margin: 0, border: '4px dashed var(--text-primary)' }}>
+            <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>O seu número secreto é:</h3>
+            <div style={{ 
+              margin: '16px auto', 
+              fontSize: '4rem', 
+              fontFamily: 'monospace',
+              fontWeight: 900,
+              background: 'var(--text-primary)',
+              color: 'var(--bg-primary)',
+              padding: '16px 32px',
+              borderRadius: 'var(--radius-sm)',
+              display: 'inline-block',
+              transform: 'rotate(-2deg)'
+            }}>
+              {myNumber}
+            </div>
+            {currentPlayer?.hasBeenDiscovered && (
+              <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
+                💥 Descobriram o seu número!
+              </div>
+            )}
+            {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px', fontSize: '1.5rem' }}>
+                {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
+                  <span key={i} style={{ 
+                    opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
+                    filter: i < (currentPlayer?.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
+                    color: 'red',
+                    textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                  }}>❤️</span>
+                ))}
+              </div>
+            ) : null}
           </div>
-          {currentPlayer?.hasBeenDiscovered && (
-            <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
-              💥 Descobriram o seu número!
-            </div>
-          )}
-          {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px', fontSize: '1.5rem' }}>
-              {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
-                <span key={i} style={{ 
-                  opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
-                  filter: i < (currentPlayer?.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                  color: 'red',
-                  textShadow: '0 0 2px rgba(255,0,0,0.5)'
-                }}>❤️</span>
-              ))}
-            </div>
-          ) : null}
+
+          <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', borderLeft: '2px dashed var(--glass-border)', paddingLeft: '24px' }} className="personal-note-section">
+            <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>📝</span> Nota Pessoal (Só você vê)
+            </h3>
+            <textarea
+              className="input"
+              value={personalNotes}
+              onChange={(e) => setPersonalNotes(e.target.value)}
+              placeholder="Anote dicas..."
+              style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'vertical' }}
+            />
+          </div>
         </div>
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores:</h3>
@@ -140,6 +157,7 @@ export function NumbersGame() {
             </div>
           ))}
         </div>
+        <VoteSkipButton />
       </div>
     );
   }

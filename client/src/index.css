@@ -210,14 +210,14 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
 
 .sidebar-content {
   width: 100%;
-  padding: var(--space-4);
+  padding: 0;
   border-top: 3px solid var(--glass-border);
 }
 
 @media (min-width: 1024px) {
   .sidebar-content {
     width: 350px;
-    padding: 72px var(--space-6) var(--space-6) var(--space-6);
+    padding: 0;
     border-top: none;
     border-left: 3px solid var(--glass-border);
     display: flex;
@@ -1522,3 +1522,25 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
   gap: 12px;
   margin-top: 24px;
 }
+
+.reaction-bubble {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--text-primary);
+  box-shadow: 4px 4px 0px rgba(0,0,0,1);
+  font-weight: bold;
+  font-size: 1.2rem;
+  z-index: 1000;
+}
+@keyframes floatUp {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  10% { transform: translateY(80vh) scale(1.1); opacity: 1; }
+  20% { transform: translateY(70vh) scale(1); opacity: 1; }
+  80% { transform: translateY(20vh) scale(1); opacity: 1; }
+  100% { transform: translateY(0) scale(0.8); opacity: 0; }
+}
+

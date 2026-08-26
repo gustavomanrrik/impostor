@@ -52,6 +52,7 @@ export interface Player {
   avatar: string;
   isHost: boolean;
   isConnected: boolean;
+  isSpectator?: boolean;
   score: number;
   isWinner?: boolean;
   
@@ -178,6 +179,7 @@ export interface PublicPlayer {
   avatar: string;
   isHost: boolean;
   isConnected: boolean;
+  isSpectator?: boolean;
   score: number;
   isWinner?: boolean;
   
@@ -259,7 +261,7 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   // Room updates
   'room:created': (data: { roomCode: string; playerId: string }) => void;
-  'room:joined': (data: { playerId: string; roomState: RoomPublicState }) => void;
+  'room:joined': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean; numberValue?: number }) => void;
   'room:updated': (roomState: RoomPublicState) => void;
   'room:playerJoined': (player: PublicPlayer) => void;
   'room:playerLeft': (playerId: string) => void;
@@ -286,7 +288,7 @@ export interface ServerToClientEvents {
   'game:reactionReceived': (data: { playerId: string; reaction: string }) => void;
 
   // Reconnection
-  'room:reconnected': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean }) => void;
+  'room:reconnected': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean; numberValue?: number }) => void;
 
   // Custom Theme Sync (Host only)
   'theme:sync': (words: string[]) => void;

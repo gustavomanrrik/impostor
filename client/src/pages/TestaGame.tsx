@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
-import { ReactionInput } from '../components/ReactionInput';
+import { VoteSkipButton } from '../components/VoteSkipButton';
+
 
 export function TestaGame() {
   const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
@@ -209,6 +210,7 @@ export function TestaGame() {
             </div>
           ))}
         </div>
+        <VoteSkipButton />
       </div>
     );
   }

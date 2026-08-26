@@ -5,7 +5,7 @@ import { AvatarDisplay } from '../../components/AvatarDisplay';
 export function NumbersLobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
-    updateConfig, resetScores
+    updateConfig, resetScores, kickPlayer
   } = useGame();
   
   const [copied, setCopied] = useState(false);
@@ -94,8 +94,13 @@ export function NumbersLobby() {
                     </span>
                   </span>
                   {player.isHost && <span className="player-badge">HOST</span>}
+                  {isHost && player.id !== playerId && (
+                    <button className="btn btn-ghost btn-sm" onClick={() => kickPlayer(player.id)} title="Expulsar jogador" style={{ padding: '0 8px', marginLeft: 'auto' }}>
+                      Expulsar
+                    </button>
+                  )}
                   {!player.isConnected && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>offline</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
                   )}
                 </div>
               ))}

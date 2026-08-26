@@ -106,10 +106,25 @@ export function registerSocketHandlers(
       console.log(`[Room ${room.code}] ${playerName} entrou (${room.playerCount}/8)`);
     });
 
-    // ─── SAIR DA SALA ─────────────────────────
-
+    // ─── SAIR DA SALA ──────────────────────────────────────────
+    
     socket.on('room:leave', () => {
       handleLeave(socket);
+    });
+
+    socket.on('room:kick', (playerIdToKick: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+
+      const myPlayerId = room.getPlayerIdBySocket(socket.id);
+      if (!myPlayerId || !room.isHost(myPlayerId)) return; // Only host can kick
+
+      const targetSocket = findSocketByPlayerId(io, room, playerIdToKick);
+      if (targetSocket) {
+        // Send a custom kick event to force the client to leave
+        targetSocket.emit('error', { code: 'KICKED', message: 'Você foi removido da sala pelo Host.' });
+        handleLeave(targetSocket);
+      }
     });
 
     // ─── ATUALIZAR CONFIG ─────────────────────────
@@ -536,11 +551,13 @@ export function registerSocketHandlers(
       socket.join(room.code);
 
       const wordData = room.getPlayerWord(playerId);
+      const numberValue = room.getPlayerNumber(playerId);
       socket.emit('room:reconnected', {
         playerId,
         roomState: room.getPublicState(),
         word: wordData?.word,
         isImpostor: wordData?.isImpostor,
+        numberValue,
       });
 
       socket.to(room.code).emit('room:playerReconnected', playerId);

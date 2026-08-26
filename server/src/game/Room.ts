@@ -68,7 +68,8 @@ export class Room {
 
   addPlayer(socketId: string, name: string, avatar: string): Player | null {
     if (this.players.size >= 8) return null;
-    if (this.state !== GameState.LOBBY) return null;
+    // We allow joining in any state now as spectators
+    const isSpectator = this.state !== GameState.LOBBY;
 
     // Verificar nome duplicado
     for (const p of this.players.values()) {
@@ -86,6 +87,7 @@ export class Room {
       avatar,
       isHost,
       isConnected: true,
+      isSpectator,
       hasSeenWord: false,
       hasVoted: false,
       hasRequestedVote: false,
@@ -437,7 +439,8 @@ export class Room {
     player.hasSeenWord = true;
 
     // Verificar se todos viram
-    const allSeen = Array.from(this.players.values()).every(p => p.hasSeenWord);
+    const activePlayers = Array.from(this.players.values()).filter(p => !p.isSpectator);
+    const allSeen = activePlayers.length > 0 && activePlayers.every(p => p.hasSeenWord);
     if (allSeen && this.stateMachine.canTransition(GameState.DISCUSSION)) {
       this.stateMachine.transition(GameState.DISCUSSION);
       return true; // indica transição para discussion
@@ -447,7 +450,8 @@ export class Room {
   }
 
   allPlayersSeenWord(): boolean {
-    return Array.from(this.players.values()).every(p => p.hasSeenWord);
+    const activePlayers = Array.from(this.players.values()).filter(p => !p.isSpectator);
+    return activePlayers.length > 0 && activePlayers.every(p => p.hasSeenWord);
   }
 
   // ─── Voting ─────────────────────────────
@@ -495,8 +499,8 @@ export class Room {
     player.hasVotedSkip = true;
 
     // Check if all connected alive players voted to skip
-    const connectedPlayers = Array.from(this.players.values()).filter(p => p.isConnected);
-    if (this.skipVotes.size === connectedPlayers.length && connectedPlayers.length > 0) {
+    const connectedPlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+    if (this.skipVotes.size >= connectedPlayers.length && connectedPlayers.length > 0) {
       this.prepareNextRound();
       return { skipped: true };
     }
@@ -531,7 +535,7 @@ export class Room {
     this.votes.set(playerId, votedForId);
 
     const allVoted = Array.from(this.players.values())
-      .filter(p => p.isConnected)
+      .filter(p => p.isConnected && !p.isSpectator)
       .every(p => p.hasVoted);
 
     if (allVoted) {
@@ -555,7 +559,8 @@ export class Room {
     }
 
     // Criar resultados ordenados
-    const voteResults: VoteResult[] = Array.from(this.players.entries()).map(([id, p]) => ({
+    const activePlayers = Array.from(this.players.entries()).filter(([_, p]) => !p.isSpectator);
+    const voteResults: VoteResult[] = activePlayers.map(([id, p]) => ({
       playerId: id,
       playerName: p.name,
       voteCount: voteCounts.get(id) || 0,
@@ -656,6 +661,7 @@ export class Room {
       p.hasVoted = false;
       p.hasRequestedVote = false;
       p.hasVotedSkip = false;
+      p.isSpectator = false; // Reset spectator status
       p.votedFor = undefined;
       p.isImpostor = undefined;
       p.word = undefined;
@@ -696,6 +702,7 @@ export class Room {
       avatar: p.avatar,
       isHost: p.isHost,
       isConnected: p.isConnected,
+      isSpectator: p.isSpectator || false,
       hasSeenWord: p.hasSeenWord || false,
       hasVoted: p.hasVoted || false,
       hasRequestedVote: p.hasRequestedVote || false,
@@ -706,6 +713,7 @@ export class Room {
       hasGuessedTesta: p.hasGuessedTesta,
       testaLivesLeft: p.testaLivesLeft,
       hasBeenDiscovered: p.hasBeenDiscovered,
+      numberValue: (p.id === this.hostId || this.state === GameState.RESULT || p.hasBeenDiscovered || p.id === Array.from(this.players.keys()).find(key => this.players.get(key) === p)) ? p.numberValue : undefined, // We'll handle this in getRoomState instead! Wait, we don't have playerId here.
     }));
 
     return {
@@ -716,8 +724,8 @@ export class Room {
       hostId: this.hostId,
       voteRequestCount: this.voteRequests.size,
       voteRequestsNeeded: this.getVoteRequestsNeeded(),
-      votesRegistered: Array.from(this.players.values()).filter(p => p.hasVoted).length,
-      totalPlayers: this.players.size,
+      votesRegistered: Array.from(this.players.values()).filter(p => p.hasVoted && !p.isSpectator).length,
+      totalPlayers: Array.from(this.players.values()).filter(p => !p.isSpectator).length,
       round: this.round,
       customThemeWordCount: this.totalSubmittedWords,
     };
@@ -780,7 +788,7 @@ export class Room {
   }
 
     private checkTestaGameOver() {
-      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
+      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
       const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
   
       // End game if all but one have guessed (or everyone guessed/gave up)
@@ -846,9 +854,9 @@ export class Room {
     }
   }
 
-  private checkNumbersGameOver() {
-    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
-    const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
+    private checkNumbersGameOver() {
+      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+      const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
 
     if (undiscovered.length <= 1) {
       // Game over if 1 or 0 players left undiscovered!

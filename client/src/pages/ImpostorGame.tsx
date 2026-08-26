@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
+import { VoteSkipButton } from '../components/VoteSkipButton';
 
 export function ImpostorGame() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, themes } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
+  const [personalNotes, setPersonalNotes] = useState('');
   const [wordSeen, setWordSeen] = useState(false);
   const [selectedVote, setSelectedVote] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
@@ -104,6 +106,7 @@ export function ImpostorGame() {
             </p>
           </div>
         )}
+        <VoteSkipButton />
       </div>
     );
   }
@@ -130,27 +133,43 @@ export function ImpostorGame() {
 
         <div className="spacer-4" />
 
-        {/* Theme and Word peek */}
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Tema: <strong>{themeName}</strong>
-          </p>
-
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
-            <p 
-              className={wordVisible ? 'word-visible' : 'word-hidden'}
-              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
-            >
-              {myWord || '••••••••'}
+        {/* Theme, Word peek and Personal Note Lado a Lado */}
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch', marginBottom: '24px' }}>
+          
+          <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Tema: <strong>{themeName}</strong>
             </p>
-            <button 
-              className="btn btn-ghost btn-sm" 
-              onClick={() => setWordVisible(!wordVisible)} 
-              style={{ marginTop: '8px' }}
-            >
-              {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
-            </button>
+
+            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+              <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
+              <p 
+                className={wordVisible ? 'word-visible' : 'word-hidden'}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
+              >
+                {myWord || '••••••••'}
+              </p>
+              <button 
+                className="btn btn-ghost btn-sm" 
+                onClick={() => setWordVisible(!wordVisible)} 
+                style={{ marginTop: '8px' }}
+              >
+                {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
+              </button>
+            </div>
+          </div>
+
+          <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', borderLeft: '2px dashed var(--glass-border)', paddingLeft: '24px' }} className="personal-note-section">
+            <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>📝</span> Nota Pessoal (Só você vê)
+            </h3>
+            <textarea
+              className="input"
+              value={personalNotes}
+              onChange={(e) => setPersonalNotes(e.target.value)}
+              placeholder="Anote dicas..."
+              style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'vertical' }}
+            />
           </div>
         </div>
 
@@ -212,6 +231,7 @@ export function ImpostorGame() {
             ✅ Você pediu votação
           </div>
         )}
+        <VoteSkipButton />
       </div>
     );
   }
@@ -249,6 +269,7 @@ export function ImpostorGame() {
               </span>
             ))}
           </div>
+          <VoteSkipButton />
         </div>
       );
     }
@@ -301,6 +322,7 @@ export function ImpostorGame() {
         <p className="text-muted text-center" style={{ fontSize: '0.8rem', marginTop: '8px' }}>
           ⚠️ Seu voto não pode ser alterado depois de confirmar.
         </p>
+        <VoteSkipButton />
       </div>
     );
   }

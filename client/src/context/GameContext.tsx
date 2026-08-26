@@ -41,6 +41,7 @@ interface GameContextType {
   roomState: RoomPublicState | null;
   playerId: string | null;
   myWord: string | null;
+  myNumber: number | null;
   isImpostor: boolean;
   gameResult: GameResult | null;
   isConnected: boolean;
@@ -50,6 +51,7 @@ interface GameContextType {
   createRoom: (playerName: string, avatar: string, config: any, customTheme?: any) => void;
   joinRoom: (playerName: string, avatar: string, roomCode: string) => void;
   leaveRoom: () => void;
+  kickPlayer: (playerId: string) => void;
   updateConfig: (updates: any) => void;
   setCustomTheme: (theme: any) => void;
   startGame: () => void;
@@ -130,6 +132,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [roomState, setRoomState] = useState<RoomPublicState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [myWord, setMyWord] = useState<string | null>(null);
+  const [myNumber, setMyNumber] = useState<number | null>(null);
   const [isImpostor, setIsImpostor] = useState(false);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -160,6 +163,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setRoomState(null);
       setPlayerId(null);
       setMyWord(null);
+      setMyNumber(null);
       setIsImpostor(false);
       setGameResult(null);
       setLocalState(null);
@@ -218,6 +222,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('error', (data) => {
       addToast('error', data.message);
+      if (data.code === 'KICKED') {
+        clearReconnectionData();
+        setRoomState(null);
+        setPlayerId(null);
+        setMyWord(null);
+        setMyNumber(null);
+        setIsImpostor(false);
+        setGameResult(null);
+        setPage('home');
+      }
     });
 
     socket.on('room:created', (data) => {
@@ -263,9 +277,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('game:numberAssigned', (numberValue) => {
-      // Numbers doesn't have myWord or isImpostor, but if we want to store it globally:
-      // In NumbersGame, it reads from currentPlayer.numberValue, so we don't strictly need a local state,
-      // but let's log it just in case.
+      setMyNumber(numberValue);
     });
 
     socket.on('game:discussionStarted', () => {
@@ -317,6 +329,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     socket.on('game:roundReset', (state) => {
       setRoomState(state);
       setMyWord(null);
+      setMyNumber(null);
       setIsImpostor(false);
       setGameResult(null);
       setPage('lobby');
@@ -332,6 +345,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (data.word) {
         setMyWord(data.word);
         setIsImpostor(data.isImpostor || false);
+      }
+      if (data.numberValue) {
+        setMyNumber(data.numberValue);
       }
       if (data.roomState.state === 'LOBBY') {
         setPage('lobby');
@@ -375,16 +391,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const leaveRoom = useCallback(() => {
-    const socket = getSocket();
-    socket.emit('room:leave');
+    getSocket().emit('room:leave');
     clearReconnectionData();
     disconnectSocket();
     setRoomState(null);
     setPlayerId(null);
     setMyWord(null);
+    setMyNumber(null);
     setIsImpostor(false);
     setGameResult(null);
     setPage('home');
+  }, []);
+
+  const kickPlayer = useCallback((targetId: string) => {
+    getSocket().emit('room:kick', targetId);
   }, []);
 
   const updateConfig = useCallback((updates: any) => {
@@ -471,8 +491,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const value: GameContextType = {
     page, navigate,
     selectedGameType, setSelectedGameType,
-    roomState, playerId, myWord, isImpostor, gameResult, isConnected, themes,
-    createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
+    roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
+    createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage, sendChatImage,
