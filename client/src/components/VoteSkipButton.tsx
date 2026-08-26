@@ -16,14 +16,14 @@ export function VoteSkipButton() {
       <button 
         onClick={() => voteSkip()}
         disabled={me.hasVotedSkip}
-        className={tn }
+        className="btn"
         style={{
           border: '2px dashed var(--text-primary)',
           cursor: me.hasVotedSkip ? 'not-allowed' : 'pointer',
         }}
         title="Pular / Desistir (todos precisam votar)"
       >
-        {me.hasVotedSkip ? '? Voto Registrado para Pular' : '?? Pular / Anular Rodada'}
+        {me.hasVotedSkip ? '✅ Voto Registrado para Pular' : '⏭️ Pular / Anular Rodada'}
       </button>
     </div>
   );
