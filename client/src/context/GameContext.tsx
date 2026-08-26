@@ -72,6 +72,7 @@ interface GameContextType {
   chatMessages: ChatMessage[];
   sendChatMessage: (text: string) => void;
   sendChatImage: (imageUrl: string) => void;
+  reactToChatMessage: (messageId: string, reaction: string) => void;
   isChatMinimized: boolean;
   setIsChatMinimized: (minimized: boolean) => void;
   hasUnreadChat: boolean;
@@ -370,6 +371,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setChatMessages(prev => [...prev, message]);
     });
 
+    socket.on('chat:messageReaction', ({ messageId, playerId, reaction }) => {
+      setChatMessages(prev => prev.map(msg => {
+        if (msg.id === messageId) {
+          const newReactions = { ...msg.reactions };
+          if (!newReactions[reaction]) {
+            newReactions[reaction] = [];
+          }
+          if (!newReactions[reaction].includes(playerId)) {
+            newReactions[reaction] = [...newReactions[reaction], playerId];
+          } else {
+            // toggle reaction off
+            newReactions[reaction] = newReactions[reaction].filter(id => id !== playerId);
+            if (newReactions[reaction].length === 0) {
+              delete newReactions[reaction];
+            }
+          }
+          return { ...msg, reactions: newReactions };
+        }
+        return msg;
+      }));
+    });
+
     return () => {
       // Don't remove listeners on cleanup since we use ref guard
     };
@@ -488,6 +511,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('chat:sendImage', imageUrl);
   }, []);
 
+  const reactToChatMessage = useCallback((messageId: string, reaction: string) => {
+    getSocket().emit('chat:react', messageId, reaction);
+  }, []);
+
   const value: GameContextType = {
     page, navigate,
     selectedGameType, setSelectedGameType,
@@ -495,7 +522,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
-    chatMessages, sendChatMessage, sendChatImage,
+    chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
     isChatMinimized, setIsChatMinimized, hasUnreadChat, setHasUnreadChat,
     localState, setLocalState,
     toasts, addToast, showSuspense,

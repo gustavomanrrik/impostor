@@ -3,8 +3,10 @@ import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction } = useGame();
+  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage } = useGame();
   const [inputText, setInputText] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevMessagesLength = useRef(chatMessages.length);
@@ -153,7 +155,7 @@ export function Chat() {
                     <span className="chat-message-name" style={{ paddingLeft: 0, marginBottom: 0 }}>{msg.playerName}</span>
                   </div>
                 )}
-                <div className="chat-message-bubble">
+                <div className="chat-message-bubble" style={{ position: 'relative' }}>
                   {msg.text && <div>{msg.text}</div>}
                   {msg.imageUrl && (
                     <img 
@@ -163,12 +165,79 @@ export function Chat() {
                         maxWidth: '100%', 
                         borderRadius: 'var(--radius-sm)', 
                         marginTop: msg.text ? '8px' : '0',
-                        cursor: 'pointer' 
+                        cursor: 'pointer',
+                        border: '2px solid var(--glass-border)'
                       }} 
-                      onClick={() => window.open(msg.imageUrl, '_blank')}
+                      onClick={() => setSelectedImage(msg.imageUrl || null)}
                     />
                   )}
+                  
+                  {/* Hover Reaction Button */}
+                  <div 
+                    className="chat-reaction-trigger"
+                    style={{ position: 'absolute', right: '-24px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', opacity: 0.5 }}
+                    onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+                  >
+                    ➕
+                  </div>
+                  
+                  {/* Reaction Picker Popover */}
+                  {activeReactionPicker === msg.id && (
+                    <div style={{
+                      position: 'absolute',
+                      right: '0',
+                      top: '100%',
+                      background: 'var(--bg-primary)',
+                      border: '2px solid var(--text-primary)',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '4px',
+                      display: 'flex',
+                      gap: '4px',
+                      zIndex: 10,
+                      boxShadow: '2px 2px 0px rgba(0,0,0,1)'
+                    }}>
+                      {['👍', '👎', '😂', '💀', '👀', '🤡'].map(emoji => (
+                        <button
+                          key={emoji}
+                          className="btn btn-ghost"
+                          style={{ padding: '4px' }}
+                          onClick={() => {
+                            reactToChatMessage(msg.id, emoji);
+                            setActiveReactionPicker(null);
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                
+                {/* Render active reactions */}
+                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                  <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
+                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                      <button
+                        key={emoji}
+                        className="btn btn-ghost"
+                        style={{
+                          padding: '2px 6px',
+                          fontSize: '0.8rem',
+                          borderRadius: '12px',
+                          border: userIds.includes(playerId || '') ? '2px solid var(--text-primary)' : '1px solid var(--glass-border)',
+                          background: userIds.includes(playerId || '') ? 'var(--bg-card)' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        onClick={() => reactToChatMessage(msg.id, emoji)}
+                      >
+                        <span>{emoji}</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{userIds.length}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })
@@ -225,6 +294,68 @@ export function Chat() {
           enviar
         </button>
       </form>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px'
+          }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            style={{
+              position: 'relative',
+              background: 'var(--bg-primary)',
+              padding: '16px',
+              border: '4px solid var(--text-primary)',
+              boxShadow: '8px 8px 0px rgba(0,0,0,1)',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
+          >
+            <button 
+              className="btn btn-ghost"
+              style={{
+                position: 'absolute',
+                top: '-20px',
+                right: '-20px',
+                background: 'var(--text-primary)',
+                color: 'var(--bg-primary)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                border: '4px solid var(--bg-primary)',
+                fontWeight: 'bold',
+                fontSize: '1.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 2
+              }}
+              onClick={() => setSelectedImage(null)}
+            >
+              X
+            </button>
+            <img 
+              src={selectedImage} 
+              alt="imagem ampliada" 
+              style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 32px)', objectFit: 'contain' }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

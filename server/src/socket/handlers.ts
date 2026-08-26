@@ -408,6 +408,16 @@ export function registerSocketHandlers(
       io.to(room.code).emit('chat:newMessage', message);
     });
 
+    socket.on('chat:react', (messageId: string, reaction: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room || !messageId || !reaction) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      io.to(room.code).emit('chat:messageReaction', { messageId, playerId, reaction });
+    });
+
     socket.on('chat:sendImage', (imageUrl: string) => {
       const room = findRoomBySocket(socket);
       if (!room || !imageUrl || !imageUrl.startsWith('data:image/')) return;

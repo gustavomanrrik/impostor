@@ -43,6 +43,7 @@ export interface ChatMessage {
   text: string;
   imageUrl?: string;
   timestamp: number;
+  reactions?: Record<string, string[]>; // emoji/text -> array of playerIds
 }
 
 // Jogador
