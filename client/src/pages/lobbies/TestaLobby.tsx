@@ -30,7 +30,7 @@ export function TestaLobby() {
   if (!roomState) return null;
 
   const isHost = roomState.hostId === playerId;
-  const canStart = roomState.players.length >= 3;
+  const canStart = roomState.players.length >= 2;
   const selectedTheme = themes.find(t => t.id === roomState.config.theme);
   const config = roomState.config;
 
@@ -185,7 +185,7 @@ export function TestaLobby() {
             <>
               {(!canStart || (config.theme === 'custom' && roomState.customThemeWordCount < 4)) && (
                 <p className="text-muted" style={{ fontSize: '0.875rem', marginBottom: '12px', textAlign: 'center' }}>
-                  ⏳ {roomState.players.length < 3 ? 'É necessário ter pelo menos 3 jogadores.' : 'São necessárias pelo menos 4 palavras no tema.'}
+                  ⏳ {roomState.players.length < 2 ? 'É necessário ter pelo menos 2 jogadores.' : 'São necessárias pelo menos 4 palavras no tema.'}
                 </p>
               )}
               <button
