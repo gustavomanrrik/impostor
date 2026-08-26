@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { getSavedPlayerName, getSavedAvatar, saveAvatar } from '../services/localStorage';
+import { getSavedPlayerName, getSavedAvatar, saveAvatar, savePlayerName } from '../services/localStorage';
 import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
 export function OnlineJoin() {
@@ -20,6 +20,7 @@ export function OnlineJoin() {
 
   const handleJoin = () => {
     if (!playerName.trim() || !roomCode.trim()) return;
+    savePlayerName(playerName.trim());
     saveAvatar(avatar);
     joinRoom(playerName.trim(), avatar, roomCode.trim());
   };

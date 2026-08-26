@@ -26,6 +26,7 @@ export function OnlineCreate() {
       useFlatMode: false,
     };
 
+    savePlayerName(playerName.trim());
     saveAvatar(avatar);
     createRoom(playerName.trim(), avatar, config);
   };
