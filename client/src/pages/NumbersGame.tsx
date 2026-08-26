@@ -40,8 +40,6 @@ export function NumbersGame() {
           <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary)' }}>{currentPlayer?.score || 0} pts</span>
         </div>
 
-        </p>
-
         <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch', marginBottom: '32px' }}>
           <div className="card text-center" style={{ flex: '1 1 300px', margin: 0, border: '4px dashed var(--text-primary)' }}>
             <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>O seu número secreto é:</h3>
