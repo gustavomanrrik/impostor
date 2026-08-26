@@ -77,7 +77,8 @@ export interface Player {
   numberValue?: number;
   discoveredNumbers?: string[]; // IDs of players whose number this player has discovered
   hasBeenDiscovered?: boolean;
-  numbersLastChance?: boolean; // Has been discovered, but still has 1 final guess left
+  inSuddenDeath?: boolean; // When another player wins, this player has 1 final guess to tie
+  numbersLastChance?: boolean; // (Legacy/Specific) Has been discovered, but still has 1 final guess left
   numbersLivesLeft?: number; // Lives in survival mode
 }
 
@@ -202,6 +203,7 @@ export interface PublicPlayer {
   // Numbers
   numberValue?: number;
   hasBeenDiscovered?: boolean;
+  inSuddenDeath?: boolean;
   numbersLastChance?: boolean;
   numbersLivesLeft?: number;
 }

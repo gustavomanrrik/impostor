@@ -759,19 +759,33 @@ export class Room {
       player.hasGuessedTesta = true;
       player.testaGuessedCorrectly = true;
       player.testaGuessOrder = Array.from(this.players.values()).filter(p => p.testaGuessedCorrectly).length + 1;
+      
+      // Sudden Death trigger
+      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+      const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
+      unGuessed.forEach(p => p.inSuddenDeath = true);
+
       this.checkTestaGameOver();
       return { correct: true, stateChanged: true };
     }
     
     // Wrong guess
     let stateChanged = false;
-    if (player.testaLivesLeft && player.testaLivesLeft > 0) {
-      player.testaLivesLeft -= 1;
+    if (player.inSuddenDeath) {
+      player.hasGuessedTesta = true;
+      player.testaGuessedCorrectly = false;
+      player.inSuddenDeath = false;
       stateChanged = true;
-      
-      if (player.testaLivesLeft === 0) {
-        player.hasGuessedTesta = true; // Eliminated
-        this.checkTestaGameOver();
+      this.checkTestaGameOver();
+    } else {
+      if (player.testaLivesLeft && player.testaLivesLeft > 0) {
+        player.testaLivesLeft -= 1;
+        stateChanged = true;
+        
+        if (player.testaLivesLeft === 0) {
+          player.hasGuessedTesta = true; // Eliminated
+          this.checkTestaGameOver();
+        }
       }
     }
     
@@ -791,9 +805,10 @@ export class Room {
     private checkTestaGameOver() {
       const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
       const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
+      const hasSuddenDeath = unGuessed.some(p => p.inSuddenDeath);
   
-      // End game if all but one have guessed (or everyone guessed/gave up)
-      if (unGuessed.length <= 1) {
+      // End game if all but one have guessed AND no one is in sudden death
+      if (unGuessed.length <= 1 && !hasSuddenDeath) {
         activePlayers.forEach(p => {
           if (p.testaGuessedCorrectly) {
              if (this.config.testaMode === 'points') {
@@ -828,18 +843,10 @@ export class Room {
     const target = this.players.get(targetId);
     
     if (!player || !target || playerId === targetId) return false;
-    // Block if player is discovered and has no last chance, or if target is already discovered
-    if ((player.hasBeenDiscovered && !player.numbersLastChance) || target.hasBeenDiscovered) return false;
-
-    // Consume last chance
-    if (player.numbersLastChance) {
-      player.numbersLastChance = false;
-      // We will check game over at the end of this function since they consumed their last chance
-    }
+    if (player.hasBeenDiscovered || target.hasBeenDiscovered) return false;
 
     if (target.numberValue === guess) {
       target.hasBeenDiscovered = true;
-      target.numbersLastChance = true;
       
       if (!player.discoveredNumbers) player.discoveredNumbers = [];
       player.discoveredNumbers.push(targetId);
@@ -848,19 +855,29 @@ export class Room {
       player.score += 150;
       target.score += 50;
 
+      // Sudden death for all remaining undiscovered players
+      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+      const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
+      undiscovered.forEach(p => p.inSuddenDeath = true);
+
       this.checkNumbersGameOver();
       return true;
     } else {
-      if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
-        if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
-          player.numbersLivesLeft--;
-          if (player.numbersLivesLeft <= 0) {
-            player.hasBeenDiscovered = true; // Eliminated (no last chance for dying of wrong guesses)
-            this.checkNumbersGameOver();
+      if (player.inSuddenDeath) {
+        player.hasBeenDiscovered = true; // Eliminated by sudden death
+        player.inSuddenDeath = false;
+        this.checkNumbersGameOver();
+      } else {
+        if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
+          if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
+            player.numbersLivesLeft--;
+            if (player.numbersLivesLeft <= 0) {
+              player.hasBeenDiscovered = true; // Eliminated
+              this.checkNumbersGameOver();
+            }
           }
         }
       }
-      // Check game over in case this was a last chance guess
       this.checkNumbersGameOver();
       return false; // Wrong guess
     }
@@ -869,9 +886,9 @@ export class Room {
     private checkNumbersGameOver() {
       const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
       const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
-      const hasLastChance = activePlayers.some(p => p.numbersLastChance);
+      const hasSuddenDeath = undiscovered.some(p => p.inSuddenDeath);
 
-    if (undiscovered.length <= 1 && !hasLastChance) {
+    if (undiscovered.length <= 1 && !hasSuddenDeath) {
       // Game over if 1 or 0 players left undiscovered and no one is taking a last chance!
       undiscovered.forEach(p => p.isWinner = true); 
       this.stateMachine.forceState(GameState.RESULT);

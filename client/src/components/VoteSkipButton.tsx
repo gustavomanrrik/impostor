@@ -12,7 +12,7 @@ export function VoteSkipButton() {
   if (!me || me.isWinner || me.hasBeenDiscovered || me.isSpectator) return null;
   
   return (
-    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
       <button 
         onClick={() => voteSkip()}
         disabled={me.hasVotedSkip}
@@ -20,10 +20,13 @@ export function VoteSkipButton() {
         style={{
           border: '2px dashed var(--text-primary)',
           cursor: me.hasVotedSkip ? 'not-allowed' : 'pointer',
+          padding: '8px 12px',
+          fontSize: '0.9rem',
+          background: 'var(--bg-glass)',
         }}
         title="Pular / Desistir (todos precisam votar)"
       >
-        {me.hasVotedSkip ? '✅ Voto Registrado para Pular' : '⏭️ Pular / Anular Rodada'}
+        {me.hasVotedSkip ? '✔️ Votado para pular' : '⏭️ Pular Rodada'}
       </button>
     </div>
   );

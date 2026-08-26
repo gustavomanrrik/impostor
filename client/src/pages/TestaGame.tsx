@@ -32,19 +32,25 @@ export function TestaGame() {
 
   if (roomState.state === GameState.IN_GAME) {
     return (
-      <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
-        <div className="status-badge voting" style={{ marginBottom: '12px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+      <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '16px' }}>
+        <div className="status-badge voting" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
           🧠 JOGO DA TESTA
         </div>
 
-        <h2 className="text-center" style={{ fontSize: '2.5rem' }}>Quem sou eu?</h2>
-        <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '16px', maxWidth: '600px' }}>
+        <h2 className="text-center" style={{ fontSize: '2.5rem', margin: 0 }}>Quem sou eu?</h2>
+        <p className="text-muted text-center" style={{ marginTop: '4px', fontSize: '1.1rem', marginBottom: '16px', maxWidth: '600px' }}>
           Faça perguntas de "sim" ou "não" para os outros jogadores e tente descobrir a palavra colada na sua testa!
         </p>
 
         <div className="status-badge" style={{ margin: '0 auto 24px', display: 'flex', width: 'fit-content', background: 'var(--bg-glass-strong)' }}>
           Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
         </div>
+        
+        {currentPlayer?.inSuddenDeath && (
+          <div className="status-badge error" style={{ margin: '0 auto 24px', display: 'flex', width: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
+            ⚠️ MORTE SÚBITA! VOCÊ TEM APENAS 1 PALPITE PARA SE SALVAR! ⚠️
+          </div>
+        )}
 
         {currentPlayer?.hasGuessedTesta ? (
           <div className="card text-center" style={{ marginBottom: '32px', border: '4px dashed var(--text-primary)' }}>
@@ -143,7 +149,7 @@ export function TestaGame() {
         )}
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Na testa da galera:</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
           {roomState.players.filter(p => p.id !== playerId).map(p => (
             <div key={p.id} className="card" style={{ 
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -151,11 +157,11 @@ export function TestaGame() {
               border: p.hasGuessedTesta ? '2px solid #ccc' : '2px solid var(--text-primary)',
               background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
               position: 'relative',
-              padding: '12px'
+              padding: '16px'
             }}>
               
               <div style={{ position: 'relative', marginTop: '16px' }}>
-                <AvatarDisplay avatar={p.avatar} size="3.5rem" />
+                <AvatarDisplay avatar={p.avatar} size="4.5rem" />
                 
                 {/* Post-it simulado na testa do Avatar */}
                 <div style={{ 
@@ -165,48 +171,32 @@ export function TestaGame() {
                   transform: 'translateX(-50%) rotate(5deg)',
                   background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
                   color: p.hasGuessedTesta ? '#888' : '#000',
-                  padding: '4px 8px', 
-                  borderRadius: '2px 6px 2px 6px', 
+                  padding: '4px 12px',
                   fontFamily: 'var(--font-display)',
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                  boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
-                  whiteSpace: 'nowrap',
-                  zIndex: 2,
-                  minWidth: '60px',
-                  textDecoration: p.hasGuessedTesta ? 'line-through' : 'none'
+                  border: '2px solid #000',
+                  fontSize: '1.2rem',
+                  boxShadow: '2px 2px 0 rgba(0,0,0,0.2)'
                 }}>
-                  {p.testaWord || '...'}
+                  {p.hasGuessedTesta ? 'Descobriu!' : p.testaWord}
                 </div>
               </div>
+              
+              <h4 style={{ margin: '8px 0 0 0', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none', fontSize: '1.3rem' }}>
+                {p.name}
+              </h4>
 
-              <div style={{ flex: 1, textAlign: 'center', width: '100%' }}>
-                <p style={{ fontWeight: 900, margin: 0, fontSize: '1rem', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none' }}>
-                  {p.name}
-                </p>
-                {p.hasGuessedTesta && (
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
-                    {roomState.config.testaMode === 'survival' ? (
-                      p.testaGuessedCorrectly ? 'Sobreviveu! 👑' : 'Eliminado 💀'
-                    ) : (
-                      p.testaGuessedCorrectly ? `${p.testaGuessOrder}º lugar 🏆` : 'Desistiu'
-                    )}
-                  </span>
-                )}
-                {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
-                  <div style={{ marginTop: '4px', fontSize: '1rem' }}>
-                    {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
-                      <span key={i} style={{ 
-                        opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
-                        color: 'red',
-                        textShadow: '0 0 2px rgba(255,0,0,0.4)',
-                        lineHeight: 1
-                      }}>❤️</span>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+              {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
+                <div style={{ marginTop: '8px', fontSize: '1.5rem', display: 'flex', gap: '4px' }}>
+                  {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                    <span key={i} style={{ 
+                      opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
+                      color: 'red',
+                      textShadow: '0 0 2px rgba(255,0,0,0.4)',
+                      lineHeight: 1
+                    }}>❤️</span>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

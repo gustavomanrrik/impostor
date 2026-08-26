@@ -25,19 +25,21 @@ export function NumbersGame() {
 
   if (roomState.state === GameState.IN_GAME) {
     return (
-      <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
-        <div className="status-badge voting" style={{ marginBottom: '12px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+      <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '16px' }}>
+        <div className="status-badge error" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
           🔢 JOGO DOS NÚMEROS
         </div>
+
+        <h2 className="text-center" style={{ fontSize: '2.5rem', margin: 0 }}>Adivinhe os Números!</h2>
+        <p className="text-muted text-center" style={{ marginTop: '4px', fontSize: '1.1rem', marginBottom: '16px', maxWidth: '600px' }}>
+          O servidor sorteou um número secreto para cada um de vocês. Façam perguntas ("seu número é maior que 50?") e tentem descobrir o número exato dos outros!
+        </p>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '2px solid var(--text-primary)', marginBottom: '16px' }}>
           <span>Sua pontuação:</span>
           <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary)' }}>{currentPlayer?.score || 0} pts</span>
         </div>
 
-        <h2 className="text-center" style={{ fontSize: '2.5rem' }}>Adivinhe os Números!</h2>
-        <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '24px', maxWidth: '600px' }}>
-          O servidor sorteou um número secreto para cada um de vocês. Façam perguntas ("seu número é maior que 50?") e tentem descobrir o número exato dos outros!
         </p>
 
         <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch', marginBottom: '32px' }}>
@@ -59,7 +61,12 @@ export function NumbersGame() {
             </div>
             {currentPlayer?.hasBeenDiscovered && (
               <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
-                {currentPlayer?.numbersLastChance ? '⚠️ Descobriram seu número! Dê seu ÚLTIMO palpite!' : '💀 Descobriram o seu número!'}
+                💀 Descobriram o seu número!
+              </div>
+            )}
+            {currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
+              <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
+                ⚠️ MORTE SÚBITA! VOCÊ TEM APENAS 1 PALPITE PARA SE SALVAR! ⚠️
               </div>
             )}
             {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
@@ -91,18 +98,19 @@ export function NumbersGame() {
         </div>
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores:</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
           {roomState.players.filter(p => p.id !== playerId).map(p => (
             <div key={p.id} className="card" style={{ 
               display: 'flex', flexDirection: 'column', gap: '12px', 
               opacity: !p.isConnected ? 0.5 : 1,
               border: p.hasBeenDiscovered ? '3px solid #ccc' : '3px solid var(--text-primary)',
-              background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)'
+              background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+              padding: '24px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <AvatarDisplay avatar={p.avatar} size="2.5rem" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <AvatarDisplay avatar={p.avatar} size="3.5rem" />
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none' }}>{p.name}</p>
+                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.5rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none' }}>{p.name}</p>
                 </div>
               </div>
 
@@ -112,12 +120,9 @@ export function NumbersGame() {
                 padding: '16px', 
                 borderRadius: '0', 
                 fontFamily: 'monospace',
-                fontSize: '2.5rem',
-                fontWeight: 900,
-                textAlign: 'center',
-                minHeight: '80px',
-                display: 'flex',
-                alignItems: 'center',
+                fontSize: '3rem',
+                display: 'flex', 
+                alignItems: 'center', 
                 justifyContent: 'center',
                 boxShadow: 'inset 4px 4px 0px 0px rgba(0,0,0,0.1)'
               }}>
@@ -129,7 +134,7 @@ export function NumbersGame() {
               </div>
 
               {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.5rem' }}>
                   {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
                     <span key={i} style={{ 
                       opacity: i < (p.numbersLivesLeft || 0) ? 1 : 0.3, 
@@ -141,7 +146,7 @@ export function NumbersGame() {
                 </div>
               ) : null}
 
-              {!p.hasBeenDiscovered && (!currentPlayer?.hasBeenDiscovered || currentPlayer?.numbersLastChance) && (
+              {!p.hasBeenDiscovered && !currentPlayer?.hasBeenDiscovered && (
                 <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                   <input
                     type="number"
