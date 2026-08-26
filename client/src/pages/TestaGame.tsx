@@ -4,13 +4,14 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 
 export function TestaGame() {
-  const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta } = useGame();
+  const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
   const [guess, setGuess] = useState('');
 
   if (!roomState) return null;
 
   const currentPlayer = roomState.players.find(p => p.id === playerId);
   const isHost = roomState.hostId === playerId;
+  const currentTheme = themes.find(t => t.id === roomState.config.theme);
 
   const handleGuess = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +35,13 @@ export function TestaGame() {
         </div>
 
         <h2 className="text-center" style={{ fontSize: '2.5rem' }}>Quem sou eu?</h2>
-        <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '24px', maxWidth: '600px' }}>
+        <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '16px', maxWidth: '600px' }}>
           Faça perguntas de "sim" ou "não" para os outros jogadores e tente descobrir a palavra colada na sua testa!
         </p>
+
+        <div className="status-badge" style={{ margin: '0 auto 24px', display: 'flex', width: 'fit-content', background: 'var(--bg-glass-strong)' }}>
+          Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.emoji || ''} ${currentTheme?.name || roomState.config.theme}`}
+        </div>
 
         {currentPlayer?.hasGuessedTesta ? (
           <div className="card text-center" style={{ marginBottom: '32px', border: '4px dashed var(--text-primary)' }}>
