@@ -96,6 +96,7 @@ export interface RoomConfig {
   useFlatMode?: boolean;
   testaLives: number; // 0 = infinito
   testaMode: 'points' | 'survival';
+  totalRounds: number;
   
   // Numbers specific config
   numbersMin?: number;
@@ -173,6 +174,7 @@ export interface RoomPublicState {
   votesRegistered: number;
   totalPlayers: number;
   round: number;
+  currentRound: number;
   customThemeWordCount: number; // Nova propriedade para o lobby
 }
 
@@ -248,6 +250,7 @@ export interface ClientToServerEvents {
   'game:vote': (votedForId: string) => void;
   'game:voteSkip': () => void; // Pular rodada
   'game:nextRound': () => void;
+  'game:playAgain': () => void;
   'game:changeTheme': () => void;
   'game:reaction': (reaction: string) => void;
   

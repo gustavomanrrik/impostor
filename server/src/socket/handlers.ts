@@ -495,6 +495,37 @@ export function registerSocketHandlers(
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId || !room.isHost(playerId)) return;
 
+      const result = room.nextRound(playerId);
+      if (result.success) {
+        // Emit started which resets words and goes straight to game
+        io.to(room.code).emit('game:started', room.getPublicState());
+        
+        // Broadcast words again for impostor
+        if (room.config.gameType === GameType.IMPOSTOR) {
+          for (const p of room.getPlayers()) {
+            const playerSocket = getSocketByPlayerId(p.id);
+            if (playerSocket && p.word) {
+              io.to(playerSocket).emit('game:wordAssigned', { word: p.word, isImpostor: !!p.isImpostor });
+            }
+          }
+        } else if (room.config.gameType === GameType.NUMBERS) {
+          for (const p of room.getPlayers()) {
+            const playerSocket = getSocketByPlayerId(p.id);
+            if (playerSocket && p.numberValue) {
+              io.to(playerSocket).emit('game:numberAssigned', p.numberValue);
+            }
+          }
+        }
+      }
+    });
+
+    socket.on('game:playAgain', () => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId || !room.isHost(playerId)) return;
+
       const result = room.playAgain(playerId);
       if (result.success) {
         // Emit started which resets words and goes straight to game
@@ -505,17 +536,14 @@ export function registerSocketHandlers(
           for (const p of room.getPlayers()) {
             const playerSocket = getSocketByPlayerId(p.id);
             if (playerSocket && p.word) {
-              playerSocket.emit('game:wordAssigned', {
-                word: p.word,
-                isImpostor: !!p.isImpostor,
-              });
+              io.to(playerSocket).emit('game:wordAssigned', { word: p.word, isImpostor: !!p.isImpostor });
             }
           }
         } else if (room.config.gameType === GameType.NUMBERS) {
-           for (const p of room.getPlayers()) {
+          for (const p of room.getPlayers()) {
             const playerSocket = getSocketByPlayerId(p.id);
             if (playerSocket && p.numberValue) {
-              playerSocket.emit('game:numberAssigned', p.numberValue);
+              io.to(playerSocket).emit('game:numberAssigned', p.numberValue);
             }
           }
         }

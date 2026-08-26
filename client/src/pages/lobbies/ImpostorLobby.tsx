@@ -225,6 +225,21 @@ export function ImpostorLobby() {
             {isHost ? (
               <div className="config-panel">
                 <div className="input-group">
+                  <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Rodadas (Partida)</label>
+                  <select 
+                    className="input" 
+                    value={config.totalRounds || 3} 
+                    onChange={e => updateConfig({ totalRounds: parseInt(e.target.value) })}
+                    style={{ marginBottom: '16px' }}
+                  >
+                    <option value={1}>1 Rodada</option>
+                    <option value={3}>3 Rodadas</option>
+                    <option value={5}>5 Rodadas</option>
+                    <option value={10}>10 Rodadas</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
                   <label className="input-label">Tema de Palavras</label>
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                     <button 
@@ -341,6 +356,7 @@ export function ImpostorLobby() {
             ) : (
               <div className="read-only-config" style={{ background: 'var(--bg-glass)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
                 <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
+                  <strong>Partida:</strong> {config.totalRounds || 3} rodadas<br/>
                   <strong>Tema:</strong> {config.theme === 'custom' ? 'Colaborativo' : selectedTheme?.name} {selectedTheme?.is18Plus && '🔞'}<br/>
                   {config.theme !== 'custom' && (
                     <>

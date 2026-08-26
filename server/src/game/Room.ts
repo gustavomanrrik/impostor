@@ -21,6 +21,7 @@ export class Room {
   private votes: Map<string, string> = new Map(); // voterId -> votedForId
   private voteRequests: Set<string> = new Set();
   private round: number = 0;
+  public currentRound: number = 1;
   private customTheme: CustomTheme | null = null;
   private disconnectTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private skipVotes: Set<string> = new Set();
@@ -44,6 +45,7 @@ export class Room {
       testaMode: 'points',
       numbersMin: 1,
       numbersMax: 100,
+      totalRounds: 3,
       ...config,
     };
   }
@@ -643,10 +645,20 @@ export class Room {
 
   playAgain(playerId: string): { success: boolean; error?: string } {
     if (!this.isHost(playerId)) return { success: false, error: 'Apenas o host pode reiniciar.' };
-    if (this.state !== GameState.RESULT && this.state !== GameState.DISCUSSION && this.state !== GameState.WORD_REVEAL) {
-      return { success: false, error: 'Não é possível reiniciar agora.' };
-    }
     
+    this.currentRound = 1;
+    for (const p of this.players.values()) {
+      p.score = 0;
+    }
+    this.clearRoundState();
+    return this.startGame(playerId);
+  }
+
+  nextRound(playerId: string): { success: boolean; error?: string } {
+    if (!this.isHost(playerId)) return { success: false, error: 'Apenas o host pode avançar a rodada.' };
+    if (this.currentRound >= (this.config.totalRounds || 3)) return { success: false, error: 'Limite de rodadas atingido.' };
+    
+    this.currentRound++;
     this.clearRoundState();
     return this.startGame(playerId);
   }
@@ -673,8 +685,10 @@ export class Room {
       
       // Numbers
       p.numberValue = undefined;
-      p.hasBeenDiscovered = false;
       p.discoveredNumbers = [];
+      p.hasBeenDiscovered = false;
+      p.inSuddenDeath = false;
+      p.numbersLastChance = false;
     }
 
     this.impostorIds.clear();
@@ -728,6 +742,7 @@ export class Room {
       votesRegistered: Array.from(this.players.values()).filter(p => p.hasVoted && !p.isSpectator).length,
       totalPlayers: Array.from(this.players.values()).filter(p => !p.isSpectator).length,
       round: this.round,
+      currentRound: this.currentRound,
       customThemeWordCount: this.totalSubmittedWords,
     };
   }

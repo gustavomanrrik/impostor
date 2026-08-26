@@ -225,6 +225,21 @@ export function TestaLobby() {
             {isHost ? (
               <div className="config-panel">
                 <div className="input-group">
+                  <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Rodadas (Partida)</label>
+                  <select 
+                    className="input" 
+                    value={config.totalRounds || 3} 
+                    onChange={e => updateConfig({ totalRounds: parseInt(e.target.value) })}
+                    style={{ marginBottom: '16px' }}
+                  >
+                    <option value={1}>1 Rodada</option>
+                    <option value={3}>3 Rodadas</option>
+                    <option value={5}>5 Rodadas</option>
+                    <option value={10}>10 Rodadas</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
                   <label className="input-label">O que vai ter escrito na testa?</label>
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                     <button 
@@ -346,8 +361,9 @@ export function TestaLobby() {
               </div>
             ) : (
                 <div className="read-only-config" style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
-                  <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
-                    <strong>Tema selecionado:</strong> {config.theme === 'custom' ? 'Inventado pela Galera' : selectedTheme?.name} {selectedTheme?.is18Plus && '🔞'}<br/>
+                    <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
+                      <strong>Partida:</strong> {config.totalRounds || 3} rodadas<br/>
+                      <strong>Tema selecionado:</strong> {config.theme === 'custom' ? 'Inventado pela Galera' : selectedTheme?.name} {selectedTheme?.is18Plus && '🔞'}<br/>
                     {config.theme !== 'custom' && (
                       <><strong>Dificuldade:</strong> {config.difficulty === Difficulty.EASY ? 'Fácil' : config.difficulty === Difficulty.MEDIUM ? 'Médio' : 'Difícil'}<br/></>
                     )}

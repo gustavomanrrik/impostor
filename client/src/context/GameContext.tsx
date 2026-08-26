@@ -60,6 +60,7 @@ interface GameContextType {
   submitVote: (votedForId: string) => void;
   voteSkip: () => void;
   nextRound: () => void;
+  playAgain: () => void;
   changeTheme: () => void;
   sendReaction: (reaction: string) => void;
   resetScores: () => void;
@@ -466,6 +467,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:nextRound');
   }, []);
 
+  const playAgain = useCallback(() => {
+    getSocket().emit('game:playAgain');
+  }, []);
+
   const changeTheme = useCallback(() => {
     getSocket().emit('game:changeTheme');
   }, []);
@@ -520,7 +525,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     selectedGameType, setSelectedGameType,
     roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
-    startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
+    startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, playAgain, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
     isChatMinimized, setIsChatMinimized, hasUnreadChat, setHasUnreadChat,

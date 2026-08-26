@@ -5,7 +5,7 @@ import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 
 export function NumbersGame() {
-  const { roomState, playerId, nextRound, leaveRoom, addToast, guessNumber, myNumber } = useGame();
+  const { roomState, playerId, nextRound, playAgain, leaveRoom, guessNumber, myNumber } = useGame();
   const [guesses, setGuesses] = useState<Record<string, string>>({});
   const [personalNotes, setPersonalNotes] = useState('');
 
@@ -206,19 +206,29 @@ export function NumbersGame() {
         </div>
 
         {isHost ? (
-          <button className="btn btn-primary btn-xl w-full" onClick={nextRound}>
-            🔄 Jogar Novamente
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+            {roomState.currentRound < (roomState.config.totalRounds || 1) ? (
+              <button className="btn btn-primary btn-xl w-full" onClick={nextRound}>
+                ▶ Próxima Rodada ({roomState.currentRound}/{roomState.config.totalRounds || 1})
+              </button>
+            ) : (
+              <button className="btn btn-primary btn-xl w-full" onClick={playAgain}>
+                🔄 Jogar Novamente
+              </button>
+            )}
+          </div>
         ) : (
           <div className="status-badge waiting">
-            ⏳ Aguardando host iniciar nova rodada...
+            ⏳ Aguardando host decidir...
           </div>
         )}
 
         <div className="spacer-4" />
-        <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-          🚪 Sair da sala
-        </button>
+        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 1)) && (
+          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
+            🚪 Sair da sala
+          </button>
+        )}
       </div>
     );
   }

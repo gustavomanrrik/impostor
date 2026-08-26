@@ -5,7 +5,7 @@ import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 
 export function ImpostorGame() {
-  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, themes } = useGame();
+  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
   const [personalNotes, setPersonalNotes] = useState('');
   const [wordSeen, setWordSeen] = useState(false);
@@ -473,26 +473,36 @@ export function ImpostorGame() {
         {/* Actions */}
         {isHost ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-            <button className="btn btn-primary btn-xl" onClick={nextRound}>
-              🔄 Jogar novamente
-            </button>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button className="btn btn-secondary" style={{ flex: 2, height: '44px' }} onClick={changeTheme}>
-                🎯 Novo tema
+            {roomState.currentRound < (roomState.config.totalRounds || 1) ? (
+              <button className="btn btn-primary btn-xl" onClick={nextRound}>
+                ▶ Próxima Rodada ({roomState.currentRound}/{roomState.config.totalRounds || 1})
               </button>
-              <button className="btn btn-ghost" style={{ flex: 1, height: '44px' }} onClick={leaveRoom}>
-                🚪 Sair
-              </button>
-            </div>
+            ) : (
+              <>
+                <button className="btn btn-primary btn-xl" onClick={playAgain}>
+                  🔄 Jogar novamente
+                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button className="btn btn-secondary" style={{ flex: 2, height: '44px' }} onClick={changeTheme}>
+                    🎨 Novo tema
+                  </button>
+                  <button className="btn btn-ghost" style={{ flex: 1, height: '44px' }} onClick={leaveRoom}>
+                    🚪 Sair
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
             <div className="status-badge waiting">
               ⏳ Aguardando o host decidir...
             </div>
-            <button className="btn btn-ghost" onClick={leaveRoom}>
-              🚪 Sair da sala
-            </button>
+            {roomState.currentRound >= (roomState.config.totalRounds || 1) && (
+              <button className="btn btn-ghost" onClick={leaveRoom}>
+                🚪 Sair da sala
+              </button>
+            )}
           </div>
         )}
       </div>

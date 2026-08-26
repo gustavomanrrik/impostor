@@ -6,7 +6,7 @@ import { VoteSkipButton } from '../components/VoteSkipButton';
 
 
 export function TestaGame() {
-  const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
+  const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
   const [guess, setGuess] = useState('');
   const [personalNotes, setPersonalNotes] = useState('');
 
@@ -21,7 +21,6 @@ export function TestaGame() {
     if (!guess.trim()) return;
     guessTesta(guess.trim());
     setGuess('');
-    addToast('info', 'Tentativa enviada!');
   };
 
   const handleGiveUp = () => {
@@ -246,19 +245,29 @@ export function TestaGame() {
         </div>
 
         {isHost ? (
-          <button className="btn btn-primary btn-xl w-full" onClick={nextRound}>
-            🔄 Jogar Novamente
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+            {roomState.currentRound < (roomState.config.totalRounds || 1) ? (
+              <button className="btn btn-primary btn-xl w-full" onClick={nextRound}>
+                ▶ Próxima Rodada ({roomState.currentRound}/{roomState.config.totalRounds || 1})
+              </button>
+            ) : (
+              <button className="btn btn-primary btn-xl w-full" onClick={playAgain}>
+                🔄 Jogar Novamente
+              </button>
+            )}
+          </div>
         ) : (
           <div className="status-badge waiting">
-            ⏳ Aguardando host iniciar nova rodada...
+            ⏳ Aguardando host decidir...
           </div>
         )}
 
         <div className="spacer-4" />
-        <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-          🚪 Sair da sala
-        </button>
+        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 1)) && (
+          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
+            🚪 Sair da sala
+          </button>
+        )}
       </div>
     );
   }
