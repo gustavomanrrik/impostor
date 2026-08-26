@@ -264,29 +264,46 @@ export function TestaLobby() {
                   </div>
                 </div>
 
-                {config.theme !== 'custom' && (
-                  <>
-                    <div className="spacer-4" />
-                    <div className="input-group">
-                      <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Dificuldade das Palavras</label>
-                      <div className="difficulty-selector">
-                        {[
-                          { value: Difficulty.EASY, label: '😊 Fácil' },
-                          { value: Difficulty.MEDIUM, label: '🤔 Médio' },
-                          { value: Difficulty.HARD, label: '😈 Difícil' },
-                        ].map(d => (
-                          <div
-                            key={d.value}
-                            className={`difficulty-option ${config.difficulty === d.value ? 'selected' : ''}`}
-                            onClick={() => updateConfig({ difficulty: d.value })}
-                          >
-                            {d.label}
-                          </div>
-                        ))}
+                <div className="spacer-4" />
+                <div className="input-group">
+                  <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Dificuldade das Palavras</label>
+                  <div className="difficulty-selector">
+                    {[
+                      { value: Difficulty.EASY, label: '😃 Fácil' },
+                      { value: Difficulty.MEDIUM, label: '🤔 Médio' },
+                      { value: Difficulty.HARD, label: '🤯 Difícil' },
+                    ].map(d => (
+                      <div
+                        key={d.value}
+                        className={`difficulty-option ${config.difficulty === d.value ? 'selected' : ''}`}
+                        onClick={() => updateConfig({ difficulty: d.value })}
+                      >
+                        {d.label}
                       </div>
-                    </div>
-                  </>
-                )}
+                    ))}
+                  </div>
+                </div>
+
+                <div className="spacer-4" />
+                <div className="input-group">
+                  <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Corações (Vidas)</label>
+                  <div className="difficulty-selector">
+                    {[
+                      { value: 3, label: '3 Vidas' },
+                      { value: 5, label: '5 Vidas' },
+                      { value: 10, label: '10 Vidas' },
+                      { value: 0, label: 'Infinito' },
+                    ].map(d => (
+                      <div
+                        key={d.value}
+                        className={`difficulty-option ${config.testaLives === d.value || (config.testaLives === undefined && d.value === 0) ? 'selected' : ''}`}
+                        onClick={() => updateConfig({ testaLives: d.value })}
+                      >
+                        {d.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="spacer-4" />
                 <button 
@@ -307,6 +324,7 @@ export function TestaLobby() {
                   {config.theme !== 'custom' && (
                     <><strong>Dificuldade:</strong> {config.difficulty === Difficulty.EASY ? 'Fácil' : config.difficulty === Difficulty.MEDIUM ? 'Médio' : 'Difícil'}<br/></>
                   )}
+                  <strong>Corações:</strong> {config.testaLives === 0 || config.testaLives === undefined ? 'Infinito' : `${config.testaLives} Vidas`}<br/>
                 </p>
               </div>
             )}

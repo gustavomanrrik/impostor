@@ -86,6 +86,7 @@ export interface RoomConfig {
   showImpostorCount: boolean;
   soundEnabled: boolean;
   useFlatMode?: boolean;
+  testaLives: number; // 0 = infinito
   
   // Numbers specific config
   numbersMin?: number;
@@ -183,6 +184,7 @@ export interface PublicPlayer {
   // Testa
   testaWord?: string;
   hasGuessedTesta?: boolean;
+  testaLivesLeft?: number;
   
   // Numbers
   numberValue?: number;
@@ -218,6 +220,7 @@ export interface ClientToServerEvents {
 
   // Chat
   'chat:sendMessage': (message: string) => void;
+  'chat:sendImage': (imageUrl: string) => void;
 
   // Game
   'game:start': () => void;

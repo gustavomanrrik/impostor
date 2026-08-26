@@ -40,6 +40,7 @@ export class Room {
       discussionTimeLimit: 0,
       showImpostorCount: true,
       soundEnabled: true,
+      testaLives: 3,
       numbersMin: 1,
       numbersMax: 100,
       ...config,
@@ -353,6 +354,7 @@ export class Room {
       p.isWinner = false;
       p.hasGuessedTesta = false;
       p.testaWord = undefined;
+      p.testaLivesLeft = this.config.testaLives;
     }
 
     // Assign a random word to each player
@@ -732,18 +734,31 @@ export class Room {
 
   // ─── Testa Logic ─────────────────────────────
 
-  guessTestaWord(playerId: string, guess: string): boolean {
-    if (this.state !== GameState.IN_GAME) return false;
+  guessTestaWord(playerId: string, guess: string): { correct: boolean, stateChanged: boolean, livesLeft?: number } {
+    if (this.state !== GameState.IN_GAME) return { correct: false, stateChanged: false };
     const player = this.players.get(playerId);
-    if (!player || player.hasGuessedTesta || !player.testaWord) return false;
+    if (!player || player.hasGuessedTesta || !player.testaWord) return { correct: false, stateChanged: false };
 
     // Check guess (case insensitive)
     if (guess.trim().toLowerCase() === player.testaWord.toLowerCase()) {
       player.hasGuessedTesta = true;
       this.checkTestaGameOver();
-      return true;
+      return { correct: true, stateChanged: true };
     }
-    return false;
+    
+    // Wrong guess
+    let stateChanged = false;
+    if (player.testaLivesLeft && player.testaLivesLeft > 0) {
+      player.testaLivesLeft -= 1;
+      stateChanged = true;
+      
+      if (player.testaLivesLeft === 0) {
+        player.hasGuessedTesta = true; // Eliminated
+        this.checkTestaGameOver();
+      }
+    }
+    
+    return { correct: false, stateChanged, livesLeft: player.testaLivesLeft };
   }
 
   giveUpTesta(playerId: string): boolean {

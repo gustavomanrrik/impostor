@@ -237,8 +237,26 @@ export function registerSocketHandlers(
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId) return;
       
-      if (room.guessTestaWord(playerId, guess)) {
+      const result = room.guessTestaWord(playerId, guess);
+      if (result.stateChanged) {
         io.to(room.code).emit('room:updated', room.getPublicState());
+        
+        // Optional: emit a system chat message if they lost a life
+        if (!result.correct && result.livesLeft !== undefined) {
+          const player = room.getPublicState().players.find(p => p.id === playerId);
+          if (player) {
+            const message = {
+              id: Math.random().toString(36).substring(2, 9),
+              playerId: 'system',
+              playerName: 'Sistema',
+              text: result.livesLeft === 0 
+                ? `${player.name} perdeu todos os corações e foi eliminado!`
+                : `${player.name} errou e perdeu um coração! (${result.livesLeft} restantes)`,
+              timestamp: Date.now(),
+            };
+            io.to(room.code).emit('chat:newMessage', message);
+          }
+        }
       }
     });
 

@@ -6,6 +6,7 @@ import { AvatarDisplay } from '../components/AvatarDisplay';
 export function TestaGame() {
   const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
   const [guess, setGuess] = useState('');
+  const [personalNotes, setPersonalNotes] = useState('');
 
   if (!roomState) return null;
 
@@ -40,7 +41,7 @@ export function TestaGame() {
         </p>
 
         <div className="status-badge" style={{ margin: '0 auto 24px', display: 'flex', width: 'fit-content', background: 'var(--bg-glass-strong)' }}>
-          Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.emoji || ''} ${currentTheme?.name || roomState.config.theme}`}
+          Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
         </div>
 
         {currentPlayer?.hasGuessedTesta ? (
@@ -65,6 +66,15 @@ export function TestaGame() {
           </div>
         ) : (
           <div className="card" style={{ marginBottom: '32px', border: '4px solid var(--text-primary)' }}>
+            {/* Vidas / Corações */}
+            {roomState.config.testaLives && roomState.config.testaLives > 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px', fontSize: '1.5rem' }}>
+                {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                  <span key={i} style={{ opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, filter: i < (currentPlayer?.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)' }}>❤️</span>
+                ))}
+              </div>
+            ) : null}
+
             <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <label style={{ fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase' }}>O que está na minha testa?</label>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -85,6 +95,20 @@ export function TestaGame() {
             </button>
           </div>
         )}
+
+        {/* Nota Pessoal */}
+        <div className="card" style={{ marginBottom: '32px' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>📝</span> Nota Pessoal (Só você vê)
+          </h3>
+          <textarea
+            className="input"
+            value={personalNotes}
+            onChange={(e) => setPersonalNotes(e.target.value)}
+            placeholder="Anote aqui dicas, o que você já perguntou, etc..."
+            style={{ width: '100%', minHeight: '100px', resize: 'vertical' }}
+          />
+        </div>
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Na testa da galera:</h3>
         <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
@@ -131,6 +155,13 @@ export function TestaGame() {
                 {p.hasGuessedTesta && (
                   <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Já descobriu!</span>
                 )}
+                {roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
+                  <div style={{ marginTop: '8px', fontSize: '1.2rem' }}>
+                    {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                      <span key={i} style={{ opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, filter: i < (p.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)' }}>❤️</span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           ))}

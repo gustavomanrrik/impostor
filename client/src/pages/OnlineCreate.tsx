@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { getSavedPlayerName, getSavedAvatar, saveAvatar } from '../services/localStorage';
+import { getSavedPlayerName, getSavedAvatar, saveAvatar, savePlayerName } from '../services/localStorage';
 import { Difficulty, ImpostorMode } from '@shared/types';
 import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
