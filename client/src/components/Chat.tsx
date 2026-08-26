@@ -126,19 +126,7 @@ export function Chat() {
   }
 
   return (
-    <div className="chat-container expanded" style={{ 
-      position: 'fixed', 
-      bottom: 0, 
-      right: '20px', 
-      width: '320px', 
-      height: '400px', 
-      maxHeight: '80vh', 
-      zIndex: 1000,
-      display: 'flex',
-      flexDirection: 'column',
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0
-    }}>
+    <div className="chat-container">
       <div className="chat-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0, fontSize: '1rem' }}>💬 chat da sala</h3>
         <button 
