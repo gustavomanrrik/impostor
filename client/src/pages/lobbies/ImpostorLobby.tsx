@@ -29,7 +29,7 @@ export function ImpostorLobby() {
 
   if (!roomState) return null;
 
-  const isHost = roomState.hostId === playerId;
+  const isHost = roomState.hostId === playerId || roomState.players.find(p => p.id === playerId)?.isHost === true;
   const canStart = roomState.players.length >= 3;
   const selectedTheme = themes.find(t => t.id === roomState.config.theme);
   const config = roomState.config;
