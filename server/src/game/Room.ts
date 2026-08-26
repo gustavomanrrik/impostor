@@ -41,6 +41,7 @@ export class Room {
       showImpostorCount: true,
       soundEnabled: true,
       testaLives: 3,
+      testaMode: 'points',
       numbersMin: 1,
       numbersMax: 100,
       ...config,
@@ -353,8 +354,10 @@ export class Room {
     for (const p of this.players.values()) {
       p.isWinner = false;
       p.hasGuessedTesta = false;
+      p.testaGuessedCorrectly = false;
+      p.testaGuessOrder = undefined;
       p.testaWord = undefined;
-      p.testaLivesLeft = this.config.testaLives;
+      p.testaLivesLeft = this.config.testaMode === 'survival' ? this.config.testaLives : 0;
     }
 
     // Assign a random word to each player
@@ -742,6 +745,8 @@ export class Room {
     // Check guess (case insensitive)
     if (guess.trim().toLowerCase() === player.testaWord.toLowerCase()) {
       player.hasGuessedTesta = true;
+      player.testaGuessedCorrectly = true;
+      player.testaGuessOrder = Array.from(this.players.values()).filter(p => p.testaGuessedCorrectly).length + 1;
       this.checkTestaGameOver();
       return { correct: true, stateChanged: true };
     }
@@ -771,29 +776,37 @@ export class Room {
     return true;
   }
 
-  private checkTestaGameOver() {
-    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
-    const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
-
-    // End game if all but one have guessed (or everyone guessed/gave up)
-    if (unGuessed.length <= 1) {
-      // Game over!
-      // Assign points based on who guessed first?
-      // Since it's realtime, we could just give 100 points to everyone who guessed, or rank them.
-      // For simplicity, let's just give 100 points.
-      activePlayers.forEach(p => {
-        if (p.hasGuessedTesta && p.testaWord) { // Meaning they guessed correctly or gave up. If we need to differentiate, we'd need a separate flag. Let's just say 100 points if they got it.
-           // Wait, giveUp sets hasGuessedTesta. Let's just say 100 points.
-           p.score += 100;
-           p.isWinner = true;
-        } else {
-           p.isWinner = false;
-        }
-      });
-      
-      this.stateMachine.forceState(GameState.RESULT);
+    private checkTestaGameOver() {
+      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
+      const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
+  
+      // End game if all but one have guessed (or everyone guessed/gave up)
+      if (unGuessed.length <= 1) {
+        activePlayers.forEach(p => {
+          if (p.testaGuessedCorrectly) {
+             if (this.config.testaMode === 'points') {
+                const order = p.testaGuessOrder || 1;
+                let points = 0;
+                if (order === 1) points = 100;
+                else if (order === 2) points = 80;
+                else if (order === 3) points = 60;
+                else if (order === 4) points = 50;
+                else points = Math.max(10, 50 - ((order - 4) * 10)); // 40, 30, 20...
+                
+                p.score += points;
+                p.isWinner = true;
+             } else {
+                p.score += 100;
+                p.isWinner = true;
+             }
+          } else {
+             p.isWinner = false;
+          }
+        });
+        
+        this.stateMachine.forceState(GameState.RESULT);
+      }
     }
-  }
 
   // ─── Numbers Logic ─────────────────────────────
 

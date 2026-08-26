@@ -62,6 +62,24 @@ export function TestaGame() {
             }}>
               {currentPlayer.testaWord}
             </div>
+            
+            {roomState.config.testaMode === 'points' && currentPlayer.testaGuessedCorrectly && (
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                Você acertou em {currentPlayer.testaGuessOrder}º lugar! 🏆
+              </div>
+            )}
+            
+            {roomState.config.testaMode === 'survival' && !currentPlayer.testaGuessedCorrectly && (
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                Você foi eliminado! 💀
+              </div>
+            )}
+            {roomState.config.testaMode === 'survival' && currentPlayer.testaGuessedCorrectly && (
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                Você sobreviveu! 👑
+              </div>
+            )}
+            
             <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
           </div>
         ) : (
@@ -153,7 +171,13 @@ export function TestaGame() {
                   {p.name}
                 </p>
                 {p.hasGuessedTesta && (
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Já descobriu!</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                    {roomState.config.testaMode === 'survival' ? (
+                      p.testaGuessedCorrectly ? 'Sobreviveu! 👑' : 'Eliminado 💀'
+                    ) : (
+                      p.testaGuessedCorrectly ? `${p.testaGuessOrder}º lugar 🏆` : 'Desistiu'
+                    )}
+                  </span>
                 )}
                 {roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
                   <div style={{ marginTop: '8px', fontSize: '1.2rem' }}>

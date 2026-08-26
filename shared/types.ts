@@ -87,6 +87,7 @@ export interface RoomConfig {
   soundEnabled: boolean;
   useFlatMode?: boolean;
   testaLives: number; // 0 = infinito
+  testaMode: 'points' | 'survival';
   
   // Numbers specific config
   numbersMin?: number;
@@ -185,6 +186,8 @@ export interface PublicPlayer {
   testaWord?: string;
   hasGuessedTesta?: boolean;
   testaLivesLeft?: number;
+  testaGuessedCorrectly?: boolean;
+  testaGuessOrder?: number;
   
   // Numbers
   numberValue?: number;
