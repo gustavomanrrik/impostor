@@ -232,6 +232,7 @@ export interface ClientToServerEvents {
   // Chat
   'chat:sendMessage': (message: string) => void;
   'chat:sendImage': (imageUrl: string) => void;
+  'chat:react': (messageId: string, reaction: string) => void;
 
   // Game
   'game:start': () => void;
@@ -272,7 +273,8 @@ export interface ServerToClientEvents {
   'room:closed': () => void;
 
   // Chat
-  'chat:newMessage': (message: { id: string; playerId: string; playerName: string; text: string; timestamp: number; isSystem?: boolean }) => void;
+  'chat:newMessage': (message: ChatMessage) => void;
+  'chat:messageReaction': (data: { messageId: string, playerId: string, reaction: string }) => void;
 
   // Game specific
   'game:wordAssigned': (data: { word: string; isImpostor: boolean }) => void;
