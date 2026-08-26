@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
+import { ReactionInput } from '../components/ReactionInput';
 
 export function NumbersGame() {
   const { roomState, playerId, nextRound, leaveRoom, addToast, guessNumber } = useGame();
@@ -27,6 +28,15 @@ export function NumbersGame() {
         <div className="status-badge voting" style={{ marginBottom: '12px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
           🔢 JOGO DOS NÚMEROS
         </div>
+
+        <div className="card" style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <p className="text-muted" style={{ marginBottom: '8px' }}>Sua pontuação atual</p>
+          <h2 style={{ fontSize: '2.5rem', margin: 0, color: 'var(--primary)' }}>
+            {currentPlayer?.score || 0} <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>pts</span>
+          </h2>
+        </div>
+
+        <ReactionInput />
 
         <h2 className="text-center" style={{ fontSize: '2.5rem' }}>Adivinhe os Números!</h2>
         <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '24px', maxWidth: '600px' }}>
@@ -139,8 +149,8 @@ export function NumbersGame() {
             </div>
           </div>
 
-          <div className="card" style={{ flex: '1 1 200px', margin: 0 }}>
-            <h2 style={{ marginBottom: '16px' }}>🏆 Ranking</h2>
+          <div style={{ background: 'var(--bg-glass-strong)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
+            <h3 className="text-center" style={{ marginBottom: '16px' }}>Jogadores</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
               {[...roomState.players].sort((a, b) => b.score - a.score).map((p, i) => (
                 <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed var(--border)', fontSize: '0.95rem' }}>

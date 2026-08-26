@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
-import { compressImage } from '../utils/image';
+import { ReactionInput } from '../components/ReactionInput';
 
 export function ImpostorGame() {
-  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, sendReaction, activeReactions, themes } = useGame();
+  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, themes } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
   const [wordSeen, setWordSeen] = useState(false);
   const [selectedVote, setSelectedVote] = useState<string | null>(null);
@@ -113,36 +113,6 @@ export function ImpostorGame() {
   if (roomState.state === GameState.DISCUSSION) {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
-        {/* Floating Reactions overlay */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 100 }}>
-          {activeReactions.map(r => {
-            const isMe = r.playerId === playerId;
-            const player = roomState.players.find(p => p.id === r.playerId);
-            const isImage = r.reaction.startsWith('data:image/');
-            return (
-              <div
-                key={r.id}
-                style={{
-                  position: 'absolute',
-                  top: `${r.top}%`,
-                  left: isMe ? 'auto' : '10px',
-                  right: isMe ? '10px' : 'auto',
-                  animation: 'floatUp 4s ease-out forwards',
-                }}
-                className="reaction-bubble"
-              >
-                <div className="avatar" style={{ display: 'flex', alignItems: 'center' }}>
-                  <AvatarDisplay avatar={player?.avatar || ''} size="1.5rem" />
-                </div>
-                {isImage ? (
-                  <img src={r.reaction} alt="Reaction" style={{ maxHeight: '100px', maxWidth: '100px', borderRadius: '8px', objectFit: 'contain' }} />
-                ) : (
-                  <span className="text">{r.reaction}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
         
         {/* Top actions bar */}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
@@ -227,143 +197,7 @@ export function ImpostorGame() {
           </div>
         </div>
 
-        {/* Quick Chat / Reactions */}
-        <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
-          <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '8px', textAlign: 'center' }}>Reações Rápidas</p>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
-            {['🤔 Suspeito', '😱 Quem foi?', '👀 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
-              <button
-                key={phrase}
-                className="btn btn-ghost btn-sm"
-                style={{ background: 'var(--bg-glass)' }}
-                onClick={() => sendReaction(phrase)}
-              >
-                {phrase}
-              </button>
-            ))}
-          </div>
-          
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (customReaction.trim()) {
-                sendReaction(customReaction.trim());
-                setCustomReaction('');
-              }
-            }}
-            style={{ display: 'flex', gap: '8px', position: 'relative' }}
-          >
-            <div style={{ position: 'relative', flex: 1, display: 'flex', gap: '4px' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
-                <button 
-                  type="button" 
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  style={{
-                    position: 'absolute',
-                    left: '8px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    opacity: 0.7
-                  }}
-                >
-                  😊
-                </button>
-                <input
-                  type="text"
-                  className="input"
-                  style={{ width: '100%', padding: '8px 40px', fontSize: '0.9rem' }}
-                  placeholder="Ou digite algo..."
-                  maxLength={30}
-                  value={customReaction}
-                  onChange={(e) => setCustomReaction(e.target.value)}
-                />
-                <button 
-                  type="button" 
-                  onClick={() => reactionImageInputRef.current?.click()}
-                  style={{
-                    position: 'absolute',
-                    right: '8px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    opacity: 0.7
-                  }}
-                  title="Enviar Imagem"
-                >
-                  📸
-                </button>
-              </div>
-              <input
-                type="file"
-                ref={reactionImageInputRef}
-                style={{ display: 'none' }}
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  try {
-                    const base64Image = await compressImage(file, 150);
-                    sendReaction(base64Image);
-                  } catch (err) {
-                    console.error('Falha ao processar imagem:', err);
-                    alert('Erro ao enviar imagem. Tente outra.');
-                  }
-                  if (reactionImageInputRef.current) {
-                    reactionImageInputRef.current.value = '';
-                  }
-                }}
-              />
-            </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary btn-sm"
-              disabled={!customReaction.trim()}
-            >
-              Enviar
-            </button>
-
-            {showEmojiPicker && (
-              <div style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: 0,
-                marginBottom: '8px',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--bg-glass-strong)',
-                padding: '8px',
-                borderRadius: '8px',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(5, 1fr)',
-                gap: '4px',
-                zIndex: 50,
-                boxShadow: 'var(--shadow-lg)'
-              }}>
-                {['😂', '😱', '🤔', '🤡', '💀', '❤️', '👀', '👍', '👎', '🔥'].map(emoji => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => {
-                      setCustomReaction(prev => prev + emoji);
-                      setShowEmojiPicker(false);
-                    }}
-                    style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '4px' }}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            )}
-          </form>
-        </div>
+        <ReactionInput />
 
         {/* Request vote button */}
         {!hasRequestedVote ? (

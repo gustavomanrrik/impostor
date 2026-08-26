@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
+import { ReactionInput } from '../components/ReactionInput';
 
 export function TestaGame() {
   const { roomState, playerId, nextRound, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
@@ -113,6 +114,8 @@ export function TestaGame() {
             </button>
           </div>
         )}
+
+        <ReactionInput />
 
         {/* Nota Pessoal */}
         <div className="card" style={{ marginBottom: '32px' }}>
