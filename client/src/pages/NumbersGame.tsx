@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
-import { ReactionInput } from '../components/ReactionInput';
 
 export function NumbersGame() {
   const { roomState, playerId, nextRound, leaveRoom, addToast, guessNumber } = useGame();
@@ -33,8 +32,6 @@ export function NumbersGame() {
           <span>Sua pontuação:</span>
           <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary)' }}>{currentPlayer?.score || 0} pts</span>
         </div>
-
-        <ReactionInput />
 
         <h2 className="text-center" style={{ fontSize: '2.5rem' }}>Adivinhe os Números!</h2>
         <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '1rem', marginBottom: '24px', maxWidth: '600px' }}>

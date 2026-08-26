@@ -27,7 +27,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
     const me = roomState?.players.find(p => p.id === playerId);
     
     return (
-      <div style={{ position: 'fixed', top: '16px', right: '16px', zIndex: 50, display: 'flex', gap: '8px' }}>
+      <div style={{ position: 'fixed', top: '16px', right: showChat && !isChatMinimized ? 'calc(350px + 16px)' : '16px', zIndex: 50, display: 'flex', gap: '8px', transition: 'right 0.3s ease' }}>
         {isIngame && me && !me.isWinner && !me.hasBeenDiscovered && (
           <button 
             onClick={() => voteSkip()}

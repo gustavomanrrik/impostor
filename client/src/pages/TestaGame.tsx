@@ -84,90 +84,96 @@ export function TestaGame() {
             <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
           </div>
         ) : (
-          <div className="card" style={{ marginBottom: '32px', border: '4px solid var(--text-primary)' }}>
-            {/* Vidas / Corações */}
-            {roomState.config.testaLives && roomState.config.testaLives > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px', fontSize: '1.5rem' }}>
-                {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
-                  <span key={i} style={{ 
-                    opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
-                    filter: i < (currentPlayer?.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                    color: 'red',
-                    textShadow: '0 0 2px rgba(255,0,0,0.5)'
-                  }}>❤️</span>
-                ))}
-              </div>
-            ) : null}
+          <div className="card" style={{ marginBottom: '32px', border: '4px solid var(--text-primary)', padding: 'var(--space-6)' }}>
+            
+            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch' }}>
+              
+              <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
+                {/* Vidas / Corações (Apenas no modo Survival) */}
+                {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px', fontSize: '1.8rem' }}>
+                    {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                      <span key={i} style={{ 
+                        opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
+                        color: 'red',
+                        textShadow: '0 0 4px rgba(255,0,0,0.4)',
+                        lineHeight: 1
+                      }}>❤️</span>
+                    ))}
+                  </div>
+                ) : null}
 
-            <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <label style={{ fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase' }}>O que está na minha testa?</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  className="input"
-                  value={guess}
-                  onChange={(e) => setGuess(e.target.value)}
-                  placeholder="Ex: Neymar, Macaco..."
-                  style={{ flex: 1, fontSize: '1.2rem' }}
-                />
-                <button type="submit" className="btn btn-primary" style={{ padding: '0 24px' }}>Chutar</button>
+                <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
+                  <label style={{ fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase' }}>O que está na minha testa?</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      className="input"
+                      value={guess}
+                      onChange={(e) => setGuess(e.target.value)}
+                      placeholder="Ex: Neymar, Macaco..."
+                      style={{ flex: 1, fontSize: '1.2rem' }}
+                    />
+                    <button type="submit" className="btn btn-primary" style={{ padding: '0 24px' }}>Chutar</button>
+                  </div>
+                  <div className="spacer-2" />
+                  <button type="button" className="btn btn-ghost btn-sm w-full" onClick={handleGiveUp}>
+                    🏳️ Desistir e espiar a palavra
+                  </button>
+                </form>
               </div>
-            </form>
-            <div className="spacer-3" />
-            <button className="btn btn-ghost btn-sm w-full" onClick={handleGiveUp}>
-              🏳️ Desistir e espiar a palavra
-            </button>
+
+              {/* Nota Pessoal Lado a Lado */}
+              <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', borderLeft: '2px dashed var(--glass-border)', paddingLeft: '24px' }} className="personal-note-section">
+                <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📝</span> Nota Pessoal (Só você vê)
+                </h3>
+                <textarea
+                  className="input"
+                  value={personalNotes}
+                  onChange={(e) => setPersonalNotes(e.target.value)}
+                  placeholder="Anote dicas..."
+                  style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'vertical' }}
+                />
+              </div>
+
+            </div>
           </div>
         )}
 
-        <ReactionInput />
-
-        {/* Nota Pessoal */}
-        <div className="card" style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>📝</span> Nota Pessoal (Só você vê)
-          </h3>
-          <textarea
-            className="input"
-            value={personalNotes}
-            onChange={(e) => setPersonalNotes(e.target.value)}
-            placeholder="Anote aqui dicas, o que você já perguntou, etc..."
-            style={{ width: '100%', minHeight: '100px', resize: 'vertical' }}
-          />
-        </div>
-
-        <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Na testa da galera:</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Na testa da galera:</h3>
+        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
           {roomState.players.filter(p => p.id !== playerId).map(p => (
             <div key={p.id} className="card" style={{ 
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', 
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
               opacity: !p.isConnected ? 0.5 : 1,
-              border: p.hasGuessedTesta ? '3px solid #ccc' : '3px solid var(--text-primary)',
+              border: p.hasGuessedTesta ? '2px solid #ccc' : '2px solid var(--text-primary)',
               background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-              position: 'relative'
+              position: 'relative',
+              padding: '12px'
             }}>
               
-              <div style={{ position: 'relative', marginTop: '24px' }}>
-                <AvatarDisplay avatar={p.avatar} size="5rem" />
+              <div style={{ position: 'relative', marginTop: '16px' }}>
+                <AvatarDisplay avatar={p.avatar} size="3.5rem" />
                 
                 {/* Post-it simulado na testa do Avatar */}
                 <div style={{ 
                   position: 'absolute',
-                  top: '-30px',
+                  top: '-20px',
                   left: '50%',
                   transform: 'translateX(-50%) rotate(5deg)',
                   background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
                   color: p.hasGuessedTesta ? '#888' : '#000',
-                  padding: '8px 12px', 
-                  borderRadius: '2px 8px 2px 8px', 
+                  padding: '4px 8px', 
+                  borderRadius: '2px 6px 2px 6px', 
                   fontFamily: 'var(--font-display)',
-                  fontSize: '1.1rem',
+                  fontSize: '0.9rem',
                   fontWeight: 'bold',
                   textAlign: 'center',
-                  boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+                  boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
                   whiteSpace: 'nowrap',
                   zIndex: 2,
-                  minWidth: '80px',
+                  minWidth: '60px',
                   textDecoration: p.hasGuessedTesta ? 'line-through' : 'none'
                 }}>
                   {p.testaWord || '...'}
@@ -175,11 +181,11 @@ export function TestaGame() {
               </div>
 
               <div style={{ flex: 1, textAlign: 'center', width: '100%' }}>
-                <p style={{ fontWeight: 900, margin: 0, fontSize: '1.3rem', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none' }}>
+                <p style={{ fontWeight: 900, margin: 0, fontSize: '1rem', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none' }}>
                   {p.name}
                 </p>
                 {p.hasGuessedTesta && (
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
                     {roomState.config.testaMode === 'survival' ? (
                       p.testaGuessedCorrectly ? 'Sobreviveu! 👑' : 'Eliminado 💀'
                     ) : (
@@ -187,14 +193,14 @@ export function TestaGame() {
                     )}
                   </span>
                 )}
-                {roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
-                  <div style={{ marginTop: '8px', fontSize: '1.2rem' }}>
+                {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
+                  <div style={{ marginTop: '4px', fontSize: '1rem' }}>
                     {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
                       <span key={i} style={{ 
                         opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
-                        filter: i < (p.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
                         color: 'red',
-                        textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                        textShadow: '0 0 2px rgba(255,0,0,0.4)',
+                        lineHeight: 1
                       }}>❤️</span>
                     ))}
                   </div>

@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread } = useGame();
+  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction } = useGame();
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -176,7 +176,26 @@ export function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-input-area" style={{ display: 'flex', gap: '8px', alignItems: 'center' }} onSubmit={handleSend}>
+      {/* Predefined Reactions */}
+      <div style={{ padding: '8px 16px 0', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {['🤔 Suspeito', '😱 Quem foi?', '👀 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
+          <button
+            key={phrase}
+            className="btn btn-ghost"
+            style={{ 
+              fontSize: '0.75rem', 
+              padding: '4px 8px', 
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-sm)'
+            }}
+            onClick={() => sendReaction(phrase)}
+          >
+            {phrase}
+          </button>
+        ))}
+      </div>
+
+      <form className="chat-input-area" style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '16px' }} onSubmit={handleSend}>
         <button 
           type="button" 
           className="btn btn-ghost btn-sm" 

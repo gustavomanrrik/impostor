@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
-import { ReactionInput } from '../components/ReactionInput';
 
 export function ImpostorGame() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme, leaveRoom, addToast, themes } = useGame();
@@ -179,8 +178,6 @@ export function ImpostorGame() {
             ))}
           </div>
         </div>
-
-        <ReactionInput />
 
         {/* Request vote button */}
         {!hasRequestedVote ? (
