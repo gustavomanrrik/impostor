@@ -78,10 +78,10 @@ export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
   useEffect(() => {
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
     } else {
-      document.body.classList.remove('light-theme');
+      document.body.classList.remove('dark-theme');
     }
     localStorage.setItem('theme', theme);
   }, [theme]);

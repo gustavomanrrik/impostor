@@ -25,7 +25,7 @@ export function OnlineJoin() {
   };
 
   return (
-    <div className="page">
+    <div className="page" style={{ maxWidth: '500px', width: '100%', margin: '0 auto' }}>
       <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
         ← Voltar
       </button>

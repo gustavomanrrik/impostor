@@ -18,10 +18,10 @@ export function AvatarDisplay({ avatar, size = '1.2rem' }: Props) {
         style={{
           width: pxSize,
           height: pxSize,
-          borderRadius: '50%',
+          borderRadius: 'var(--radius-full)',
+          border: '3px solid var(--text-primary)',
           objectFit: 'cover',
-          display: 'inline-block',
-          verticalAlign: 'middle',
+          display: 'block',
           backgroundColor: 'var(--bg-glass-strong)'
         }}
       />
@@ -29,5 +29,6 @@ export function AvatarDisplay({ avatar, size = '1.2rem' }: Props) {
   }
 
   // Se for emoji (padrão)
-  return <span style={{ fontSize: size }}>{avatar}</span>;
+  const fontSize = size === '100%' ? '1.8rem' : size;
+  return <span style={{ fontSize }}>{avatar}</span>;
 }

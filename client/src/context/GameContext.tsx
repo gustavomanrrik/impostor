@@ -8,7 +8,8 @@ import {
   addPlayedGroup, addHistoryEntry, savePlayerName,
 } from '../services/localStorage';
 import { playJoinSound, playStartSound, playVotingStartedSound, playSuspenseSound, playWinSound, playLoseSound, playVoteSound } from '../services/sounds';
-import type { RoomPublicState, GameResult, ThemeListItem, GameHistoryEntry } from '@shared/types';
+import type { RoomPublicState, GameResult, ThemeListItem, GameHistoryEntry, ChatMessage } from '@shared/types';
+import { GameType, GameState } from '@shared/types';
 
 // ─── Types ───────────────────────
 export type Page =
@@ -33,6 +34,8 @@ interface GameContextType {
   // Navigation
   page: Page;
   navigate: (page: Page) => void;
+  selectedGameType: GameType;
+  setSelectedGameType: (type: GameType) => void;
 
   // Online state
   roomState: RoomPublicState | null;
@@ -58,6 +61,9 @@ interface GameContextType {
   changeTheme: () => void;
   sendReaction: (reaction: string) => void;
   resetScores: () => void;
+  guessTesta: (guess: string) => void;
+  giveUpTesta: () => void;
+  guessNumber: (targetId: string, guess: number) => void;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   
   // Chat
@@ -115,6 +121,7 @@ export function useGame(): GameContextType {
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [page, setPage] = useState<Page>('home');
+  const [selectedGameType, setSelectedGameType] = useState<GameType>(GameType.IMPOSTOR);
   const [roomState, setRoomState] = useState<RoomPublicState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [myWord, setMyWord] = useState<string | null>(null);
@@ -243,9 +250,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       playStartSound();
     });
 
-    socket.on('game:yourWord', (data) => {
+    socket.on('game:wordAssigned', (data) => {
       setMyWord(data.word);
       setIsImpostor(data.isImpostor);
+    });
+
+    socket.on('game:numberAssigned', (numberValue) => {
+      // Numbers doesn't have myWord or isImpostor, but if we want to store it globally:
+      // In NumbersGame, it reads from currentPlayer.numberValue, so we don't strictly need a local state,
+      // but let's log it just in case.
     });
 
     socket.on('game:discussionStarted', () => {
@@ -330,6 +343,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }, 4000);
     });
 
+    socket.on('chat:newMessage', (message) => {
+      setChatMessages(prev => [...prev, message]);
+    });
+
     return () => {
       // Don't remove listeners on cleanup since we use ref guard
     };
@@ -406,9 +423,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const resetScores = useCallback(() => {
     getSocket().emit('room:resetScores');
   }, []);
-
   const sendReaction = useCallback((reaction: string) => {
     getSocket().emit('game:reaction', reaction);
+  }, []);
+
+  const guessTesta = useCallback((guess: string) => {
+    getSocket().emit('game:guessTesta', guess);
+  }, []);
+
+  const giveUpTesta = useCallback(() => {
+    getSocket().emit('game:giveUpTesta');
+  }, []);
+
+  const guessNumber = useCallback((targetId: string, guess: number) => {
+    getSocket().emit('game:guessNumber', { targetId, guess });
   }, []);
 
   const sendChatMessage = useCallback((text: string) => {
@@ -417,10 +445,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const value: GameContextType = {
     page, navigate,
+    selectedGameType, setSelectedGameType,
     roomState, playerId, myWord, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
-    sendReaction, resetScores, activeReactions,
+    sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage,
     localState, setLocalState,
     toasts, addToast, showSuspense,

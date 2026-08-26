@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { compressImage } from '../utils/image';
 import { AvatarDisplay } from './AvatarDisplay';
 
-const AVATARS = ['☻', '☺', '♥', '♦', '♣', '♠', '★', '☆', '☎', '♫', '☼', '☽', '☁', '☂', '☃', '☢', '☣', '☯', '☮', '♨'];
+const AVATARS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦄', '🐙', '🦖', '🐢', '🐍'];
 
 export function getRandomAvatar(): string {
   return AVATARS[Math.floor(Math.random() * AVATARS.length)];
@@ -55,21 +55,20 @@ export function AvatarSelector({ selected, onSelect }: Props) {
         onClick={() => setIsOpen(!isOpen)}
         style={{
           padding: '0',
-          background: 'var(--bg-glass)',
-          border: '1px solid var(--glass-border-strong)',
-          borderRadius: 'var(--radius-md)',
+          background: 'transparent',
+          border: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           height: '48px',
           width: '54px',
-          transition: 'background 0.2s',
-          boxShadow: 'var(--shadow-sm)'
+          transition: 'transform 0.2s',
+          overflow: 'hidden'
         }}
         title="Mudar Avatar"
       >
-        <AvatarDisplay avatar={selected} size="1.8rem" />
+        <AvatarDisplay avatar={selected} size="100%" />
       </button>
 
       {isOpen && (

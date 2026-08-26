@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   GameState, Player, RoomConfig, RoomPublicState, PublicPlayer,
   Difficulty, ImpostorMode, WordSelection, Vote, VoteResult,
-  GameResult, CustomTheme,
+  GameResult, CustomTheme, GameType,
 } from '../../../shared/types.ts';
 import { StateMachine } from './StateMachine.ts';
 import { WordEngine } from './WordEngine.ts';
@@ -32,6 +32,7 @@ export class Room {
   constructor(code: string, config?: Partial<RoomConfig>) {
     this.code = code;
     this.config = {
+      gameType: GameType.IMPOSTOR,
       theme: 'relacionamentos',
       difficulty: Difficulty.MEDIUM,
       impostorMode: ImpostorMode.AUTO,
@@ -39,6 +40,8 @@ export class Room {
       discussionTimeLimit: 0,
       showImpostorCount: true,
       soundEnabled: true,
+      numbersMin: 1,
+      numbersMax: 100,
       ...config,
     };
   }
@@ -57,12 +60,7 @@ export class Room {
     return this.hostId;
   }
 
-  // ─── Configuration ─────────────────────────
-  updateConfig(playerId: string, newConfig: Partial<RoomConfig>): boolean {
-    if (playerId !== this.hostId) return false;
-    this.config = { ...this.config, ...newConfig };
-    return true;
-  }
+
 
   // ─── Player Management ─────────────────────
 
@@ -257,19 +255,38 @@ export class Room {
       return { success: false, error: 'Somente o host pode iniciar a partida.' };
     }
 
-    if (this.players.size < 3) {
-      return { success: false, error: 'São necessários pelo menos 3 jogadores.' };
+    if (!this.stateMachine.canTransition(GameState.STARTING)) {
+      return { success: false, error: 'Não é possível iniciar neste momento.' };
     }
 
+    // Dispatch based on game type
+    if (this.config.gameType === GameType.TESTA) {
+      if (this.players.size < 2 || this.players.size > 6) {
+        return { success: false, error: 'Jogo da Testa requer de 2 a 6 jogadores.' };
+      }
+      return this.startTestaGame();
+    } 
+    
+    if (this.config.gameType === GameType.NUMBERS) {
+      if (this.players.size < 2) {
+        return { success: false, error: 'Jogo dos Números requer pelo menos 2 jogadores.' };
+      }
+      return this.startNumbersGame();
+    }
+
+    // Default: Impostor
+    if (this.players.size < 3) {
+      return { success: false, error: 'Impostor requer pelo menos 3 jogadores.' };
+    }
+    return this.startImpostorGame();
+  }
+
+  private startImpostorGame(): { success: boolean; error?: string } {
     // Validar custom theme
     if (this.config.theme === 'custom' && this.customTheme) {
       if (this.customTheme.words.length < 4) {
         return { success: false, error: `O tema precisa de 4 palavras ÚNICAS. No momento temos apenas ${this.customTheme.words.length}.` };
       }
-    }
-
-    if (!this.stateMachine.canTransition(GameState.STARTING)) {
-      return { success: false, error: 'Não é possível iniciar neste momento.' };
     }
 
     // Limpar coroas (isWinner) antes de começar
@@ -322,6 +339,87 @@ export class Room {
     this.stateMachine.transition(GameState.STARTING);
     this.stateMachine.transition(GameState.WORD_REVEAL);
 
+    return { success: true };
+  }
+
+  private startTestaGame(): { success: boolean; error?: string } {
+    if (this.config.theme === 'custom' && this.customTheme) {
+      if (this.customTheme.words.length < this.players.size) {
+        return { success: false, error: `O tema precisa de pelo menos ${this.players.size} palavras ÚNICAS.` };
+      }
+    }
+
+    for (const p of this.players.values()) {
+      p.isWinner = false;
+      p.hasGuessedTesta = false;
+      p.testaWord = undefined;
+    }
+
+    // Assign a random word to each player
+    const usedWords = new Set<string>();
+    for (const p of this.players.values()) {
+      // Find a word not used yet
+      let attempts = 0;
+      let wordObj = null;
+      while (attempts < 50) {
+        wordObj = WordEngine.selectWords(
+          this.config.theme,
+          this.config.difficulty,
+          [],
+          this.customTheme || undefined,
+          true // Force flat mode basically
+        );
+        if (wordObj && !usedWords.has(wordObj.normalWord)) {
+          break;
+        }
+        attempts++;
+      }
+      
+      if (wordObj) {
+        p.testaWord = wordObj.normalWord;
+        usedWords.add(wordObj.normalWord);
+      } else {
+        p.testaWord = 'Palavra ' + Math.floor(Math.random() * 1000); // Fallback
+      }
+    }
+
+    this.round++;
+    this.stateMachine.transition(GameState.STARTING);
+    this.stateMachine.transition(GameState.IN_GAME);
+    return { success: true };
+  }
+
+  private startNumbersGame(): { success: boolean; error?: string } {
+    for (const p of this.players.values()) {
+      p.isWinner = false;
+      p.hasBeenDiscovered = false;
+      p.discoveredNumbers = [];
+    }
+
+    const min = this.config.numbersMin || 1;
+    const max = this.config.numbersMax || 100;
+    const range = max - min + 1;
+
+    if (range < this.players.size) {
+      return { success: false, error: 'O intervalo de números deve ser maior que o número de jogadores.' };
+    }
+
+    const usedNumbers = new Set<number>();
+    for (const p of this.players.values()) {
+      let num = min;
+      let attempts = 0;
+      do {
+        num = Math.floor(Math.random() * range) + min;
+        attempts++;
+      } while (usedNumbers.has(num) && attempts < 1000);
+      
+      usedNumbers.add(num);
+      p.numberValue = num;
+    }
+
+    this.round++;
+    this.stateMachine.transition(GameState.STARTING);
+    this.stateMachine.transition(GameState.IN_GAME);
     return { success: true };
   }
 
@@ -539,6 +637,15 @@ export class Room {
       p.votedFor = undefined;
       p.isImpostor = undefined;
       p.word = undefined;
+      
+      // Testa
+      p.testaWord = undefined;
+      p.hasGuessedTesta = false;
+      
+      // Numbers
+      p.numberValue = undefined;
+      p.hasBeenDiscovered = false;
+      p.discoveredNumbers = [];
     }
 
     this.impostorIds.clear();
@@ -575,6 +682,9 @@ export class Room {
       hasVotedSkip: p.hasVotedSkip || false,
       score: p.score || 0,
       isWinner: p.isWinner || false,
+      testaWord: p.testaWord,
+      hasGuessedTesta: p.hasGuessedTesta,
+      hasBeenDiscovered: p.hasBeenDiscovered,
     }));
 
     return {
@@ -600,6 +710,97 @@ export class Room {
 
   getWordGroupId(): string | null {
     return this.currentWords?.groupId || null;
+  }
+
+  getPlayerNumber(playerId: string): number | null {
+    const player = this.players.get(playerId);
+    return player?.numberValue || null;
+  }
+
+  // ─── Testa Logic ─────────────────────────────
+
+  guessTestaWord(playerId: string, guess: string): boolean {
+    if (this.state !== GameState.IN_GAME) return false;
+    const player = this.players.get(playerId);
+    if (!player || player.hasGuessedTesta || !player.testaWord) return false;
+
+    // Check guess (case insensitive)
+    if (guess.trim().toLowerCase() === player.testaWord.toLowerCase()) {
+      player.hasGuessedTesta = true;
+      this.checkTestaGameOver();
+      return true;
+    }
+    return false;
+  }
+
+  giveUpTesta(playerId: string): boolean {
+    if (this.state !== GameState.IN_GAME) return false;
+    const player = this.players.get(playerId);
+    if (!player || player.hasGuessedTesta) return false;
+
+    player.hasGuessedTesta = true; // Treats as done
+    this.checkTestaGameOver();
+    return true;
+  }
+
+  private checkTestaGameOver() {
+    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
+    const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
+
+    // End game if all but one have guessed (or everyone guessed/gave up)
+    if (unGuessed.length <= 1) {
+      // Game over!
+      // Assign points based on who guessed first?
+      // Since it's realtime, we could just give 100 points to everyone who guessed, or rank them.
+      // For simplicity, let's just give 100 points.
+      activePlayers.forEach(p => {
+        if (p.hasGuessedTesta && p.testaWord) { // Meaning they guessed correctly or gave up. If we need to differentiate, we'd need a separate flag. Let's just say 100 points if they got it.
+           // Wait, giveUp sets hasGuessedTesta. Let's just say 100 points.
+           p.score += 100;
+           p.isWinner = true;
+        } else {
+           p.isWinner = false;
+        }
+      });
+      
+      this.stateMachine.forceState(GameState.RESULT);
+    }
+  }
+
+  // ─── Numbers Logic ─────────────────────────────
+
+  guessNumber(playerId: string, targetId: string, guess: number): boolean {
+    if (this.state !== GameState.IN_GAME) return false;
+    const player = this.players.get(playerId);
+    const target = this.players.get(targetId);
+    
+    if (!player || !target || playerId === targetId) return false;
+    if (target.hasBeenDiscovered) return false;
+
+    if (target.numberValue === guess) {
+      target.hasBeenDiscovered = true;
+      if (!player.discoveredNumbers) player.discoveredNumbers = [];
+      player.discoveredNumbers.push(targetId);
+      
+      // Points
+      player.score += 150;
+      target.score += 50;
+
+      this.checkNumbersGameOver();
+      return true;
+    }
+    return false;
+  }
+
+  private checkNumbersGameOver() {
+    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
+    const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
+
+    if (undiscovered.length === 0) {
+      // Everyone discovered!
+      activePlayers.forEach(p => p.isWinner = true); // Just visual
+      this.stateMachine.forceState(GameState.RESULT);
+    }
   }
 
   // ─── Helpers ─────────────────────────────

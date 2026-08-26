@@ -1,83 +1,87 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
+import { GameType } from '@shared/types';
 
 export function Home() {
-  const { navigate } = useGame();
+  const { navigate, setSelectedGameType } = useGame();
+
+  const handleSelectGame = (game: GameType) => {
+    setSelectedGameType(game);
+    navigate('online-create');
+  };
 
   return (
-    <div className="page fade-in" style={{ justifyContent: 'center' }}>
+    <div className="page fade-in" style={{ justifyContent: 'center', width: '100%', maxWidth: '800px' }}>
       {/* Logo Area */}
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <div style={{ fontSize: '4.5rem', filter: 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))' }} aria-hidden="true">
-          🎭
-        </div>
-        <h1 className="text-gradient" style={{ fontSize: 'clamp(3rem, 10vw, 4.5rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '8px 0' }}>
-          IMPOSTOR
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '8px 0' }}>
+          joguinhos bacanudos
         </h1>
-        <p className="text-muted" style={{ fontSize: '1.1rem', fontWeight: 500 }}>
-          Descubra quem recebeu a palavra diferente.
+        <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500 }}>
+          a melhor coleção de jogos pra jogar com a galera
         </p>
       </div>
 
-      {/* Main Action Card */}
-      <div className="card card-glow" style={{ padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+      {/* Games Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', width: '100%' }}>
         
-        {/* Online Section */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
-          <button
-            className="btn btn-primary btn-xl"
-            onClick={() => navigate('online-create')}
-            aria-label="Jogar online"
-            id="btn-online"
-            style={{ width: '100%' }}
-          >
-            🌐 CRIAR SALA ONLINE
-          </button>
-
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate('online-join')}
-            style={{ width: '100%', padding: '14px' }}
-            id="btn-join-room"
-          >
-            Entrar com código →
-          </button>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>
-            Jogue em dispositivos diferentes
-          </span>
+        {/* Jogo 1: Impostor */}
+        <div 
+          className="card card-interactive" 
+          onClick={() => handleSelectGame(GameType.IMPOSTOR)}
+          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+        >
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🎭</div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>impostor</h2>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>descubra quem recebeu a palavra diferente.</p>
         </div>
 
-        <div style={{ width: '100%', height: '1px', background: 'var(--glass-border-strong)', margin: '4px 0' }} />
-
-        {/* Local Section */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
-          <button
-            className="btn btn-secondary btn-xl"
-            onClick={() => navigate('local-setup')}
-            aria-label="Jogar localmente"
-            id="btn-local"
-            style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)' }}
-          >
-            📱 JOGAR LOCAL
-          </button>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>
-            Passem o celular entre si
-          </span>
+        {/* Jogo 2: Jogo da Testa */}
+        <div 
+          className="card card-interactive" 
+          onClick={() => handleSelectGame(GameType.TESTA)}
+          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+        >
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🗣️</div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>jogo da testa</h2>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>adivinhe a palavra que está na sua testa.</p>
         </div>
+
+        {/* Jogo 3: Jogo dos Números */}
+        <div 
+          className="card card-interactive" 
+          onClick={() => handleSelectGame(GameType.NUMBERS)}
+          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+        >
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔢</div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>jogo dos números</h2>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>descubra os números dos outros jogadores.</p>
+        </div>
+
+      </div>
+
+      <div style={{ margin: '32px 0', width: '100%', height: '1px', background: 'var(--glass-border)' }}></div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate('online-join')}
+          style={{ padding: '14px 24px' }}
+          id="btn-join-room"
+        >
+          entrar com código da sala →
+        </button>
       </div>
 
       <div className="spacer-8" />
 
       {/* Secondary Links */}
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('how-to-play')} id="btn-how-to-play">
-          📖 Como jogar
-        </button>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('history')} id="btn-history">
-          📜 Histórico
+          📜 histórico
         </button>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('settings')} id="btn-settings">
-          ⚙️ Configurações
+          ⚙️ configurações
         </button>
       </div>
     </div>

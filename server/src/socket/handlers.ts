@@ -96,6 +96,8 @@ export function registerSocketHandlers(
         hasSeenWord: false,
         hasVoted: false,
         hasRequestedVote: false,
+        score: 0,
+        isWinner: false,
       });
 
       // Atualizar estado para todos
@@ -133,13 +135,13 @@ export function registerSocketHandlers(
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId || !room.isHost(playerId)) return;
 
-      const validation = WordEngine.validateCustomTheme(theme.words);
-      if (!validation.valid) {
-        socket.emit('error', { code: 'INVALID_THEME', message: validation.error || 'Tema inválido.' });
+      const isValid = WordEngine.validateCustomTheme(theme);
+      if (!isValid) {
+        socket.emit('error', { code: 'INVALID_THEME', message: 'Tema inválido. O tema precisa ter pelo menos duas palavras.' });
         return;
       }
 
-      room.setCustomTheme({ ...theme, words: validation.words });
+      room.setCustomTheme(theme);
       io.to(room.code).emit('room:updated', room.getPublicState());
     });
 
@@ -190,18 +192,24 @@ export function registerSocketHandlers(
       // Enviar estado atualizado para todos
       io.to(room.code).emit('game:started', room.getPublicState());
 
-      // Enviar palavra INDIVIDUAL para cada jogador
+      // Enviar palavra ou número INDIVIDUAL para cada jogador
       const publicState = room.getPublicState();
       for (const player of publicState.players) {
-        const wordData = room.getPlayerWord(player.id);
-        if (wordData) {
-          // Encontrar o socket deste jogador
-          const playerSocket = findSocketByPlayerId(io, room, player.id);
-          if (playerSocket) {
-            playerSocket.emit('game:yourWord', {
+        const playerSocket = findSocketByPlayerId(io, room, player.id);
+        if (!playerSocket) continue;
+
+        if (publicState.config.gameType === 'IMPOSTOR' || publicState.config.gameType === 'TESTA') {
+          const wordData = room.getPlayerWord(player.id);
+          if (wordData) {
+            playerSocket.emit('game:wordAssigned', {
               word: wordData.word,
               isImpostor: wordData.isImpostor,
             });
+          }
+        } else if (publicState.config.gameType === 'NUMBERS') {
+          const numberValue = room.getPlayerNumber(player.id);
+          if (numberValue !== null) {
+            playerSocket.emit('game:numberAssigned', numberValue);
           }
         }
       }
@@ -218,6 +226,40 @@ export function registerSocketHandlers(
       if (!playerId) return;
 
       if (room.resetScores(playerId)) {
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      }
+    });
+
+    // ─── TESTA & NUMBERS GUESSES ─────────────────────────────
+    socket.on('game:guessTesta', (guess: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      if (room.guessTestaWord(playerId, guess)) {
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      }
+    });
+
+    socket.on('game:giveUpTesta', () => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      if (room.giveUpTesta(playerId)) {
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      }
+    });
+
+    socket.on('game:guessNumber', (data: { targetId: string, guess: number }) => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      if (room.guessNumber(playerId, data.targetId, data.guess)) {
         io.to(room.code).emit('room:updated', room.getPublicState());
       }
     });
@@ -286,7 +328,7 @@ export function registerSocketHandlers(
     });
 
     // ─── VOTAR PULAR RODADA ───────────────────
-    socket.on('room:voteSkip', () => {
+    socket.on('game:voteSkip', () => {
       const room = findRoomBySocket(socket);
       if (!room) return;
       const playerId = room.getPlayerIdBySocket(socket.id);

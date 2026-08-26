@@ -22,7 +22,7 @@ export function Chat() {
   };
 
   return (
-    <div className="chat-container card">
+    <div className="chat-container">
       <div className="chat-header">
         <h3 style={{ margin: 0, fontSize: '1rem' }}>chat da sala</h3>
       </div>

@@ -2,16 +2,25 @@
 // IMPOSTOR GAME — Tipos Compartilhados
 // ============================================
 
+export enum GameType {
+  IMPOSTOR = 'IMPOSTOR',
+  TESTA = 'TESTA',
+  NUMBERS = 'NUMBERS'
+}
+
 // Estados da máquina de estados do jogo
 export enum GameState {
   LOBBY = 'LOBBY',
   STARTING = 'STARTING',
+  // Impostor specific
   WORD_REVEAL = 'WORD_REVEAL',
   DISCUSSION = 'DISCUSSION',
   VOTING_REQUEST = 'VOTING_REQUEST',
   VOTING = 'VOTING',
   REVEALING = 'REVEALING',
+  // Generic / Shared
   RESULT = 'RESULT',
+  IN_GAME = 'IN_GAME', // For Testa and Numbers
 }
 
 // Dificuldade do jogo
@@ -42,35 +51,51 @@ export interface Player {
   avatar: string;
   isHost: boolean;
   isConnected: boolean;
-  isImpostor?: boolean; // Só visível no resultado
-  word?: string; // Cada jogador só recebe a própria
+  score: number;
+  isWinner?: boolean;
+  
+  // Impostor Props
+  isImpostor?: boolean;
+  word?: string;
   hasSeenWord?: boolean;
   hasVoted?: boolean;
   hasRequestedVote?: boolean;
-  votedFor?: string; // ID do jogador votado
+  votedFor?: string;
   hasVotedSkip?: boolean;
-  score: number;
-  isWinner?: boolean;
+  
+  // Testa Props
+  testaWord?: string;
+  hasGuessedTesta?: boolean;
+  
+  // Numbers Props
+  numberValue?: number;
+  discoveredNumbers?: string[]; // IDs of players whose number this player has discovered
+  hasBeenDiscovered?: boolean;
 }
 
 // Configuração da sala
 export interface RoomConfig {
+  gameType: GameType;
   theme: string;
   customThemeId?: string;
   difficulty: Difficulty;
   impostorMode: ImpostorMode;
   customImpostorCount: number;
-  discussionTimeLimit: number; // 0 = sem limite, em segundos
+  discussionTimeLimit: number;
   showImpostorCount: boolean;
   soundEnabled: boolean;
-  useFlatMode?: boolean; // Modo Palavras Soltas
+  useFlatMode?: boolean;
+  
+  // Numbers specific config
+  numbersMin?: number;
+  numbersMax?: number;
 }
 
 // Grupo de pares por dificuldade
 export interface ThemePairs {
-  easy: [string, string][];
-  medium: [string, string][];
-  hard: [string, string][];
+  easy: string[][];
+  medium: string[][];
+  hard: string[][];
 }
 
 // Tema
@@ -145,12 +170,22 @@ export interface PublicPlayer {
   avatar: string;
   isHost: boolean;
   isConnected: boolean;
+  score: number;
+  isWinner?: boolean;
+  
+  // Impostor
   hasSeenWord: boolean;
   hasVoted: boolean;
   hasRequestedVote: boolean;
   hasVotedSkip?: boolean;
-  score: number;
-  isWinner?: boolean;
+  
+  // Testa
+  testaWord?: string;
+  hasGuessedTesta?: boolean;
+  
+  // Numbers
+  numberValue?: number;
+  hasBeenDiscovered?: boolean;
 }
 
 // Histórico de partida (localStorage)
@@ -178,6 +213,10 @@ export interface ClientToServerEvents {
   'room:leave': () => void;
   'room:updateConfig': (config: Partial<RoomConfig>) => void;
   'room:kick': (playerId: string) => void;
+  'room:resetScores': () => void;
+
+  // Chat
+  'chat:sendMessage': (message: string) => void;
 
   // Game
   'game:start': () => void;
@@ -189,6 +228,11 @@ export interface ClientToServerEvents {
   'game:nextRound': () => void;
   'game:changeTheme': () => void;
   'game:reaction': (reaction: string) => void;
+  
+  // New Games
+  'game:guessTesta': (guess: string) => void;
+  'game:giveUpTesta': () => void;
+  'game:guessNumber': (data: { targetId: string, guess: number }) => void;
 
   // Custom Theme
   'theme:setCustom': (theme: CustomTheme) => void;
@@ -212,10 +256,15 @@ export interface ServerToClientEvents {
   'room:hostChanged': (newHostId: string) => void;
   'room:closed': () => void;
 
-  // Game events
+  // Chat
+  'chat:newMessage': (message: { id: string; playerId: string; playerName: string; text: string; timestamp: number; isSystem?: boolean }) => void;
+
+  // Game specific
+  'game:wordAssigned': (data: { word: string; isImpostor: boolean }) => void;
+  'game:numberAssigned': (numberValue: number) => void;
   'game:started': (roomState: RoomPublicState) => void;
-  'game:yourWord': (data: { word: string; isImpostor: boolean }) => void;
   'game:allReady': () => void;
+  'game:voteStarted': () => void;
   'game:discussionStarted': () => void;
   'game:voteRequested': (data: { requestCount: number; needed: number; requesterId: string }) => void;
   'game:votingStarted': () => void;
@@ -240,4 +289,5 @@ export interface ThemeListItem {
   name: string;
   icon: string;
   groupCount: number;
+  is18Plus?: boolean;
 }

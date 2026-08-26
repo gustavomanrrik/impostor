@@ -33,7 +33,7 @@ export function LocalSetup() {
     }
 
     // Get available pairs based on difficulty
-    let availablePairs: [string, string][];
+    let availablePairs: string[][];
     switch (difficulty) {
       case Difficulty.EASY:
         availablePairs = themeData.pairs.easy;
@@ -98,7 +98,7 @@ export function LocalSetup() {
     id,
     name: data.name,
     icon: themes.find(t => t.id === id)?.icon || '🎮',
-    groupCount: data.groups.length,
+    groupCount: data.pairs.easy.length + data.pairs.medium.length + data.pairs.hard.length,
   }));
 
   return (

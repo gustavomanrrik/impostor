@@ -1,8 +1,8 @@
 // ============================================
 // IMPOSTOR GAME — Motor de Seleção de Palavras
 // ============================================
-import { Difficulty, WordSelection, CustomTheme } from '../../../shared/types.ts';
-import { themes, getThemeById } from '../../../shared/themes.ts';
+import { Difficulty, WordSelection, CustomTheme } from '@shared/types';
+import { themes } from '@shared/themes';
 
 export class WordEngine {
   /**
@@ -24,14 +24,14 @@ export class WordEngine {
       return this.selectFromCustomTheme(customTheme, usedGroupIds);
     }
 
-    const theme = getThemeById(themeId);
+    const theme = themes.find(t => t.id === themeId);
     if (!theme) return null;
 
     if (useFlatMode) {
       // Extrair todas as palavras únicas deste tema
       const allWords = new Set<string>();
-      Object.values(theme.pairs).forEach(difficultyPairs => {
-        difficultyPairs.forEach(pair => {
+      Object.values(theme.pairs).forEach((difficultyPairs: any) => {
+        difficultyPairs.forEach((pair: string[]) => {
           allWords.add(pair[0]);
           allWords.add(pair[1]);
         });
@@ -46,7 +46,7 @@ export class WordEngine {
       return this.selectFromCustomTheme(flatTheme, usedGroupIds);
     }
 
-    let availablePairs: [string, string][];
+    let availablePairs: string[][];
     let pairIdPrefix = '';
 
     switch (difficulty) {
@@ -136,6 +136,9 @@ export class WordEngine {
       impostorWord: isSwapped ? selected[0] : selected[1],
       themeName: customTheme.name,
     };
+  }
+  static validateCustomTheme(theme: CustomTheme): boolean {
+    return theme && theme.words && theme.words.length >= 2;
   }
 
   /**

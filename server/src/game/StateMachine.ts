@@ -12,6 +12,7 @@ const validTransitions: Record<GameState, GameState[]> = {
   [GameState.VOTING_REQUEST]: [GameState.VOTING], // estado intermediário
   [GameState.VOTING]: [GameState.REVEALING],
   [GameState.REVEALING]: [GameState.RESULT],
+  [GameState.IN_GAME]: [GameState.RESULT],
   [GameState.RESULT]: [GameState.STARTING, GameState.LOBBY],
 };
 

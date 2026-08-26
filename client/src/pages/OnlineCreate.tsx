@@ -5,7 +5,7 @@ import { Difficulty, ImpostorMode } from '@shared/types';
 import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
 export function OnlineCreate() {
-  const { navigate, createRoom } = useGame();
+  const { navigate, createRoom, selectedGameType } = useGame();
   
   const [playerName, setPlayerName] = useState(getSavedPlayerName());
   const [avatar, setAvatar] = useState(getSavedAvatar() || getRandomAvatar());
@@ -15,6 +15,7 @@ export function OnlineCreate() {
 
     // A sala será criada com configurações padrão e depois o Host pode alterá-las no Lobby
     const config = {
+      gameType: selectedGameType,
       theme: 'comida',
       difficulty: Difficulty.MEDIUM,
       impostorMode: ImpostorMode.AUTO,
@@ -30,7 +31,7 @@ export function OnlineCreate() {
   };
 
   return (
-    <div className="page fade-in">
+    <div className="page fade-in" style={{ maxWidth: '500px', width: '100%', margin: '0 auto' }}>
       <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
         ← Voltar
       </button>
