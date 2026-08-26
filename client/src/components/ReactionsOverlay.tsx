@@ -21,7 +21,7 @@ export function ReactionsOverlay() {
               top: `${r.top}%`,
               left: isMe ? 'auto' : '10px',
               right: isMe ? '10px' : 'auto',
-              animation: 'floatUp 4s ease-out forwards',
+              animation: 'floatReaction 4s ease-out forwards',
             }}
             className="reaction-bubble"
           >

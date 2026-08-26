@@ -1302,7 +1302,7 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
   animation: confetti 2s ease-out forwards;
 }
 
-@keyframes floatUp {
+@keyframes floatReaction {
   0% {
     transform: translateY(0) scale(0.8);
     opacity: 0;
