@@ -64,6 +64,18 @@ export function NumbersGame() {
               💥 Descobriram o seu número!
             </div>
           )}
+          {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px', fontSize: '1.5rem' }}>
+              {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
+                <span key={i} style={{ 
+                  opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
+                  filter: i < (currentPlayer?.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
+                  color: 'red',
+                  textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                }}>❤️</span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores:</h3>
@@ -103,6 +115,19 @@ export function NumbersGame() {
                   <span className="text-muted">???</span>
                 )}
               </div>
+
+              {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.2rem' }}>
+                  {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
+                    <span key={i} style={{ 
+                      opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
+                      filter: i < (p.testaLivesLeft || 0) ? 'none' : 'grayscale(100%)',
+                      color: 'red',
+                      textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                    }}>❤️</span>
+                  ))}
+                </div>
+              ) : null}
 
               {!p.hasBeenDiscovered && (
                 <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>

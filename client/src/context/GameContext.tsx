@@ -7,7 +7,7 @@ import {
   saveReconnectionData, clearReconnectionData, getReconnectionData,
   addPlayedGroup, addHistoryEntry, savePlayerName,
 } from '../services/localStorage';
-import { playJoinSound, playStartSound, playVotingStartedSound, playSuspenseSound, playWinSound, playLoseSound, playVoteSound } from '../services/sounds';
+import { playJoinSound, playStartSound, playVotingStartedSound, playSuspenseSound, playWinSound, playLoseSound, playVoteSound, playErrorSound, playSuccessSound } from '../services/sounds';
 import type { RoomPublicState, GameResult, ThemeListItem, GameHistoryEntry, ChatMessage } from '@shared/types';
 import { GameType, GameState } from '@shared/types';
 
@@ -70,6 +70,10 @@ interface GameContextType {
   chatMessages: ChatMessage[];
   sendChatMessage: (text: string) => void;
   sendChatImage: (imageUrl: string) => void;
+  isChatMinimized: boolean;
+  setIsChatMinimized: (minimized: boolean) => void;
+  hasUnreadChat: boolean;
+  setHasUnreadChat: (hasUnread: boolean) => void;
   
   // Custom Theme Collaboration
   customThemeWords: string[];
@@ -136,6 +140,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [customThemeWords, setCustomThemeWords] = useState<string[]>([]);
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const hasSetupListeners = useRef(false);
 
   // ─── Toast ───────────────────────
@@ -429,16 +435,30 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const guessTesta = useCallback((guess: string) => {
-    getSocket().emit('game:guessTesta', guess);
-  }, []);
+    getSocket().emit('game:guessTesta', guess, (res: { correct: boolean }) => {
+      if (res.correct) {
+        playSuccessSound();
+      } else {
+        playErrorSound();
+        addToast('error', 'Errou a palavra!');
+      }
+    });
+  }, [addToast]);
 
   const giveUpTesta = useCallback(() => {
     getSocket().emit('game:giveUpTesta');
   }, []);
 
   const guessNumber = useCallback((targetId: string, guess: number) => {
-    getSocket().emit('game:guessNumber', { targetId, guess });
-  }, []);
+    getSocket().emit('game:guessNumber', { targetId, guess }, (res: { correct: boolean }) => {
+      if (res.correct) {
+        playSuccessSound();
+      } else {
+        playErrorSound();
+        addToast('error', 'Número incorreto!');
+      }
+    });
+  }, [addToast]);
 
   const sendChatMessage = useCallback((text: string) => {
     getSocket().emit('chat:sendMessage', text);
@@ -456,6 +476,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage, sendChatImage,
+    isChatMinimized, setIsChatMinimized, hasUnreadChat, setHasUnreadChat,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,

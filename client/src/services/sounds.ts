@@ -3,7 +3,7 @@
 // ============================================
 
 let audioCtx: AudioContext | null = null;
-let enabled = true;
+let enabled = localStorage.getItem('impostor_sound') !== 'false';
 
 function getCtx(): AudioContext {
   if (!audioCtx) {
@@ -14,6 +14,13 @@ function getCtx(): AudioContext {
 
 export function setSoundsEnabled(val: boolean): void {
   enabled = val;
+  localStorage.setItem('impostor_sound', val ? 'true' : 'false');
+}
+
+export function toggleSound(): boolean {
+  enabled = !enabled;
+  localStorage.setItem('impostor_sound', enabled ? 'true' : 'false');
+  return enabled;
 }
 
 export function isSoundsEnabled(): boolean {
@@ -95,4 +102,14 @@ export function playVotingStartedSound(): void {
   playTone(880, 0.15, 'square', 0.06);
   setTimeout(() => playTone(880, 0.15, 'square', 0.06), 200);
   setTimeout(() => playTone(1100, 0.25, 'square', 0.06), 400);
+}
+
+export function playErrorSound(): void {
+  playTone(150, 0.2, 'sawtooth', 0.15);
+  setTimeout(() => playTone(100, 0.3, 'sawtooth', 0.15), 100);
+}
+
+export function playSuccessSound(): void {
+  playTone(600, 0.1, 'sine', 0.1);
+  setTimeout(() => playTone(800, 0.15, 'sine', 0.1), 100);
 }

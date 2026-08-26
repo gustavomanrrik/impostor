@@ -67,6 +67,9 @@ export interface Player {
   // Testa Props
   testaWord?: string;
   hasGuessedTesta?: boolean;
+  testaLivesLeft?: number;
+  testaGuessedCorrectly?: boolean;
+  testaGuessOrder?: number;
   
   // Numbers Props
   numberValue?: number;
@@ -92,6 +95,8 @@ export interface RoomConfig {
   // Numbers specific config
   numbersMin?: number;
   numbersMax?: number;
+  numbersLives?: number; // 0 = infinito
+  numbersMode?: 'points' | 'survival';
 }
 
 // Grupo de pares por dificuldade
@@ -237,9 +242,9 @@ export interface ClientToServerEvents {
   'game:reaction': (reaction: string) => void;
   
   // New Games
-  'game:guessTesta': (guess: string) => void;
+  'game:guessTesta': (guess: string, callback?: (res: { correct: boolean }) => void) => void;
   'game:giveUpTesta': () => void;
-  'game:guessNumber': (data: { targetId: string, guess: number }) => void;
+  'game:guessNumber': (data: { targetId: string, guess: number }, callback?: (res: { correct: boolean }) => void) => void;
 
   // Custom Theme
   'theme:setCustom': (theme: CustomTheme) => void;

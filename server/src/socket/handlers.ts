@@ -230,14 +230,19 @@ export function registerSocketHandlers(
       }
     });
 
-    // ─── TESTA & NUMBERS GUESSES ─────────────────────────────
-    socket.on('game:guessTesta', (guess: string) => {
+    // 🎯 TESTA & NUMBERS GUESSES 🎯
+    socket.on('game:guessTesta', (guess: string, callback?: (res: { correct: boolean }) => void) => {
       const room = findRoomBySocket(socket);
       if (!room) return;
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId) return;
       
       const result = room.guessTestaWord(playerId, guess);
+      
+      if (callback) {
+        callback({ correct: result.correct });
+      }
+
       if (result.stateChanged) {
         io.to(room.code).emit('room:updated', room.getPublicState());
         
@@ -271,13 +276,19 @@ export function registerSocketHandlers(
       }
     });
 
-    socket.on('game:guessNumber', (data: { targetId: string, guess: number }) => {
+    socket.on('game:guessNumber', (data: { targetId: string, guess: number }, callback?: (res: { correct: boolean }) => void) => {
       const room = findRoomBySocket(socket);
       if (!room) return;
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId) return;
       
-      if (room.guessNumber(playerId, data.targetId, data.guess)) {
+      const correct = room.guessNumber(playerId, data.targetId, data.guess);
+      
+      if (callback) {
+        callback({ correct });
+      }
+
+      if (correct) {
         io.to(room.code).emit('room:updated', room.getPublicState());
       }
     });
@@ -598,7 +609,9 @@ export function registerSocketHandlers(
       const room = findRoomBySocket(s);
       if (!room) return;
 
-      const result = room.handleDisconnect(s.id);
+      const result = room.handleDisconnect(s.id, () => {
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      });
       if (!result) return;
 
       s.to(room.code).emit('room:playerDisconnected', result.playerId);

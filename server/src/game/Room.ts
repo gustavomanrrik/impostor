@@ -131,7 +131,7 @@ export class Room {
     return { player, newHostId };
   }
 
-  handleDisconnect(socketId: string): { playerId: string; shouldRemove: boolean } | null {
+  handleDisconnect(socketId: string, onRemove?: () => void): { playerId: string; shouldRemove: boolean } | null {
     const playerId = this.socketToPlayer.get(socketId);
     if (!playerId) return null;
 
@@ -145,6 +145,7 @@ export class Room {
       const timer = setTimeout(() => {
         this.removePlayer(socketId);
         this.disconnectTimers.delete(playerId);
+        if (onRemove) onRemove();
       }, 30000);
       this.disconnectTimers.set(playerId, timer);
       return { playerId, shouldRemove: false };
@@ -399,6 +400,7 @@ export class Room {
       p.isWinner = false;
       p.hasBeenDiscovered = false;
       p.discoveredNumbers = [];
+      p.testaLivesLeft = this.config.numbersLives || 0;
     }
 
     const min = this.config.numbersMin || 1;
@@ -484,7 +486,7 @@ export class Room {
   }
 
   voteSkip(playerId: string): { skipped: boolean } {
-    if (this.state !== GameState.WORD_REVEAL && this.state !== GameState.DISCUSSION) return { skipped: false };
+    if (this.state !== GameState.WORD_REVEAL && this.state !== GameState.DISCUSSION && this.state !== GameState.IN_GAME) return { skipped: false };
     
     const player = this.players.get(playerId);
     if (!player || !player.isConnected) return { skipped: false };
@@ -702,6 +704,7 @@ export class Room {
       isWinner: p.isWinner || false,
       testaWord: p.testaWord,
       hasGuessedTesta: p.hasGuessedTesta,
+      testaLivesLeft: p.testaLivesLeft,
       hasBeenDiscovered: p.hasBeenDiscovered,
     }));
 
@@ -816,7 +819,7 @@ export class Room {
     const target = this.players.get(targetId);
     
     if (!player || !target || playerId === targetId) return false;
-    if (target.hasBeenDiscovered) return false;
+    if (target.hasBeenDiscovered || player.hasBeenDiscovered) return false;
 
     if (target.numberValue === guess) {
       target.hasBeenDiscovered = true;
@@ -829,17 +832,27 @@ export class Room {
 
       this.checkNumbersGameOver();
       return true;
+    } else {
+      if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
+        if (player.testaLivesLeft !== undefined && player.testaLivesLeft > 0) {
+          player.testaLivesLeft--;
+          if (player.testaLivesLeft <= 0) {
+            player.hasBeenDiscovered = true; // Eliminated
+            this.checkNumbersGameOver();
+          }
+        }
+      }
+      return false; // Wrong guess
     }
-    return false;
   }
 
   private checkNumbersGameOver() {
     const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected);
     const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
 
-    if (undiscovered.length === 0) {
-      // Everyone discovered!
-      activePlayers.forEach(p => p.isWinner = true); // Just visual
+    if (undiscovered.length <= 1) {
+      // Game over if 1 or 0 players left undiscovered!
+      undiscovered.forEach(p => p.isWinner = true); 
       this.stateMachine.forceState(GameState.RESULT);
     }
   }

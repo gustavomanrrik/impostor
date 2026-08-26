@@ -3,24 +3,39 @@ import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast } = useGame();
+  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread } = useGame();
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const prevMessagesLength = useRef(chatMessages.length);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [chatMessages]);
+    if (isMinimized && chatMessages.length > prevMessagesLength.current) {
+      setHasUnread(true);
+    }
+    prevMessagesLength.current = chatMessages.length;
+    
+    if (!isMinimized) {
+      scrollToBottom();
+    }
+  }, [chatMessages, isMinimized]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
     sendChatMessage(inputText);
     setInputText('');
+  };
+
+  const toggleMinimize = () => {
+    if (isMinimized) {
+      setHasUnread(false);
+    }
+    setIsMinimized(!isMinimized);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,13 +81,77 @@ export function Chat() {
     }
   };
 
+  if (isMinimized) {
+    return (
+      <div 
+        className="chat-container minimized" 
+        onClick={toggleMinimize}
+        style={{ 
+          cursor: 'pointer', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          padding: '12px 16px',
+          height: 'auto',
+          backgroundColor: 'var(--bg-secondary)',
+          borderTop: '2px solid var(--border-color)',
+          borderLeft: '2px solid var(--border-color)',
+          borderRight: '2px solid var(--border-color)',
+          borderTopLeftRadius: 'var(--radius-lg)',
+          borderTopRightRadius: 'var(--radius-lg)',
+          position: 'fixed',
+          bottom: 0,
+          right: '20px',
+          width: '200px',
+          zIndex: 1000
+        }}
+      >
+        <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          💬 Chat
+          {hasUnread && (
+            <span style={{ 
+              width: '10px', 
+              height: '10px', 
+              backgroundColor: 'var(--error)', 
+              borderRadius: '50%',
+              display: 'inline-block'
+            }} />
+          )}
+        </h3>
+        <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', color: 'var(--text-secondary)' }}>
+          ▲
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h3 style={{ margin: 0, fontSize: '1rem' }}>chat da sala</h3>
+    <div className="chat-container expanded" style={{ 
+      position: 'fixed', 
+      bottom: 0, 
+      right: '20px', 
+      width: '320px', 
+      height: '400px', 
+      maxHeight: '80vh', 
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0
+    }}>
+      <div className="chat-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ margin: 0, fontSize: '1rem' }}>💬 chat da sala</h3>
+        <button 
+          className="btn btn-ghost btn-sm" 
+          onClick={toggleMinimize}
+          style={{ padding: '4px 8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}
+          title="Minimizar chat"
+        >
+          ▼
+        </button>
       </div>
       
-      <div className="chat-messages">
+      <div className="chat-messages" style={{ flex: 1, overflowY: 'auto' }}>
         {chatMessages.length === 0 ? (
           <div className="chat-empty text-muted">nenhuma mensagem ainda...</div>
         ) : (

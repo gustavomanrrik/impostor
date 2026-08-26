@@ -147,6 +147,40 @@ export function NumbersLobby() {
             {isHost ? (
               <div className="config-panel">
                 <div className="input-group">
+                  <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Modo de Jogo</label>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    <button
+                      className={`btn btn-sm ${config.numbersMode === 'survival' ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => updateConfig({ numbersMode: 'survival' })}
+                      style={{ flex: 1, border: '2px solid var(--border-color)' }}
+                    >
+                      Corações
+                    </button>
+                    <button
+                      className={`btn btn-sm ${config.numbersMode === 'points' || !config.numbersMode ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => updateConfig({ numbersMode: 'points' })}
+                      style={{ flex: 1, border: '2px solid var(--border-color)' }}
+                    >
+                      Pontos
+                    </button>
+                  </div>
+                </div>
+
+                {config.numbersMode === 'survival' && (
+                  <div className="input-group" style={{ marginBottom: '16px' }}>
+                    <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Corações (0 = infinito)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      value={config.numbersLives ?? 3}
+                      onChange={(e) => updateConfig({ numbersLives: parseInt(e.target.value) || 0 })}
+                      min={0}
+                      max={10}
+                    />
+                  </div>
+                )}
+
+                <div className="input-group">
                   <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Intervalo de Sorteio (Ex: 1 a 100)</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
@@ -184,6 +218,8 @@ export function NumbersLobby() {
             ) : (
               <div className="read-only-config" style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
                 <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
+                  <strong>Modo:</strong> {config.numbersMode === 'survival' ? 'Corações' : 'Pontos'}<br/>
+                  {config.numbersMode === 'survival' && <><strong>Vidas:</strong> {config.numbersLives || 'Infinitas'}<br/></>}
                   <strong>Intervalo:</strong> {config.numbersMin || 1} a {config.numbersMax || 100}
                 </p>
               </div>

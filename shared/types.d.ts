@@ -64,6 +64,7 @@ export interface RoomConfig {
     soundEnabled: boolean;
     useFlatMode?: boolean;
     testaLives: number;
+    testaMode: 'points' | 'survival';
     numbersMin?: number;
     numbersMax?: number;
 }
@@ -144,6 +145,8 @@ export interface PublicPlayer {
     testaWord?: string;
     hasGuessedTesta?: boolean;
     testaLivesLeft?: number;
+    testaGuessedCorrectly?: boolean;
+    testaGuessOrder?: number;
     numberValue?: number;
     hasBeenDiscovered?: boolean;
 }
@@ -185,12 +188,16 @@ export interface ClientToServerEvents {
     'game:nextRound': () => void;
     'game:changeTheme': () => void;
     'game:reaction': (reaction: string) => void;
-    'game:guessTesta': (guess: string) => void;
+    'game:guessTesta': (guess: string, callback?: (res: {
+        correct: boolean;
+    }) => void) => void;
     'game:giveUpTesta': () => void;
     'game:guessNumber': (data: {
         targetId: string;
         guess: number;
-    }) => void;
+    }, callback?: (res: {
+        correct: boolean;
+    }) => void) => void;
     'theme:setCustom': (theme: CustomTheme) => void;
     'theme:addWord': (word: string) => void;
     'theme:removeWord': (word: string) => void;

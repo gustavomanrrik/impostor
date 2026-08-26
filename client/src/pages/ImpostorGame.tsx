@@ -114,23 +114,6 @@ export function ImpostorGame() {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
         
-        {/* Top actions bar */}
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
-          <button 
-            className="btn btn-ghost btn-sm"
-            style={{ color: currentPlayer?.hasVotedSkip ? 'var(--accent-primary)' : 'var(--text-muted)' }}
-            onClick={() => {
-              if (!currentPlayer?.hasVotedSkip) {
-                voteSkip();
-              }
-            }}
-            disabled={currentPlayer?.hasVotedSkip}
-            title="Pular rodada (todos precisam votar)"
-          >
-            {currentPlayer?.hasVotedSkip ? '❗️ Votou para Pular' : '❕ Pular Rodada'}
-          </button>
-        </div>
-
         <div className="status-badge voting" style={{ marginBottom: '12px' }}>
           💬 FASE DE DISCUSSÃO
         </div>
