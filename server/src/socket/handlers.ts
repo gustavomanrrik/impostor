@@ -4,7 +4,7 @@
 import { Server, Socket } from 'socket.io';
 import { GameManager } from '../game/GameManager.ts';
 import { WordEngine } from '../game/WordEngine.ts';
-import { ClientToServerEvents, ServerToClientEvents, RoomConfig, CustomTheme } from '../../../shared/types.ts';
+import { ClientToServerEvents, ServerToClientEvents, RoomConfig, CustomTheme, GameType } from '../../../shared/types.ts';
 
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
@@ -213,7 +213,7 @@ export function registerSocketHandlers(
         const playerSocket = findSocketByPlayerId(io, room, player.id);
         if (!playerSocket) continue;
 
-        if (publicState.config.gameType === 'IMPOSTOR' || publicState.config.gameType === 'TESTA') {
+        if (publicState.config.gameType === GameType.IMPOSTOR || publicState.config.gameType === GameType.TESTA) {
           const wordData = room.getPlayerWord(player.id);
           if (wordData) {
             playerSocket.emit('game:wordAssigned', {
@@ -221,7 +221,7 @@ export function registerSocketHandlers(
               isImpostor: wordData.isImpostor,
             });
           }
-        } else if (publicState.config.gameType === 'NUMBERS') {
+        } else if (publicState.config.gameType === GameType.NUMBERS) {
           const numberValue = room.getPlayerNumber(player.id);
           if (numberValue !== null) {
             playerSocket.emit('game:numberAssigned', numberValue);
@@ -258,24 +258,23 @@ export function registerSocketHandlers(
         callback({ correct: result.correct });
       }
 
-      if (result.stateChanged) {
-        io.to(room.code).emit('room:updated', room.getPublicState());
+      // Always broadcast updated state so all players see sudden death, lives, etc.
+      io.to(room.code).emit('room:updated', room.getPublicState());
         
-        // Optional: emit a system chat message if they lost a life
-        if (!result.correct && result.livesLeft !== undefined) {
-          const player = room.getPublicState().players.find(p => p.id === playerId);
-          if (player) {
-            const message = {
-              id: Math.random().toString(36).substring(2, 9),
-              playerId: 'system',
-              playerName: 'Sistema',
-              text: result.livesLeft === 0 
-                ? `${player.name} perdeu todos os corações e foi eliminado!`
-                : `${player.name} errou e perdeu um coração! (${result.livesLeft} restantes)`,
-              timestamp: Date.now(),
-            };
-            io.to(room.code).emit('chat:newMessage', message);
-          }
+      // Chat message on life loss
+      if (!result.correct && result.livesLeft !== undefined) {
+        const player = room.getPublicState().players.find(p => p.id === playerId);
+        if (player) {
+          const message = {
+            id: Math.random().toString(36).substring(2, 9),
+            playerId: 'system',
+            playerName: 'Sistema',
+            text: result.livesLeft === 0 
+              ? `${player.name} perdeu todos os corações e foi eliminado!`
+              : `${player.name} errou e perdeu um coração! (${result.livesLeft} restante${result.livesLeft !== 1 ? 's' : ''})`,
+            timestamp: Date.now(),
+          };
+          io.to(room.code).emit('chat:newMessage', message);
         }
       }
     });
@@ -345,6 +344,25 @@ export function registerSocketHandlers(
 
     // ─── PEDIR VOTAÇÃO ─────────────────────────
 
+    socket.on('game:cancelVoteRequest', () => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      const result = room.cancelVoteRequest(playerId);
+      if (!result) return;
+
+      io.to(room.code).emit('game:voteRequested', {
+        requestCount: result.count,
+        needed: result.needed,
+        requesterId: playerId,
+      });
+
+      io.to(room.code).emit('room:updated', room.getPublicState());
+    });
+
     socket.on('game:requestVote', () => {
       const room = findRoomBySocket(socket);
       if (!room) return;
@@ -369,23 +387,9 @@ export function registerSocketHandlers(
       }
     });
 
-    // ─── VOTAR PULAR RODADA ───────────────────
-    socket.on('game:voteSkip', () => {
-      const room = findRoomBySocket(socket);
-      if (!room) return;
-      const playerId = room.getPlayerIdBySocket(socket.id);
-      if (!playerId) return;
-
-      const result = room.voteSkip(playerId);
-      io.to(room.code).emit('room:updated', room.getPublicState());
-
-      if (result.skipped) {
-        console.log(`[Room ${room.code}] Rodada pulada!`);
-      }
-    });
 
     // ─── CHAT ─────────────────────────────
-      socket.on('chat:sendMessage', (text: string) => {
+    socket.on('chat:sendMessage', (text: string) => {
       const room = findRoomBySocket(socket);
       if (!room || !text || text.trim() === '') return;
 
@@ -395,7 +399,7 @@ export function registerSocketHandlers(
       const player = room.getPublicState().players.find(p => p.id === playerId);
       if (!player) return;
 
-      const message = {
+      const message: ChatMessage = {
         id: Math.random().toString(36).substring(2, 9),
         playerId,
         playerName: player.name,
@@ -404,6 +408,19 @@ export function registerSocketHandlers(
       };
 
       io.to(room.code).emit('chat:newMessage', message);
+    });
+
+    socket.on('game:sendWhisper', (targetPlayerId: string, text: string) => {
+      const room = findRoomBySocket(socket);
+      if (!room || !text || text.trim() === '' || !targetPlayerId) return;
+
+      const senderId = room.getPlayerIdBySocket(socket.id);
+      if (!senderId) return;
+
+      const targetSocketId = room.getSocketIdByPlayerId(targetPlayerId);
+      if (targetSocketId && targetSocketId !== socket.id) {
+        io.to(targetSocketId).emit('game:whisperReceived', { senderId, text: text.trim().substring(0, 200) });
+      }
     });
 
     socket.on('chat:react', (messageId: string, reaction: string) => {
@@ -501,18 +518,21 @@ export function registerSocketHandlers(
         io.to(room.code).emit('game:started', room.getPublicState());
         
         // Broadcast words again for impostor
-        if (room.config.gameType === GameType.IMPOSTOR) {
-          for (const p of room.getPlayers()) {
-            const playerSocket = getSocketByPlayerId(p.id);
-            if (playerSocket && p.word) {
-              io.to(playerSocket).emit('game:wordAssigned', { word: p.word, isImpostor: !!p.isImpostor });
+        if (room.config.gameType === GameType.IMPOSTOR || room.config.gameType === GameType.TESTA) {
+          for (const p of room.players.values()) {
+            const playerSocket = findSocketByPlayerId(io, room, p.id);
+            if (playerSocket) {
+              const wordData = room.getPlayerWord(p.id);
+              if (wordData) {
+                io.to(playerSocket.id).emit('game:wordAssigned', { word: wordData.word, isImpostor: !!wordData.isImpostor });
+              }
             }
           }
         } else if (room.config.gameType === GameType.NUMBERS) {
-          for (const p of room.getPlayers()) {
-            const playerSocket = getSocketByPlayerId(p.id);
+          for (const p of room.players.values()) {
+            const playerSocket = findSocketByPlayerId(io, room, p.id);
             if (playerSocket && p.numberValue) {
-              io.to(playerSocket).emit('game:numberAssigned', p.numberValue);
+              io.to(playerSocket.id).emit('game:numberAssigned', p.numberValue);
             }
           }
         }
@@ -532,18 +552,21 @@ export function registerSocketHandlers(
         io.to(room.code).emit('game:started', room.getPublicState());
         
         // Broadcast words again for impostor
-        if (room.config.gameType === GameType.IMPOSTOR) {
-          for (const p of room.getPlayers()) {
-            const playerSocket = getSocketByPlayerId(p.id);
-            if (playerSocket && p.word) {
-              io.to(playerSocket).emit('game:wordAssigned', { word: p.word, isImpostor: !!p.isImpostor });
+        if (room.config.gameType === GameType.IMPOSTOR || room.config.gameType === GameType.TESTA) {
+          for (const p of room.players.values()) {
+            const playerSocket = findSocketByPlayerId(io, room, p.id);
+            if (playerSocket) {
+              const wordData = room.getPlayerWord(p.id);
+              if (wordData) {
+                io.to(playerSocket.id).emit('game:wordAssigned', { word: wordData.word, isImpostor: !!wordData.isImpostor });
+              }
             }
           }
         } else if (room.config.gameType === GameType.NUMBERS) {
-          for (const p of room.getPlayers()) {
-            const playerSocket = getSocketByPlayerId(p.id);
+          for (const p of room.players.values()) {
+            const playerSocket = findSocketByPlayerId(io, room, p.id);
             if (playerSocket && p.numberValue) {
-              io.to(playerSocket).emit('game:numberAssigned', p.numberValue);
+              io.to(playerSocket.id).emit('game:numberAssigned', p.numberValue);
             }
           }
         }
@@ -593,7 +616,7 @@ export function registerSocketHandlers(
         roomState: room.getPublicState(),
         word: wordData?.word,
         isImpostor: wordData?.isImpostor,
-        numberValue,
+        numberValue: numberValue ?? undefined,
       });
 
       socket.to(room.code).emit('room:playerReconnected', playerId);
@@ -667,8 +690,12 @@ export function registerSocketHandlers(
       });
       if (!result) return;
 
-      s.to(room.code).emit('room:playerDisconnected', result.playerId);
-      io.to(room.code).emit('room:updated', room.getPublicState());
+      if (result.shouldRemove) {
+        handleLeave(s);
+      } else {
+        s.to(room.code).emit('room:playerDisconnected', result.playerId);
+        io.to(room.code).emit('room:updated', room.getPublicState());
+      }
     }
   });
 }

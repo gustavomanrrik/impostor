@@ -57,6 +57,7 @@ interface GameContextType {
   startGame: () => void;
   markWordSeen: () => void;
   requestVote: () => void;
+  cancelVoteRequest: () => void;
   submitVote: (votedForId: string) => void;
   voteSkip: () => void;
   nextRound: () => void;
@@ -64,14 +65,16 @@ interface GameContextType {
   changeTheme: () => void;
   sendReaction: (reaction: string) => void;
   resetScores: () => void;
-  guessTesta: (guess: string) => void;
+  guessTesta: (guess: string) => Promise<boolean>;
   giveUpTesta: () => void;
-  guessNumber: (targetId: string, guess: number) => void;
+  guessNumber: (targetId: string, guess: number) => Promise<boolean>;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   
   // Chat
   chatMessages: ChatMessage[];
   sendChatMessage: (text: string) => void;
+  sendWhisper: (targetId: string, text: string) => void;
+  activeWhispers: { senderId: string; text: string; timestamp: number }[];
   sendChatImage: (imageUrl: string) => void;
   reactToChatMessage: (messageId: string, reaction: string) => void;
   isChatMinimized: boolean;
@@ -129,7 +132,13 @@ export function useGame(): GameContextType {
 }
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [page, setPage] = useState<Page>('home');
+  const [page, setPage] = useState<Page>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('room')) return 'online-join';
+    }
+    return 'home';
+  });
   const [selectedGameType, setSelectedGameType] = useState<GameType>(GameType.IMPOSTOR);
   const [roomState, setRoomState] = useState<RoomPublicState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -145,9 +154,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [customThemeWords, setCustomThemeWords] = useState<string[]>([]);
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [activeWhispers, setActiveWhispers] = useState<{ senderId: string; text: string; timestamp: number }[]>([]);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const hasSetupListeners = useRef(false);
+  const ignoreReconnections = useRef(false);
 
   // ─── Toast ───────────────────────
   const addToast = useCallback((type: ToastItem['type'], message: string) => {
@@ -168,6 +179,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setMyNumber(null);
       setIsImpostor(false);
       setGameResult(null);
+      setChatMessages([]);
+      setActiveWhispers([]);
+      setActiveReactions([]);
+      setHasUnreadChat(false);
+      setCustomThemeWords([]);
       setLocalState(null);
     }
   }, []);
@@ -224,7 +240,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('error', (data) => {
       addToast('error', data.message);
-      if (data.code === 'KICKED') {
+      if (data.code === 'KICKED' || data.code === 'ROOM_NOT_FOUND' || data.code === 'RECONNECT_FAILED') {
         clearReconnectionData();
         setRoomState(null);
         setPlayerId(null);
@@ -342,6 +358,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('room:reconnected', (data) => {
+      if (ignoreReconnections.current) return;
       setPlayerId(data.playerId);
       setRoomState(data.roomState);
       if (data.word) {
@@ -372,7 +389,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setChatMessages(prev => [...prev, message]);
     });
 
-    socket.on('chat:messageReaction', ({ messageId, playerId, reaction }) => {
+    socket.on('game:whisperReceived', (data) => {
+      const { senderId, text } = data;
+      playSuccessSound();
+      setActiveWhispers(prev => [...prev, { senderId, text, timestamp: Date.now() }]);
+      setTimeout(() => {
+        setActiveWhispers(current => current.filter(w => w.timestamp !== data.timestamp && w.text !== text));
+      }, 5000);
+    });
+
+    socket.on('chat:messageReaction', ({ messageId, playerId: reactionPlayerId, reaction }) => {
       setChatMessages(prev => prev.map(msg => {
         if (msg.id === messageId) {
           const newReactions = { ...msg.reactions };
@@ -401,6 +427,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Actions ───────────────────────
   const createRoom = useCallback((playerName: string, avatar: string, config: any, customTheme?: any) => {
+    ignoreReconnections.current = true;
+    clearReconnectionData();
     connectSocket();
     savePlayerName(playerName);
     const socket = getSocket();
@@ -408,6 +436,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const joinRoom = useCallback((playerName: string, avatar: string, roomCode: string) => {
+    ignoreReconnections.current = true;
+    clearReconnectionData();
     connectSocket();
     savePlayerName(playerName);
     const socket = getSocket();
@@ -424,6 +454,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setMyNumber(null);
     setIsImpostor(false);
     setGameResult(null);
+    setChatMessages([]);
+    setActiveWhispers([]);
+    setActiveReactions([]);
+    setHasUnreadChat(false);
+    setCustomThemeWords([]);
     setPage('home');
   }, []);
 
@@ -455,8 +490,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:requestVote');
   }, []);
 
-  const submitVote = useCallback((votedForId: string) => {
-    getSocket().emit('game:vote', votedForId);
+  const cancelVoteRequest = useCallback(() => {
+    getSocket().emit('game:cancelVoteRequest');
+  }, []);
+
+  const submitVote = useCallback((targetId: string) => {
+    getSocket().emit('game:vote', targetId);
   }, []);
 
   const voteSkip = useCallback(() => {
@@ -482,14 +521,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:reaction', reaction);
   }, []);
 
-  const guessTesta = useCallback((guess: string) => {
-    getSocket().emit('game:guessTesta', guess, (res: { correct: boolean }) => {
-      if (res.correct) {
-        playSuccessSound();
-      } else {
-        playErrorSound();
-        addToast('error', 'Errou a palavra!');
-      }
+  const guessTesta = useCallback((guess: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      getSocket().emit('game:guessTesta', guess, (res: { correct: boolean }) => {
+        if (res.correct) {
+          playSuccessSound();
+        } else {
+          playErrorSound();
+          addToast('error', 'Errou a palavra!');
+        }
+        resolve(res.correct);
+      });
     });
   }, [addToast]);
 
@@ -497,19 +539,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:giveUpTesta');
   }, []);
 
-  const guessNumber = useCallback((targetId: string, guess: number) => {
-    getSocket().emit('game:guessNumber', { targetId, guess }, (res: { correct: boolean }) => {
-      if (res.correct) {
-        playSuccessSound();
-      } else {
-        playErrorSound();
-        addToast('error', 'Número incorreto!');
-      }
+  const guessNumber = useCallback((targetId: string, guess: number): Promise<boolean> => {
+    return new Promise((resolve) => {
+      getSocket().emit('game:guessNumber', { targetId, guess }, (res: { correct: boolean }) => {
+        if (res.correct) {
+          playSuccessSound();
+        } else {
+          playErrorSound();
+          addToast('error', 'Número incorreto!');
+        }
+        resolve(res.correct);
+      });
     });
   }, [addToast]);
 
   const sendChatMessage = useCallback((text: string) => {
-    getSocket().emit('chat:sendMessage', text);
+      getSocket().emit('chat:sendMessage', text);
+  }, []);
+
+  const sendWhisper = useCallback((targetId: string, text: string) => {
+      getSocket().emit('game:sendWhisper', targetId, text);
+      // Optimistic update so the sender sees their own whisper bubble on the target's card
+      // To display it correctly on the UI, we pretend the sender is the target
+      // so the UI knows to render it on the target's card.
+      setActiveWhispers(prev => [...prev, { senderId: targetId, text, timestamp: Date.now() }]);
+      setTimeout(() => {
+        setActiveWhispers(current => current.filter(w => w.text !== text));
+      }, 5000);
   }, []);
 
   const sendChatImage = useCallback((imageUrl: string) => {
@@ -525,10 +581,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     selectedGameType, setSelectedGameType,
     roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
-    startGame, markWordSeen, requestVote, submitVote, voteSkip, nextRound, playAgain, changeTheme,
+    startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
     isChatMinimized, setIsChatMinimized, hasUnreadChat, setHasUnreadChat,
+    sendWhisper, activeWhispers,
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,

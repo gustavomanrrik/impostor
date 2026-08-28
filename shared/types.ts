@@ -103,6 +103,8 @@ export interface RoomConfig {
   numbersMax?: number;
   numbersLives?: number; // 0 = infinito
   numbersMode?: 'points' | 'survival';
+
+  impostorNoWord?: boolean;
 }
 
 // Grupo de pares por dificuldade
@@ -176,6 +178,7 @@ export interface RoomPublicState {
   round: number;
   currentRound: number;
   customThemeWordCount: number; // Nova propriedade para o lobby
+  abortedDueToDisconnect?: boolean;
 }
 
 // Jogador público (sem informações secretas)
@@ -243,6 +246,7 @@ export interface ClientToServerEvents {
   'chat:react': (messageId: string, reaction: string) => void;
 
   // Game
+  'game:sendWhisper': (targetId: string, text: string) => void;
   'game:start': () => void;
   'game:wordSeen': () => void;
   'game:requestVote': () => void;
@@ -298,6 +302,7 @@ export interface ServerToClientEvents {
   'game:result': (result: GameResult) => void;
   'game:roundReset': (roomState: RoomPublicState) => void;
   'game:reactionReceived': (data: { playerId: string; reaction: string }) => void;
+  'game:whisperReceived': (data: { senderId: string; text: string }) => void;
 
   // Reconnection
   'room:reconnected': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean; numberValue?: number }) => void;

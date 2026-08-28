@@ -6,15 +6,15 @@ import {
   GameState, Player, RoomConfig, RoomPublicState, PublicPlayer,
   Difficulty, ImpostorMode, WordSelection, Vote, VoteResult,
   GameResult, CustomTheme, GameType,
-} from '../../../shared/types.ts';
-import { StateMachine } from './StateMachine.ts';
-import { WordEngine } from './WordEngine.ts';
+} from '../../../shared/types';
+import { StateMachine } from './StateMachine';
+import { WordEngine } from './WordEngine';
 
 export class Room {
   readonly code: string;
-  private players: Map<string, Player> = new Map();
+  public players: Map<string, Player> = new Map();
   private stateMachine: StateMachine = new StateMachine();
-  private config: RoomConfig;
+  public config: RoomConfig;
   private hostId: string = '';
   private currentWords: WordSelection | null = null;
   private impostorIds: Set<string> = new Set();
@@ -22,13 +22,14 @@ export class Room {
   private voteRequests: Set<string> = new Set();
   private round: number = 0;
   public currentRound: number = 1;
-  private customTheme: CustomTheme | null = null;
+  public customTheme: CustomTheme | null = null;
   private disconnectTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private skipVotes: Set<string> = new Set();
   private totalSubmittedWords: number = 0;
 
   // Socket IDs mapeados para player IDs (para reconexão)
   private socketToPlayer: Map<string, string> = new Map();
+  public abortedDueToDisconnect: boolean = false;
 
   constructor(code: string, config?: Partial<RoomConfig>) {
     this.code = code;
@@ -43,6 +44,8 @@ export class Room {
       soundEnabled: true,
       testaLives: 3,
       testaMode: 'points',
+      numbersMode: 'points',
+      numbersLives: 3,
       numbersMin: 1,
       numbersMax: 100,
       totalRounds: 3,
@@ -132,6 +135,8 @@ export class Room {
       }
     }
 
+    this.checkAbortCondition();
+
     return { player, newHostId };
   }
 
@@ -144,15 +149,9 @@ export class Room {
 
     player.isConnected = false;
 
-    // Em lobby, remover após 30 segundos
+    // Em lobby, remover imediatamente sem chance de reconectar (conforme regra do usuario)
     if (this.state === GameState.LOBBY) {
-      const timer = setTimeout(() => {
-        this.removePlayer(socketId);
-        this.disconnectTimers.delete(playerId);
-        if (onRemove) onRemove();
-      }, 30000);
-      this.disconnectTimers.set(playerId, timer);
-      return { playerId, shouldRemove: false };
+      return { playerId, shouldRemove: true };
     }
 
     // Em jogo, manter por 2 minutos
@@ -166,7 +165,20 @@ export class Room {
     }, 120000);
     this.disconnectTimers.set(playerId, timer);
 
+    this.checkAbortCondition();
+
     return { playerId, shouldRemove: false };
+  }
+
+  checkAbortCondition(): boolean {
+    if (this.state === GameState.LOBBY || this.state === GameState.RESULT) return false;
+    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+    if (activePlayers.length < 2) {
+      this.abortedDueToDisconnect = true;
+      this.stateMachine.forceState(GameState.RESULT);
+      return true;
+    }
+    return false;
   }
 
   reconnectPlayer(socketId: string, playerId: string): Player | null {
@@ -195,6 +207,13 @@ export class Room {
 
   getPlayerIdBySocket(socketId: string): string | undefined {
     return this.socketToPlayer.get(socketId);
+  }
+
+  getSocketIdByPlayerId(playerId: string): string | undefined {
+    for (const [sid, pid] of this.socketToPlayer.entries()) {
+      if (pid === playerId) return sid;
+    }
+    return undefined;
   }
 
   getPlayer(playerId: string): Player | undefined {
@@ -332,7 +351,7 @@ export class Room {
     for (const [id, player] of this.players) {
       const isImpostor = this.impostorIds.has(id);
       player.isImpostor = isImpostor;
-      player.word = isImpostor ? words.impostorWord : words.normalWord;
+      player.word = isImpostor ? (this.config.impostorNoWord ? undefined : words.impostorWord) : words.normalWord;
       player.hasSeenWord = false;
       player.hasVoted = false;
       player.hasRequestedVote = false;
@@ -362,7 +381,13 @@ export class Room {
       p.testaGuessedCorrectly = false;
       p.testaGuessOrder = undefined;
       p.testaWord = undefined;
-      p.testaLivesLeft = this.config.testaMode === 'survival' ? this.config.testaLives : 0;
+      p.inSuddenDeath = false;
+      // In survival mode, use configured lives (default 3). In points mode, set to 0 (unused).
+      if (this.config.testaMode === 'survival') {
+        p.testaLivesLeft = (this.config.testaLives && this.config.testaLives > 0) ? this.config.testaLives : 3;
+      } else {
+        p.testaLivesLeft = 0;
+      }
     }
 
     // Assign a random word to each player
@@ -458,6 +483,22 @@ export class Room {
   }
 
   // ─── Voting ─────────────────────────────
+
+  cancelVoteRequest(playerId: string): { count: number; needed: number } | null {
+    if (this.state !== GameState.DISCUSSION && this.state !== GameState.VOTING_REQUEST) return null;
+
+    const player = this.players.get(playerId);
+    if (!player) return null;
+    if (!player.hasRequestedVote) return null;
+
+    player.hasRequestedVote = false;
+    this.voteRequests.delete(playerId);
+
+    const needed = this.getVoteRequestsNeeded();
+    const count = this.voteRequests.size;
+
+    return { count, needed };
+  }
 
   requestVote(playerId: string): { count: number; needed: number; started: boolean } | null {
     if (this.state !== GameState.DISCUSSION && this.state !== GameState.VOTING_REQUEST) return null;
@@ -636,9 +677,8 @@ export class Room {
   // ─── Next Round ─────────────────────────────
 
   prepareNextRound(): boolean {
-    if (this.state !== GameState.RESULT && this.state !== GameState.DISCUSSION && this.state !== GameState.WORD_REVEAL) return false;
+    // Allow from any state (result, in_game, word_reveal, discussion, etc)
     this.stateMachine.forceState(GameState.LOBBY);
-
     this.clearRoundState();
     return true;
   }
@@ -650,6 +690,7 @@ export class Room {
     for (const p of this.players.values()) {
       p.score = 0;
     }
+    this.stateMachine.forceState(GameState.LOBBY);
     this.clearRoundState();
     return this.startGame(playerId);
   }
@@ -659,6 +700,7 @@ export class Room {
     if (this.currentRound >= (this.config.totalRounds || 3)) return { success: false, error: 'Limite de rodadas atingido.' };
     
     this.currentRound++;
+    this.stateMachine.forceState(GameState.LOBBY);
     this.clearRoundState();
     return this.startGame(playerId);
   }
@@ -668,6 +710,8 @@ export class Room {
     this.votes.clear();
     this.voteRequests.clear();
     this.skipVotes.clear();
+    this.impostorIds.clear();
+    this.currentWords = null;
     
     for (const p of this.players.values()) {
       p.hasSeenWord = false;
@@ -678,21 +722,22 @@ export class Room {
       p.votedFor = undefined;
       p.isImpostor = undefined;
       p.word = undefined;
+      p.isWinner = false;
       
       // Testa
       p.testaWord = undefined;
       p.hasGuessedTesta = false;
+      p.testaGuessedCorrectly = false;
+      p.testaGuessOrder = undefined;
+      p.inSuddenDeath = false;
       
       // Numbers
       p.numberValue = undefined;
       p.discoveredNumbers = [];
       p.hasBeenDiscovered = false;
-      p.inSuddenDeath = false;
       p.numbersLastChance = false;
+      p.numbersLivesLeft = undefined;
     }
-
-    this.impostorIds.clear();
-    this.currentWords = null;
   }
 
   // ─── Score Management ───────────────────────
@@ -711,6 +756,7 @@ export class Room {
   // ─── Public State ─────────────────────────────
 
   getPublicState(): RoomPublicState {
+    const isResultPhase = this.state === GameState.RESULT;
     const publicPlayers: PublicPlayer[] = Array.from(this.players.values()).map(p => ({
       id: p.id,
       name: p.name,
@@ -724,11 +770,14 @@ export class Room {
       hasVotedSkip: p.hasVotedSkip || false,
       score: p.score || 0,
       isWinner: p.isWinner || false,
-      testaWord: p.testaWord,
+      testaWord: p.testaWord, // For Testa: other players CAN see each other's words
       hasGuessedTesta: p.hasGuessedTesta,
       testaLivesLeft: p.testaLivesLeft,
       hasBeenDiscovered: p.hasBeenDiscovered,
-      numberValue: (p.id === this.hostId || this.state === GameState.RESULT || p.hasBeenDiscovered || p.id === Array.from(this.players.keys()).find(key => this.players.get(key) === p)) ? p.numberValue : undefined, // We'll handle this in getRoomState instead! Wait, we don't have playerId here.
+      inSuddenDeath: p.inSuddenDeath,
+      numbersLivesLeft: p.numbersLivesLeft,
+      // numberValue is PRIVATE - only shown in result phase or when discovered
+      numberValue: (isResultPhase || p.hasBeenDiscovered) ? p.numberValue : undefined,
     }));
 
     return {
@@ -744,13 +793,17 @@ export class Room {
       round: this.round,
       currentRound: this.currentRound,
       customThemeWordCount: this.totalSubmittedWords,
+      abortedDueToDisconnect: this.abortedDueToDisconnect,
     };
   }
 
   getPlayerWord(playerId: string): { word: string; isImpostor: boolean } | null {
     const player = this.players.get(playerId);
-    if (!player || !player.word) return null;
-    return { word: player.word, isImpostor: player.isImpostor || false };
+    if (!player) return null;
+    // Impostor game uses player.word; Testa game uses player.testaWord
+    const word = player.word || player.testaWord;
+    if (!word) return null;
+    return { word, isImpostor: player.isImpostor || false };
   }
 
   getWordGroupId(): string | null {
@@ -773,12 +826,13 @@ export class Room {
     if (guess.trim().toLowerCase() === player.testaWord.toLowerCase()) {
       player.hasGuessedTesta = true;
       player.testaGuessedCorrectly = true;
-      player.testaGuessOrder = Array.from(this.players.values()).filter(p => p.testaGuessedCorrectly).length + 1;
+      // Count only those who have already correctly guessed (before this one)
+      player.testaGuessOrder = Array.from(this.players.values()).filter(p => p.testaGuessedCorrectly && p.id !== player.id).length + 1;
       
-      // Sudden Death trigger
+      // Sudden Death trigger: remaining unguessed players enter sudden death
       const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
       const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
-      unGuessed.forEach(p => p.inSuddenDeath = true);
+      unGuessed.forEach(p => { if (!p.inSuddenDeath) p.inSuddenDeath = true; });
 
       this.checkTestaGameOver();
       return { correct: true, stateChanged: true };
@@ -817,38 +871,44 @@ export class Room {
     return true;
   }
 
-    private checkTestaGameOver() {
-      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
-      const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
-      const hasSuddenDeath = unGuessed.some(p => p.inSuddenDeath);
-  
-      // End game if all but one have guessed AND no one is in sudden death
-      if (unGuessed.length <= 1 && !hasSuddenDeath) {
-        activePlayers.forEach(p => {
-          if (p.testaGuessedCorrectly) {
-             if (this.config.testaMode === 'points') {
-                const order = p.testaGuessOrder || 1;
-                let points = 0;
-                if (order === 1) points = 100;
-                else if (order === 2) points = 80;
-                else if (order === 3) points = 60;
-                else if (order === 4) points = 50;
-                else points = Math.max(10, 50 - ((order - 4) * 10)); // 40, 30, 20...
-                
-                p.score += points;
-                p.isWinner = true;
-             } else {
-                p.score += 100;
-                p.isWinner = true;
-             }
-          } else {
-             p.isWinner = false;
-          }
-        });
-        
-        this.stateMachine.forceState(GameState.RESULT);
-      }
+  private checkTestaGameOver() {
+    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+    const unGuessed = activePlayers.filter(p => !p.hasGuessedTesta);
+    const waitingForSuddenDeath = unGuessed.filter(p => p.inSuddenDeath);
+
+    if (unGuessed.length === 0) {
+      // Everyone is done — end the game
+      this.finishTestaGame(activePlayers);
+    } else if (unGuessed.length === 1 && waitingForSuddenDeath.length === 0) {
+      // 1 player left who hasn't guessed and isn't in sudden death yet — put them in sudden death
+      unGuessed[0].inSuddenDeath = true;
+      // Don't end game yet — they still need to make their guess
     }
+    // If waitingForSuddenDeath.length > 0, players are still making their sudden death guess — don't end.
+  }
+
+  private finishTestaGame(activePlayers: Player[]) {
+    activePlayers.forEach(p => {
+      if (p.testaGuessedCorrectly) {
+        if (this.config.testaMode === 'points') {
+          const order = p.testaGuessOrder || 1;
+          let points = 0;
+          if (order === 1) points = 100;
+          else if (order === 2) points = 80;
+          else if (order === 3) points = 60;
+          else if (order === 4) points = 50;
+          else points = Math.max(10, 50 - ((order - 4) * 10));
+          p.score += points;
+        } else {
+          p.score += 100;
+        }
+        p.isWinner = true;
+      } else {
+        p.isWinner = false;
+      }
+    });
+    this.stateMachine.forceState(GameState.RESULT);
+  }
 
   // ─── Numbers Logic ─────────────────────────────
 
@@ -858,10 +918,17 @@ export class Room {
     const target = this.players.get(targetId);
     
     if (!player || !target || playerId === targetId) return false;
-    if (player.hasBeenDiscovered || target.hasBeenDiscovered) return false;
+    if (target.hasBeenDiscovered) return false;
+    if (player.hasBeenDiscovered && !player.inSuddenDeath) return false;
 
     if (target.numberValue === guess) {
+      // Correct guess!
       target.hasBeenDiscovered = true;
+      target.inSuddenDeath = true; // Target enters sudden death to make a final guess
+      
+      if (player.inSuddenDeath) {
+        player.inSuddenDeath = false; // Used their sudden death chance
+      }
       
       if (!player.discoveredNumbers) player.discoveredNumbers = [];
       player.discoveredNumbers.push(targetId);
@@ -870,38 +937,51 @@ export class Room {
       player.score += 150;
       target.score += 50;
 
-      // Sudden death for all remaining undiscovered players
-      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
-      const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
-      undiscovered.forEach(p => p.inSuddenDeath = true);
-
       this.checkNumbersGameOver();
       return true;
     } else {
+      // Wrong guess
       if (player.inSuddenDeath) {
-        player.hasBeenDiscovered = true; // Eliminated by sudden death
+        // Used sudden death chance and missed — they are fully eliminated
         player.inSuddenDeath = false;
+        // player was already hasBeenDiscovered = true (set when they entered sudden death after losing all lives)
         this.checkNumbersGameOver();
-      } else {
-        if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
-          if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
-            player.numbersLivesLeft--;
-            if (player.numbersLivesLeft <= 0) {
-              player.hasBeenDiscovered = true; // Eliminated
+      } else if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
+        if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
+          player.numbersLivesLeft--;
+          if (player.numbersLivesLeft <= 0) {
+            // Eliminated — but give them a last sudden death guess at their targets
+            player.hasBeenDiscovered = true;
+            const hasTargetsLeft = Array.from(this.players.values()).some(
+              other => other.id !== player.id && !other.hasBeenDiscovered
+            );
+            if (hasTargetsLeft) {
+              player.inSuddenDeath = true; // Allow one last guess as sudden death
+            } else {
               this.checkNumbersGameOver();
             }
           }
         }
       }
-      this.checkNumbersGameOver();
-      return false; // Wrong guess
+      return false;
     }
   }
 
-    private checkNumbersGameOver() {
-      const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
-      const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
-      const hasSuddenDeath = undiscovered.some(p => p.inSuddenDeath);
+  private checkNumbersGameOver() {
+    const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+    
+    // Revoke sudden death if there's no one left to guess
+    activePlayers.forEach(p => {
+      if (p.inSuddenDeath) {
+        const canGuess = activePlayers.some(other => other.id !== p.id && !other.hasBeenDiscovered);
+        if (!canGuess) {
+          p.inSuddenDeath = false;
+        }
+      }
+    });
+
+    const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
+    const hasSuddenDeath = activePlayers.some(p => p.inSuddenDeath);
 
     if (undiscovered.length <= 1 && !hasSuddenDeath) {
       // Game over if 1 or 0 players left undiscovered and no one is taking a last chance!

@@ -83,65 +83,35 @@ export function Chat() {
     }
   };
 
-  if (isMinimized) {
-    return (
-      <div 
-        className="chat-container minimized" 
-        onClick={toggleMinimize}
-        style={{ 
-          cursor: 'pointer', 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: '12px 16px',
-          height: 'auto',
-          backgroundColor: 'var(--bg-secondary)',
-          borderTop: '2px solid var(--border-color)',
-          borderLeft: '2px solid var(--border-color)',
-          borderRight: '2px solid var(--border-color)',
-          borderTopLeftRadius: 'var(--radius-lg)',
-          borderTopRightRadius: 'var(--radius-lg)',
-          position: 'fixed',
-          bottom: 0,
-          right: '20px',
-          width: '200px',
-          zIndex: 1000
-        }}
-      >
-        <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          💬 Chat
-          {hasUnread && (
-            <span style={{ 
-              width: '10px', 
-              height: '10px', 
-              backgroundColor: 'var(--error)', 
-              borderRadius: '50%',
-              display: 'inline-block'
-            }} />
-          )}
-        </h3>
-        <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', color: 'var(--text-secondary)' }}>
-          ▲
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="chat-container">
-      <div className="chat-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, fontSize: '1rem' }}>💬 chat da sala</h3>
-        <button 
-          className="btn btn-ghost btn-sm" 
-          onClick={toggleMinimize}
-          style={{ padding: '4px 8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}
-          title="Minimizar chat"
-        >
-          ▼
-        </button>
-      </div>
-      
-      <div className="chat-messages" style={{ flex: 1, overflowY: 'auto' }}>
+    <>
+      <div className={`chat-container ${isMinimized ? 'minimized' : ''}`}>
+        <div className="chat-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}>
+          <button 
+            className="btn btn-ghost btn-sm" 
+            onClick={toggleMinimize}
+            style={{ padding: '4px 8px', fontSize: '1rem', color: 'var(--text-primary)' }}
+            title={isMinimized ? 'Abrir chat' : 'Fechar chat'}
+          >
+            {isMinimized ? '◀' : '▶'}
+          </button>
+          {!isMinimized && (
+            <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap' }}>💬 chat da sala</h3>
+              {hasUnread && (
+                <span style={{ 
+                  width: '10px', 
+                  height: '10px', 
+                  backgroundColor: 'var(--error)', 
+                  borderRadius: '50%',
+                  display: 'inline-block'
+                }} />
+              )}
+            </div>
+          )}
+        </div>
+        
+        <div className="chat-messages" style={{ flex: 1, overflowY: 'auto' }}>
         {chatMessages.length === 0 ? (
           <div className="chat-empty text-muted">nenhuma mensagem ainda...</div>
         ) : (
@@ -245,55 +215,59 @@ export function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Predefined Reactions */}
-      <div style={{ padding: '8px 16px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '8px' }}>
-        {['👀 Suspeito', '🤔 Quem foi?', '🤨 Tô de olho', '🤡 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
-          <button
-            key={phrase}
-            className="btn btn-ghost"
-            style={{ 
-              fontSize: '0.75rem', 
-              padding: '4px 8px', 
-              border: '1px solid var(--glass-border)',
-              borderRadius: 'var(--radius-sm)'
-            }}
-            onClick={() => sendReaction(phrase)}
-          >
-            {phrase}
-          </button>
-        ))}
-      </div>
+      <div className="chat-input-area" style={{ flexDirection: 'column', padding: 0 }}>
+        {/* Predefined Reactions */}
+        <div style={{ padding: '8px 16px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', paddingBottom: '8px' }}>
+          {['👀 Suspeito', '🤔 Quem foi?', '🤨 Tô de olho', '🚨 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
+            <button
+              key={phrase}
+              className="btn btn-ghost"
+              style={{ 
+                fontSize: '0.75rem', 
+                padding: '4px 8px', 
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-sm)',
+                whiteSpace: 'nowrap',
+                flex: '0 0 auto'
+              }}
+              onClick={() => sendReaction(phrase)}
+            >
+              {phrase}
+            </button>
+          ))}
+        </div>
 
-      <form className="chat-input-area" style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '16px' }} onSubmit={handleSend}>
-        <button 
-          type="button" 
-          className="btn btn-ghost btn-sm" 
-          style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)' }}
-          onClick={() => fileInputRef.current?.click()}
-          title="Enviar imagem"
-        >
-          📷
-        </button>
-        <input 
-          type="file" 
-          accept="image/*" 
-          style={{ display: 'none' }} 
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-        />
-        <input
-          type="text"
-          className="input chat-input"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="digite algo..."
-          maxLength={200}
-          style={{ flex: 1 }}
-        />
-        <button type="submit" className="btn btn-primary btn-sm chat-send-btn" disabled={!inputText.trim()}>
-          enviar
-        </button>
-      </form>
+        <form style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '16px', paddingTop: 0 }} onSubmit={handleSend}>
+          <button 
+            type="button" 
+            className="btn btn-ghost btn-sm" 
+            style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0 }}
+            onClick={() => fileInputRef.current?.click()}
+            title="Enviar imagem"
+          >
+            📷
+          </button>
+          <input 
+            type="file" 
+            accept="image/*" 
+            style={{ display: 'none' }} 
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+          />
+          <input
+            type="text"
+            className="input chat-input"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="digite algo..."
+            maxLength={200}
+            style={{ flex: 1, minWidth: '50px' }}
+          />
+          <button type="submit" className="btn btn-primary btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0 }}>
+            enviar
+          </button>
+        </form>
+      </div>
 
       {/* Image Modal */}
       {selectedImage && (
@@ -357,5 +331,6 @@ export function Chat() {
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -7,10 +7,10 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { GameManager } from './game/GameManager.ts';
-import { registerSocketHandlers } from './socket/handlers.ts';
-import { WordEngine } from './game/WordEngine.ts';
-import { ClientToServerEvents, ServerToClientEvents } from '../../shared/types.ts';
+import { GameManager } from './game/GameManager';
+import { registerSocketHandlers } from './socket/handlers';
+import { WordEngine } from './game/WordEngine';
+import { ClientToServerEvents, ServerToClientEvents } from '../../shared/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +44,7 @@ registerSocketHandlers(io, gameManager);
 
 // ─── REST API ─────────────────────────
 
-import { themes } from '../../shared/themes.ts';
+import { themes } from '../../shared/themes';
 
 // Lista de temas
 app.get('/api/themes', (_req, res) => {

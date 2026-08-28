@@ -3,12 +3,14 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
+import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 
 export function TestaGame() {
   const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
   const [guess, setGuess] = useState('');
   const [personalNotes, setPersonalNotes] = useState('');
+  const [isDamaged, setIsDamaged] = useState(false);
 
   if (!roomState) return null;
 
@@ -16,10 +18,14 @@ export function TestaGame() {
   const isHost = roomState.hostId === playerId;
   const currentTheme = themes.find(t => t.id === roomState.config.theme);
 
-  const handleGuess = (e: React.FormEvent) => {
+  const handleGuess = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!guess.trim()) return;
-    guessTesta(guess.trim());
+    const isCorrect = await guessTesta(guess.trim());
+    if (isCorrect === false) {
+      setIsDamaged(true);
+      setTimeout(() => setIsDamaged(false), 500);
+    }
     setGuess('');
   };
 
@@ -32,6 +38,7 @@ export function TestaGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '16px' }}>
+        <ReactionsOverlay />
         <div className="status-badge voting" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
           🧠 JOGO DA TESTA
         </div>
@@ -90,14 +97,12 @@ export function TestaGame() {
             <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
           </div>
         ) : (
-          <div className="card" style={{ marginBottom: '32px', border: '4px solid var(--text-primary)', padding: 'var(--space-6)' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '32px', alignItems: 'stretch' }}>
             
-            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch' }}>
-              
-              <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
-                {/* Vidas / Corações (Apenas no modo Survival) */}
+            <div className="card" style={{ flex: '1 1 400px', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: 'var(--space-6)', margin: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 ? (
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px', fontSize: '1.8rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '8px', fontSize: '1.5rem' }}>
                     {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
                       <span key={i} style={{ 
                         opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
@@ -109,7 +114,49 @@ export function TestaGame() {
                   </div>
                 ) : null}
 
-                <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
+                <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '16px', display: 'inline-block' }}>
+                  <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="6rem" />
+                  
+                  <div style={{ 
+                    position: 'absolute',
+                    top: '-20px',
+                    left: '50%',
+                    transform: 'translateX(-50%) rotate(5deg)',
+                    background: '#fff9c4',
+                    color: '#000',
+                    padding: '4px 12px',
+                    fontFamily: 'var(--font-display)',
+                    border: '2px solid #000',
+                    fontSize: '1.2rem',
+                    boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
+                    minWidth: '80px',
+                    maxWidth: '240px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    textAlign: 'center',
+                    minHeight: '32px'
+                  }}>
+                    {guess || '...'}
+                    {isDamaged && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '50%', left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        color: 'red',
+                        fontSize: '3rem',
+                        fontWeight: 'bold',
+                        textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff'
+                      }}>
+                        ❌
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column' }}>
+                <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'center' }}>
                   <label style={{ fontWeight: 900, fontSize: '1.2rem', textTransform: 'uppercase' }}>O que está na minha testa?</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
@@ -117,38 +164,36 @@ export function TestaGame() {
                       className="input"
                       value={guess}
                       onChange={(e) => setGuess(e.target.value)}
-                      placeholder="Ex: Neymar, Macaco..."
                       style={{ flex: 1, fontSize: '1.2rem' }}
                     />
                     <button type="submit" className="btn btn-primary" style={{ padding: '0 24px' }}>Chutar</button>
                   </div>
-                  <div className="spacer-2" />
-                  <button type="button" className="btn btn-ghost btn-sm w-full" onClick={handleGiveUp}>
+                  <button type="button" className="btn btn-ghost btn-sm w-full" onClick={handleGiveUp} style={{ marginTop: '4px' }}>
                     🏳️ Desistir e espiar a palavra
                   </button>
                 </form>
               </div>
-
-              {/* Nota Pessoal Lado a Lado */}
-              <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', borderLeft: '2px dashed var(--glass-border)', paddingLeft: '24px' }} className="personal-note-section">
-                <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>📝</span> Nota Pessoal (Só você vê)
-                </h3>
-                <textarea
-                  className="input"
-                  value={personalNotes}
-                  onChange={(e) => setPersonalNotes(e.target.value)}
-                  placeholder="Anote dicas..."
-                  style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'vertical' }}
-                />
-              </div>
-
             </div>
+
+            {/* Nota Pessoal */}
+            <div className="card personal-note-section" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: 'var(--space-4)', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📝</span> Nota Pessoal (Só você vê)
+              </h3>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Anote dicas..."
+                style={{ width: '100%', flex: 1, minHeight: '150px', resize: 'vertical' }}
+              />
+            </div>
+
           </div>
         )}
 
         <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Na testa da galera:</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
           {roomState.players.filter(p => p.id !== playerId).map(p => (
             <div key={p.id} className="card" style={{ 
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -156,36 +201,10 @@ export function TestaGame() {
               border: p.hasGuessedTesta ? '2px solid #ccc' : '2px solid var(--text-primary)',
               background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
               position: 'relative',
-              padding: '16px'
+              padding: '24px'
             }}>
-              
-              <div style={{ position: 'relative', marginTop: '16px' }}>
-                <AvatarDisplay avatar={p.avatar} size="4.5rem" />
-                
-                {/* Post-it simulado na testa do Avatar */}
-                <div style={{ 
-                  position: 'absolute',
-                  top: '-20px',
-                  left: '50%',
-                  transform: 'translateX(-50%) rotate(5deg)',
-                  background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
-                  color: p.hasGuessedTesta ? '#888' : '#000',
-                  padding: '4px 12px',
-                  fontFamily: 'var(--font-display)',
-                  border: '2px solid #000',
-                  fontSize: '1.2rem',
-                  boxShadow: '2px 2px 0 rgba(0,0,0,0.2)'
-                }}>
-                  {p.hasGuessedTesta ? 'Descobriu!' : p.testaWord}
-                </div>
-              </div>
-              
-              <h4 style={{ margin: '8px 0 0 0', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none', fontSize: '1.3rem' }}>
-                {p.name}
-              </h4>
-
               {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
-                <div style={{ marginTop: '8px', fontSize: '1.5rem', display: 'flex', gap: '4px' }}>
+                <div style={{ marginBottom: '12px', fontSize: '1.5rem', display: 'flex', gap: '4px' }}>
                   {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
                     <span key={i} style={{ 
                       opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
@@ -196,6 +215,36 @@ export function TestaGame() {
                   ))}
                 </div>
               ) : null}
+
+              <div style={{ position: 'relative', marginTop: '4px' }}>
+                <AvatarDisplay avatar={p.avatar} size="6.5rem" />
+                
+                {/* Post-it simulado na testa do Avatar */}
+                <div style={{ 
+                  position: 'absolute',
+                  top: '-25px',
+                  left: '50%',
+                  transform: 'translateX(-50%) rotate(5deg)',
+                  background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
+                  color: p.hasGuessedTesta ? '#888' : '#000',
+                  padding: '6px 16px',
+                  fontFamily: 'var(--font-display)',
+                  border: '2px solid #000',
+                  fontSize: '1.4rem',
+                  boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
+                  maxWidth: '240px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  textAlign: 'center'
+                }}>
+                  {p.hasGuessedTesta ? 'Descobriu!' : p.testaWord}
+                </div>
+              </div>
+              
+              <h4 style={{ margin: '16px 0 0 0', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none', fontSize: '1.6rem' }}>
+                {p.name}
+              </h4>
             </div>
           ))}
         </div>
@@ -208,8 +257,14 @@ export function TestaGame() {
   if (roomState.state === GameState.RESULT) {
     return (
       <div className="page fade-in text-center">
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Fim de Jogo!</h1>
-        <p className="text-muted" style={{ marginBottom: '24px' }}>Todos adivinharam (ou desistiram).</p>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+          {roomState.abortedDueToDisconnect ? 'Jogo Cancelado!' : 'Fim de Jogo!'}
+        </h1>
+        <p className="text-muted" style={{ marginBottom: '24px' }}>
+          {roomState.abortedDueToDisconnect 
+            ? 'A partida foi encerrada porque não há jogadores suficientes.' 
+            : 'Todos adivinharam (ou desistiram).'}
+        </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
           <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>

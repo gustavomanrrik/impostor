@@ -47,18 +47,9 @@ export function TestaLobby() {
 
   const handleShare = async () => {
     const url = `${window.location.origin}?room=${roomState.code}`;
-    const shareData = {
-      title: 'Jogo da Testa 🧠',
-      text: `Entra aqui pra jogar o Jogo da Testa! Código: ${roomState.code}`,
-      url,
-    };
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${url}`);
-        addToast('success', 'Link copiado!');
-      }
+      await navigator.clipboard.writeText(url);
+      addToast('success', 'Link copiado!');
     } catch { /* user cancelled */ }
   };
 

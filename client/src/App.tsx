@@ -17,109 +17,144 @@ import { Chat } from './components/Chat';
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
 function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
-  const { page, toasts, showSuspense, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
+  const { page, navigate, toasts, showSuspense, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
   const showChat = page === 'lobby' || page === 'game';
   const [soundEnabled, setSoundEnabled] = useState(isSoundsEnabled());
 
-  // Botões globais no canto superior
-  const GlobalToggles = () => {
-    return (
-      <div style={{ position: 'fixed', top: '16px', right: showChat && !isChatMinimized ? 'calc(350px + 16px)' : '16px', zIndex: 50, display: 'flex', gap: '8px', transition: 'right 0.3s ease' }}>
-        {roomState && (
-          <button 
-            onClick={leaveRoom}
-            style={{
-              background: 'var(--bg-glass-strong)',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              padding: '0 16px',
-              height: '40px',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: 'var(--shadow-md)',
-              color: 'var(--text-primary)'
-            }}
-            title="Sair da Sala"
-          >
-            Sair
-          </button>
-        )}
-        
-        <button 
-          onClick={() => {
-            setSoundEnabled(toggleSound());
+  // Top bar sticky — não usa position: fixed para não cobrir conteúdo
+  const TopBar = () => (
+    <div style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '8px 12px',
+      background: 'var(--bg-primary)',
+      borderBottom: '2px solid var(--glass-border)',
+      minHeight: '48px',
+      flexShrink: 0,
+    }}>
+      {page !== 'home' && (
+        <div
+          className="fade-in"
+          onClick={() => { if (!roomState) navigate('home'); }}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: '1.5rem',
+            cursor: roomState ? 'default' : 'pointer',
+            pointerEvents: 'auto',
+            whiteSpace: 'nowrap',
           }}
+          title={roomState ? '' : 'Voltar ao Início'}
+        >
+          joguinhos bacanudos
+        </div>
+      )}
+
+      {roomState && (
+        <button
+          onClick={leaveRoom}
           style={{
             background: 'var(--bg-glass-strong)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
+            border: '2px solid var(--text-primary)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '0 12px',
+            height: '36px',
             cursor: 'pointer',
-            fontSize: '1.2rem',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 700,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'var(--shadow-md)',
+            gap: '4px',
+            color: 'var(--text-primary)',
+            boxShadow: 'var(--shadow-sm)',
           }}
-          title={soundEnabled ? 'Silenciar Sons' : 'Ativar Sons'}
+          title="Sair da Sala"
         >
-          {soundEnabled ? '🔊' : '🔇'}
+          sair
         </button>
-        <button 
-          onClick={toggleTheme}
-          style={{
-            background: 'var(--bg-glass-strong)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'var(--shadow-md)',
-          }}
-          title="Alternar tema"
-        >
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
-      </div>
-    );
-  };
+      )}
+
+      <button
+        onClick={() => { setSoundEnabled(toggleSound()); }}
+        style={{
+          background: 'var(--bg-glass-strong)',
+          border: '2px solid var(--text-primary)',
+          borderRadius: '50%',
+          width: '36px',
+          height: '36px',
+          cursor: 'pointer',
+          fontSize: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+        title={soundEnabled ? 'Silenciar Sons' : 'Ativar Sons'}
+      >
+        {soundEnabled ? '🔊' : '🔇'}
+      </button>
+
+      <button
+        onClick={toggleTheme}
+        style={{
+          background: 'var(--bg-glass-strong)',
+          border: '2px solid var(--text-primary)',
+          borderRadius: '50%',
+          width: '36px',
+          height: '36px',
+          cursor: 'pointer',
+          fontSize: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+        title="Alternar tema"
+      >
+        {theme === 'light' ? '🌙' : '☀️'}
+      </button>
+    </div>
+  );
 
   return (
-    <>
+    <div className="app-container">
       <div className="bg-pattern" />
-      <GlobalToggles />
+      <TopBar />
       <ToastContainer toasts={toasts} />
       {showSuspense && <SuspenseReveal />}
 
-      <div className={`app-layout ${showChat && !isChatMinimized ? 'with-chat' : ''}`}>
+      <div className={`app-layout ${showChat ? 'with-chat' : ''}`}>
         <div className="main-content">
-          {page === 'home' && <Home />}
-          {page === 'online-create' && <OnlineCreate />}
-          {page === 'online-join' && <OnlineJoin />}
-          {page === 'lobby' && <Lobby />}
-          {page === 'game' && <Game />}
-          {page === 'local-setup' && <LocalSetup />}
-          {page === 'local-game' && <LocalGame />}
-          {page === 'how-to-play' && <HowToPlay />}
-          {page === 'settings' && <Settings />}
-          {page === 'history' && <History />}
+          <div key={page} className="page-transition" style={{ height: '100%', width: '100%' }}>
+            {page === 'home' && <Home />}
+            {page === 'online-create' && <OnlineCreate />}
+            {page === 'online-join' && <OnlineJoin />}
+            {page === 'lobby' && <Lobby />}
+            {page === 'game' && <Game />}
+            {page === 'local-setup' && <LocalSetup />}
+            {page === 'local-game' && <LocalGame />}
+            {page === 'how-to-play' && <HowToPlay />}
+            {page === 'settings' && <Settings />}
+            {page === 'history' && <History />}
+          </div>
         </div>
         
         {showChat && (
-          <div className={isChatMinimized ? '' : 'sidebar-content fade-in'}>
+          <div className={`sidebar-content ${isChatMinimized ? 'minimized' : ''}`}>
             <Chat />
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 export default function App() {

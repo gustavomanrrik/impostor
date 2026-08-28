@@ -3,164 +3,209 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
+import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 export function NumbersGame() {
-  const { roomState, playerId, nextRound, playAgain, leaveRoom, guessNumber, myNumber } = useGame();
+  const { roomState, playerId, myWord, guessNumber, nextRound, playAgain, leaveRoom, addToast, myNumber } = useGame();
   const [guesses, setGuesses] = useState<Record<string, string>>({});
+  const [damagedPlayers, setDamagedPlayers] = useState<Record<string, boolean>>({});
   const [personalNotes, setPersonalNotes] = useState('');
+
+  // Reset local state whenever a new round/game starts
+  useEffect(() => {
+    setGuesses({});
+    setDamagedPlayers({});
+    setPersonalNotes('');
+  }, [roomState?.round]);
 
   if (!roomState) return null;
 
   const currentPlayer = roomState.players.find(p => p.id === playerId);
   const isHost = roomState.hostId === playerId;
 
-  const handleGuess = (e: React.FormEvent, targetId: string) => {
+  const handleGuess = async (e: React.FormEvent, targetId: string) => {
     e.preventDefault();
     const guessVal = parseInt(guesses[targetId]);
     if (isNaN(guessVal)) return;
 
-    guessNumber(targetId, guessVal);
+    const isCorrect = await guessNumber(targetId, guessVal);
+    if (isCorrect === false) {
+      setDamagedPlayers(prev => ({ ...prev, [targetId]: true }));
+      setTimeout(() => {
+        setDamagedPlayers(prev => ({ ...prev, [targetId]: false }));
+      }, 500);
+    }
     setGuesses(prev => ({ ...prev, [targetId]: '' }));
   };
 
+
   if (roomState.state === GameState.IN_GAME) {
     return (
-      <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '16px' }}>
-        <div className="status-badge error" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+      <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '24px', margin: '0 auto' }}>
+        <ReactionsOverlay />
+        
+        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
+          <VoteSkipButton />
+        </div>
+
+        <div className="status-badge error" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-block' }}>
           🔢 JOGO DOS NÚMEROS
         </div>
 
-        <h2 className="text-center" style={{ fontSize: '2.5rem', margin: 0 }}>Adivinhe os Números!</h2>
-        <p className="text-muted text-center" style={{ marginTop: '4px', fontSize: '1.1rem', marginBottom: '16px', maxWidth: '600px' }}>
-          O servidor sorteou um número secreto para cada um de vocês. Façam perguntas ("seu número é maior que 50?") e tentem descobrir o número exato dos outros!
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+          <h2 className="text-center" style={{ fontSize: '2rem', margin: 0 }}>Adivinhe os Números!</h2>
+          <span className="status-badge" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1rem', margin: 0 }}>
+            🏆 {currentPlayer?.score || 0} pts
+          </span>
+        </div>
+        <p className="text-muted text-center" style={{ marginTop: 0, fontSize: '1rem', marginBottom: '16px', maxWidth: '600px', margin: '0 auto' }}>
+          Faça perguntas de "maior/menor" e descubra o número secreto dos outros!
         </p>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '8px', border: '2px solid var(--text-primary)', marginBottom: '16px' }}>
-          <span>Sua pontuação:</span>
-          <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: 'var(--primary)' }}>{currentPlayer?.score || 0} pts</span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'stretch', marginBottom: '32px' }}>
-          <div className="card text-center" style={{ flex: '1 1 300px', margin: 0, border: '4px dashed var(--text-primary)' }}>
-            <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>O seu número secreto é:</h3>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'stretch' }}>
+          
+          {/* SEU NÚMERO */}
+          <div className="card text-center" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: 'var(--space-6)', margin: 0 }}>
+            <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase', marginBottom: '16px' }}>O Seu Número Secreto é:</h3>
             <div style={{ 
-              margin: '16px auto', 
-              fontSize: '4rem', 
+              fontSize: '4.5rem', 
               fontFamily: 'monospace',
               fontWeight: 900,
-              background: 'var(--text-primary)',
-              color: 'var(--bg-primary)',
-              padding: '16px 32px',
-              borderRadius: 'var(--radius-sm)',
-              display: 'inline-block',
-              transform: 'rotate(-2deg)'
+              background: 'var(--bg-primary)',
+              color: 'var(--text-primary)',
+              border: '4px solid var(--text-primary)',
+              padding: '8px 32px',
+              display: 'inline-flex',
+              boxShadow: '6px 6px 0px 0px var(--text-primary)',
+              marginBottom: '16px'
             }}>
               {myNumber}
             </div>
+            
             {currentPlayer?.hasBeenDiscovered && (
-              <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
+              <div className="status-badge error" style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
                 💀 Descobriram o seu número!
               </div>
             )}
-            {currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
-              <div className="status-badge error" style={{ margin: '16px auto 0', display: 'block', maxWidth: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
-                ⚠️ MORTE SÚBITA! VOCÊ TEM APENAS 1 PALPITE PARA SE SALVAR! ⚠️
+            {currentPlayer?.inSuddenDeath && (
+              <div className="status-badge error" style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
+                ☠️ MORTE SÚBITA! 1 PALPITE PARA SE SALVAR! ☠️
               </div>
             )}
             {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px', fontSize: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.5rem' }}>
                 {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
                   <span key={i} style={{ 
                     opacity: i < (currentPlayer?.numbersLivesLeft || 0) ? 1 : 0.3, 
                     filter: i < (currentPlayer?.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                    color: 'red',
-                    textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                    color: 'red'
                   }}>❤️</span>
                 ))}
               </div>
             ) : null}
           </div>
 
-          <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', borderLeft: '2px dashed var(--glass-border)', paddingLeft: '24px' }} className="personal-note-section">
-            <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* NOTA PESSOAL */}
+          <div className="card personal-note-section" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: 'var(--space-4)', margin: 0 }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>📝</span> Nota Pessoal (Só você vê)
             </h3>
             <textarea
               className="input"
               value={personalNotes}
               onChange={(e) => setPersonalNotes(e.target.value)}
-              placeholder="Anote dicas..."
-              style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'vertical' }}
+              placeholder="Ex: asdad é menor que 50..."
+              style={{ width: '100%', flex: 1, minHeight: '150px', resize: 'vertical', padding: '12px' }}
             />
           </div>
+          
         </div>
 
-        <h3 style={{ marginBottom: '16px', fontSize: '1.5rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores:</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+        {/* OUTROS JOGADORES */}
+        <h3 style={{ marginBottom: '16px', fontSize: '1.4rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores</h3>
+        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
           {roomState.players.filter(p => p.id !== playerId).map(p => (
             <div key={p.id} className="card" style={{ 
               display: 'flex', flexDirection: 'column', gap: '12px', 
               opacity: !p.isConnected ? 0.5 : 1,
-              border: p.hasBeenDiscovered ? '3px solid #ccc' : '3px solid var(--text-primary)',
+              border: p.hasBeenDiscovered ? '2px solid #ccc' : '3px solid var(--text-primary)',
               background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-              padding: '24px'
+              padding: '16px',
+              margin: 0
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <AvatarDisplay avatar={p.avatar} size="3.5rem" />
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.5rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none' }}>{p.name}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <AvatarDisplay avatar={p.avatar} size="2.5rem" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
                 </div>
               </div>
 
-              <div style={{ 
+              <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
                 background: 'var(--bg-primary)', 
                 border: '3px solid var(--text-primary)',
-                padding: '16px', 
-                borderRadius: '0', 
+                padding: '12px', 
                 fontFamily: 'monospace',
-                fontSize: '3rem',
+                fontSize: '2.5rem',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                boxShadow: 'inset 4px 4px 0px 0px rgba(0,0,0,0.1)'
+                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.1)',
+                position: 'relative',
+                minHeight: '80px',
+                overflow: 'hidden'
               }}>
                 {p.hasBeenDiscovered ? (
-                  <span style={{ color: 'var(--text-primary)' }}>{p.numberValue}</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 900 }}>{p.numberValue}</span>
                 ) : (
-                  <span className="text-muted">???</span>
+                  <span className={guesses[p.id] ? 'text-primary' : 'text-muted'} style={{ fontWeight: 900, fontSize: guesses[p.id] ? '2rem' : '2.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{guesses[p.id] || '???'}</span>
+                )}
+                {damagedPlayers[p.id] && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'red',
+                    fontSize: '4rem',
+                    fontWeight: 'bold',
+                    textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
+                    zIndex: 2
+                  }}>
+                    ❌
+                  </span>
                 )}
               </div>
 
               {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', fontSize: '1.2rem' }}>
                   {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
                     <span key={i} style={{ 
                       opacity: i < (p.numbersLivesLeft || 0) ? 1 : 0.3, 
                       filter: i < (p.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                      color: 'red',
-                      textShadow: '0 0 2px rgba(255,0,0,0.5)'
+                      color: 'red'
                     }}>❤️</span>
                   ))}
                 </div>
               ) : null}
 
-              {!p.hasBeenDiscovered && !currentPlayer?.hasBeenDiscovered && (
-                <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+              {(!currentPlayer?.hasBeenDiscovered || currentPlayer?.inSuddenDeath) && (
+                <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
                   <input
                     type="number"
                     className="input"
                     value={guesses[p.id] || ''}
                     onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
                     placeholder="Chute"
-                    style={{ flex: 1, fontFamily: 'monospace', fontSize: '1.2rem', fontWeight: 'bold' }}
+                    disabled={p.hasBeenDiscovered}
+                    style={{ flex: 1, fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 'bold' }}
                   />
-                  <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px' }}>Chutar</button>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '8px 12px' }} disabled={p.hasBeenDiscovered}>
+                    Chutar
+                  </button>
                 </form>
               )}
             </div>
           ))}
         </div>
-        <VoteSkipButton />
       </div>
     );
   }
@@ -169,8 +214,14 @@ export function NumbersGame() {
   if (roomState.state === GameState.RESULT) {
     return (
       <div className="page fade-in text-center">
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Fim de Jogo!</h1>
-        <p className="text-muted" style={{ marginBottom: '24px' }}>Todos os números foram descobertos.</p>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+          {roomState.abortedDueToDisconnect ? 'Jogo Cancelado!' : 'Fim de Jogo!'}
+        </h1>
+        <p className="text-muted" style={{ marginBottom: '24px' }}>
+          {roomState.abortedDueToDisconnect 
+            ? 'A partida foi encerrada porque não há jogadores suficientes.' 
+            : 'Todos os números foram descobertos.'}
+        </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
           <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
@@ -207,9 +258,9 @@ export function NumbersGame() {
 
         {isHost ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-            {roomState.currentRound < (roomState.config.totalRounds || 1) ? (
+            {roomState.currentRound < (roomState.config.totalRounds || 3) ? (
               <button className="btn btn-primary btn-xl w-full" onClick={nextRound}>
-                ▶ Próxima Rodada ({roomState.currentRound}/{roomState.config.totalRounds || 1})
+                ▶️ Próxima Rodada ({roomState.currentRound}/{roomState.config.totalRounds || 3})
               </button>
             ) : (
               <button className="btn btn-primary btn-xl w-full" onClick={playAgain}>
@@ -224,7 +275,7 @@ export function NumbersGame() {
         )}
 
         <div className="spacer-4" />
-        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 1)) && (
+        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 3)) && (
           <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
             🚪 Sair da sala
           </button>

@@ -1,8 +1,8 @@
 // ============================================
 // IMPOSTOR GAME — GameManager (Gerenciador de Salas)
 // ============================================
-import { Room } from './Room.ts';
-import { RoomConfig } from '../../../shared/types.ts';
+import { Room } from './Room';
+import { RoomConfig } from '../../../shared/types';
 
 export class GameManager {
   private rooms: Map<string, Room> = new Map();

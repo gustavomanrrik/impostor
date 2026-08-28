@@ -30,6 +30,7 @@ export interface ChatMessage {
     text: string;
     imageUrl?: string;
     timestamp: number;
+    reactions?: Record<string, string[]>;
 }
 export interface Player {
     id: string;
@@ -37,6 +38,7 @@ export interface Player {
     avatar: string;
     isHost: boolean;
     isConnected: boolean;
+    isSpectator?: boolean;
     score: number;
     isWinner?: boolean;
     isImpostor?: boolean;
@@ -48,9 +50,15 @@ export interface Player {
     hasVotedSkip?: boolean;
     testaWord?: string;
     hasGuessedTesta?: boolean;
+    testaLivesLeft?: number;
+    testaGuessedCorrectly?: boolean;
+    testaGuessOrder?: number;
     numberValue?: number;
     discoveredNumbers?: string[];
     hasBeenDiscovered?: boolean;
+    inSuddenDeath?: boolean;
+    numbersLastChance?: boolean;
+    numbersLivesLeft?: number;
 }
 export interface RoomConfig {
     gameType: GameType;
@@ -65,8 +73,12 @@ export interface RoomConfig {
     useFlatMode?: boolean;
     testaLives: number;
     testaMode: 'points' | 'survival';
+    totalRounds: number;
     numbersMin?: number;
     numbersMax?: number;
+    numbersLives?: number;
+    numbersMode?: 'points' | 'survival';
+    impostorNoWord?: boolean;
 }
 export interface ThemePairs {
     easy: string[][];
@@ -128,6 +140,7 @@ export interface RoomPublicState {
     votesRegistered: number;
     totalPlayers: number;
     round: number;
+    currentRound: number;
     customThemeWordCount: number;
 }
 export interface PublicPlayer {
@@ -136,6 +149,7 @@ export interface PublicPlayer {
     avatar: string;
     isHost: boolean;
     isConnected: boolean;
+    isSpectator?: boolean;
     score: number;
     isWinner?: boolean;
     hasSeenWord: boolean;
@@ -149,6 +163,9 @@ export interface PublicPlayer {
     testaGuessOrder?: number;
     numberValue?: number;
     hasBeenDiscovered?: boolean;
+    inSuddenDeath?: boolean;
+    numbersLastChance?: boolean;
+    numbersLivesLeft?: number;
 }
 export interface GameHistoryEntry {
     id: string;
@@ -179,6 +196,7 @@ export interface ClientToServerEvents {
     'room:resetScores': () => void;
     'chat:sendMessage': (message: string) => void;
     'chat:sendImage': (imageUrl: string) => void;
+    'chat:react': (messageId: string, reaction: string) => void;
     'game:start': () => void;
     'game:wordSeen': () => void;
     'game:requestVote': () => void;
@@ -186,6 +204,7 @@ export interface ClientToServerEvents {
     'game:vote': (votedForId: string) => void;
     'game:voteSkip': () => void;
     'game:nextRound': () => void;
+    'game:playAgain': () => void;
     'game:changeTheme': () => void;
     'game:reaction': (reaction: string) => void;
     'game:guessTesta': (guess: string, callback?: (res: {
@@ -214,6 +233,9 @@ export interface ServerToClientEvents {
     'room:joined': (data: {
         playerId: string;
         roomState: RoomPublicState;
+        word?: string;
+        isImpostor?: boolean;
+        numberValue?: number;
     }) => void;
     'room:updated': (roomState: RoomPublicState) => void;
     'room:playerJoined': (player: PublicPlayer) => void;
@@ -222,13 +244,11 @@ export interface ServerToClientEvents {
     'room:playerReconnected': (playerId: string) => void;
     'room:hostChanged': (newHostId: string) => void;
     'room:closed': () => void;
-    'chat:newMessage': (message: {
-        id: string;
+    'chat:newMessage': (message: ChatMessage) => void;
+    'chat:messageReaction': (data: {
+        messageId: string;
         playerId: string;
-        playerName: string;
-        text: string;
-        timestamp: number;
-        isSystem?: boolean;
+        reaction: string;
     }) => void;
     'game:wordAssigned': (data: {
         word: string;
@@ -260,6 +280,7 @@ export interface ServerToClientEvents {
         roomState: RoomPublicState;
         word?: string;
         isImpostor?: boolean;
+        numberValue?: number;
     }) => void;
     'theme:sync': (words: string[]) => void;
     'error': (data: {

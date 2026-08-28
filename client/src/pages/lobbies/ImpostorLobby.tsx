@@ -47,18 +47,9 @@ export function ImpostorLobby() {
 
   const handleShare = async () => {
     const url = `${window.location.origin}?room=${roomState.code}`;
-    const shareData = {
-      title: 'Impostor 🎭',
-      text: `Entre na minha sala do Impostor! Código: ${roomState.code}`,
-      url,
-    };
     try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${url}`);
-        addToast('success', 'Link copiado!');
-      }
+      await navigator.clipboard.writeText(url);
+      addToast('success', 'Link copiado!');
     } catch { /* user cancelled */ }
   };
 
@@ -126,16 +117,16 @@ export function ImpostorLobby() {
             <span style={{ fontSize: '2.5rem' }}>🎭</span>
             <h2 style={{ fontSize: '2rem', margin: 0 }}>Sala do Impostor</h2>
           </div>
-          <p className="text-muted" style={{ marginBottom: '24px' }}>Descubra quem está com a palavra errada!</p>
+          <p className="text-muted" style={{ marginBottom: '16px', fontSize: '0.9rem' }}>Descubra quem está com a palavra errada!</p>
 
           {/* Room Code */}
           <div className="room-code" aria-label={`Código da sala: ${roomState.code}`}>
             {roomState.code}
           </div>
 
-          <div className="spacer-3" />
+          <div className="spacer-2" />
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ flex: 1 }}>
               {copied ? '✅ Copiado' : '📋 Copiar'}
             </button>
@@ -145,8 +136,8 @@ export function ImpostorLobby() {
           </div>
 
           {/* Players */}
-          <div className="card" style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div className="card" style={{ marginBottom: '12px', padding: '12px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span style={{ fontWeight: 600 }}>Suspeitos (Jogadores)</span>
               <span className="text-muted" style={{ fontSize: '0.875rem' }}>
                 {roomState.players.length}/8
@@ -181,7 +172,7 @@ export function ImpostorLobby() {
           </div>
 
           {/* Progress bar */}
-          <div className="progress-bar" style={{ marginBottom: '16px' }}>
+          <div className="progress-bar" style={{ marginBottom: '12px' }}>
             <div className="progress-fill" style={{ width: `${(roomState.players.length / 8) * 100}%` }} />
           </div>
 
@@ -207,7 +198,7 @@ export function ImpostorLobby() {
             </div>
           )}
 
-          <div className="spacer-4" />
+          <div className="spacer-3" />
 
           <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
             🚪 Sair da sala
@@ -216,8 +207,8 @@ export function ImpostorLobby() {
 
         {/* LADO DIREITO: Configurações */}
         <div className="lobby-right">
-          <div className="card w-full" style={{ marginBottom: '16px', padding: '16px', flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div className="card w-full" style={{ marginBottom: '12px', padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontWeight: 600 }}>Configurações do Impostor</span>
               {!isHost && <span className="badge" style={{ background: 'var(--bg-glass-strong)' }}>Apenas Host</span>}
             </div>
@@ -227,10 +218,10 @@ export function ImpostorLobby() {
                 <div className="input-group">
                   <label className="input-label" style={{ margin: 0, marginBottom: '8px' }}>Rodadas (Partida)</label>
                   <select 
-                    className="input" 
+                    className="input input-sm" 
                     value={config.totalRounds || 3} 
                     onChange={e => updateConfig({ totalRounds: parseInt(e.target.value) })}
-                    style={{ marginBottom: '16px' }}
+                    style={{ marginBottom: '12px' }}
                   >
                     <option value={1}>1 Rodada</option>
                     <option value={3}>3 Rodadas</option>
@@ -342,6 +333,39 @@ export function ImpostorLobby() {
                 </div>
 
                 <div className="spacer-4" />
+                <div 
+                  className="input-group" 
+                  onClick={() => updateConfig({ impostorNoWord: !config.impostorNoWord })}
+                  style={{ 
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    gap: '12px', 
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    border: '3px solid var(--text-primary)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    background: 'var(--bg-primary)',
+                    fontSize: '1.2rem',
+                    fontWeight: 900,
+                    lineHeight: 1,
+                  }}>
+                    {config.impostorNoWord && 'X'}
+                  </div>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                    Impostor Sem Palavra (Só recebe o tema)
+                  </span>
+                </div>
+
+                <div className="spacer-4" />
                 <button 
                   className="btn btn-ghost btn-sm w-full" 
                   onClick={() => {
@@ -364,7 +388,8 @@ export function ImpostorLobby() {
                       <strong>Dificuldade:</strong> {config.difficulty === Difficulty.EASY ? 'Fácil' : config.difficulty === Difficulty.MEDIUM ? 'Médio' : 'Difícil'}<br/>
                     </>
                   )}
-                  <strong>Impostores:</strong> {config.customImpostorCount}
+                  <strong>Impostores:</strong> {config.customImpostorCount}<br/>
+                  <strong>Sem Palavra:</strong> {config.impostorNoWord ? 'Sim' : 'Não'}
                 </p>
               </div>
             )}

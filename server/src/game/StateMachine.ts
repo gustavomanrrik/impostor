@@ -1,7 +1,7 @@
 // ============================================
 // IMPOSTOR GAME — Máquina de Estados
 // ============================================
-import { GameState } from '../../../shared/types.ts';
+import { GameState } from '../../../shared/types';
 
 // Transições válidas
 const validTransitions: Record<GameState, GameState[]> = {

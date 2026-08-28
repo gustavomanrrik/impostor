@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { getSavedPlayerName, getSavedAvatar, saveAvatar, savePlayerName } from '../services/localStorage';
+import { getSavedPlayerName, getSavedAvatar, saveAvatar, savePlayerName, clearReconnectionData } from '../services/localStorage';
 import { Difficulty, ImpostorMode } from '@shared/types';
 import { AvatarSelector, getRandomAvatar } from '../components/AvatarSelector';
 
 export function OnlineCreate() {
   const { navigate, createRoom, selectedGameType } = useGame();
+  
+  useEffect(() => {
+    // Clear old reconnection data when entering this screen
+    clearReconnectionData();
+  }, []);
   
   const [playerName, setPlayerName] = useState(getSavedPlayerName());
   const [avatar, setAvatar] = useState(getSavedAvatar() || getRandomAvatar());
@@ -32,7 +37,7 @@ export function OnlineCreate() {
   };
 
   return (
-    <div className="page fade-in" style={{ maxWidth: '500px', width: '100%', margin: '0 auto' }}>
+    <div className="page page-centered fade-in" style={{ maxWidth: '500px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100%', paddingBottom: '10vh' }}>
       <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
         ← Voltar
       </button>
