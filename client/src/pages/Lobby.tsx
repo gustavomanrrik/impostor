@@ -12,11 +12,11 @@ export function Lobby() {
 
   switch (roomState.config.gameType) {
     case GameType.TESTA:
-      return <div className="page fade-in"><TestaLobby /></div>;
+      return <div className="page page-centered fade-in"><TestaLobby /></div>;
     case GameType.NUMBERS:
-      return <div className="page fade-in"><NumbersLobby /></div>;
+      return <div className="page page-centered fade-in"><NumbersLobby /></div>;
     case GameType.IMPOSTOR:
     default:
-      return <div className="page fade-in"><ImpostorLobby /></div>;
+      return <div className="page page-centered fade-in"><ImpostorLobby /></div>;
   }
 }

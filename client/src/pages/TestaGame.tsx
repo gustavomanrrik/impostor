@@ -3,7 +3,6 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
-import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 
 export function TestaGame() {
@@ -38,7 +37,6 @@ export function TestaGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '16px' }}>
-        <ReactionsOverlay />
         <div className="status-badge voting" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
           🧠 JOGO DA TESTA
         </div>

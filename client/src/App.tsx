@@ -13,6 +13,7 @@ import { History } from './pages/History';
 import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
+import { ReactionsOverlay } from './components/ReactionsOverlay';
 
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
@@ -134,6 +135,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
 
       <div className={`app-layout ${showChat ? 'with-chat' : ''}`}>
         <div className="main-content">
+          <ReactionsOverlay />
           <div key={page} className="page-transition" style={{ height: '100%', width: '100%' }}>
             {page === 'home' && <Home />}
             {page === 'online-create' && <OnlineCreate />}

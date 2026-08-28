@@ -3,7 +3,6 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
-import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 export function ImpostorGame() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes, sendWhisper, activeWhispers } = useGame();
@@ -140,7 +139,6 @@ export function ImpostorGame() {
   if (roomState.state === GameState.DISCUSSION) {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
-        <ReactionsOverlay />
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
           <VoteSkipButton />
         </div>
@@ -453,7 +451,6 @@ export function ImpostorGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <div className="page fade-in" style={{ position: 'relative' }}>
-        <ReactionsOverlay />
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
           <VoteSkipButton />
         </div>

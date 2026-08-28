@@ -13,7 +13,6 @@ export function Game() {
 
   return (
     <>
-      <ReactionsOverlay />
       <div key={roomState.state} className="page-transition" style={{ height: '100%', width: '100%' }}>
         {roomState.config.gameType === GameType.TESTA && <TestaGame />}
         {roomState.config.gameType === GameType.NUMBERS && <NumbersGame />}

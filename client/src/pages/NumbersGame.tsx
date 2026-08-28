@@ -3,7 +3,6 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
-import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 export function NumbersGame() {
   const { roomState, playerId, myWord, guessNumber, nextRound, playAgain, leaveRoom, addToast, myNumber } = useGame();
@@ -42,7 +41,6 @@ export function NumbersGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '24px', margin: '0 auto' }}>
-        <ReactionsOverlay />
         
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
           <VoteSkipButton />
