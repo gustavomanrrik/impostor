@@ -149,6 +149,42 @@ export function Chat() {
                     />
                   )}
                   
+                  {/* Floating Reaction Trigger */}
+                  <div 
+                    className="chat-reaction-trigger"
+                    style={{ 
+                      position: 'absolute', 
+                      right: '-14px', 
+                      bottom: '-10px', 
+                      cursor: 'pointer', 
+                      background: 'var(--bg-primary)', 
+                      border: '2px solid var(--text-primary)', 
+                      borderRadius: '50%', 
+                      width: '28px', 
+                      height: '28px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      fontSize: '0.8rem',
+                      boxShadow: '2px 2px 0 rgba(0,0,0,1)',
+                      zIndex: 5,
+                      opacity: 0.8,
+                      transition: 'transform 0.1s, opacity 0.1s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = '1';
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = '0.8';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                    onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+                    title="Adicionar reação (ou botão direito na mensagem)"
+                  >
+                    ➕
+                  </div>
+                  
                   {/* Reaction Picker Popover */}
                   {activeReactionPicker === msg.id && (
                     <div style={{
@@ -183,37 +219,31 @@ export function Chat() {
                   )}
                 </div>
                 
-                {/* Render active reactions and reaction button */}
-                <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', justifyContent: isMe ? 'flex-end' : 'flex-start', alignItems: 'center' }}>
-                  {msg.reactions && Object.keys(msg.reactions).length > 0 && Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                    <button
-                      key={emoji}
-                      className="btn btn-ghost"
-                      style={{
-                        padding: '2px 6px',
-                        fontSize: '0.8rem',
-                        borderRadius: '12px',
-                        border: userIds.includes(playerId || '') ? '2px solid var(--text-primary)' : '1px solid var(--glass-border)',
-                        background: userIds.includes(playerId || '') ? 'var(--bg-card)' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                      onClick={() => reactToChatMessage(msg.id, emoji)}
-                    >
-                      <span>{emoji}</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{userIds.length}</span>
-                    </button>
-                  ))}
-                  <div 
-                    className="chat-reaction-trigger"
-                    style={{ cursor: 'pointer', opacity: 0.5, fontSize: '0.9rem', padding: '0 4px' }}
-                    onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
-                    title="Adicionar reação (ou botão direito na mensagem)"
-                  >
-                    ➕
+                {/* Render active reactions */}
+                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                  <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', justifyContent: isMe ? 'flex-end' : 'flex-start', alignItems: 'center' }}>
+                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                      <button
+                        key={emoji}
+                        className="btn btn-ghost"
+                        style={{
+                          padding: '2px 6px',
+                          fontSize: '0.8rem',
+                          borderRadius: '12px',
+                          border: userIds.includes(playerId || '') ? '2px solid var(--text-primary)' : '1px solid var(--glass-border)',
+                          background: userIds.includes(playerId || '') ? 'var(--bg-card)' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        onClick={() => reactToChatMessage(msg.id, emoji)}
+                      >
+                        <span>{emoji}</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{userIds.length}</span>
+                      </button>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
             );
           })
