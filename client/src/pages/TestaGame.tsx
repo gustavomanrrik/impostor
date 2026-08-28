@@ -54,8 +54,22 @@ export function TestaGame() {
         </div>
 
         {currentPlayer?.inSuddenDeath && (
-          <div className="status-badge error" style={{ margin: '0 auto 16px', display: 'flex', width: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
-            ⚠️ MORTE SÚBITA! VOCÊ TEM APENAS 1 PALPITE PARA SE SALVAR! ⚠️
+          <div className="card" style={{ 
+            margin: '0 auto 16px', 
+            display: 'inline-block', 
+            background: '#ff4444', 
+            color: '#fff', 
+            border: '4px solid #000', 
+            borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px', 
+            transform: 'rotate(-2deg)', 
+            padding: '12px 24px', 
+            fontWeight: 900, 
+            textTransform: 'uppercase', 
+            boxShadow: '4px 4px 0 #000',
+            fontSize: '1.2rem',
+            textAlign: 'center'
+          }}>
+            ⚠️ MORTE SÚBITA! Você tem apenas 1 palpite para se salvar! ⚠️
           </div>
         )}
 
@@ -66,7 +80,7 @@ export function TestaGame() {
           <div style={{ display: 'flex', gap: '16px', flexShrink: 0, width: '100%' }}>
             
             {/* Left: Meu Cartão */}
-            <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {currentPlayer?.hasGuessedTesta ? (
                 <div className="card text-center" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>
@@ -196,12 +210,12 @@ export function TestaGame() {
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
-              Na testa da galera:
+              na testa da galera:
             </h3>
             
-            <div className="player-grid" style={{ flex: 1, overflowY: 'auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignContent: 'start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '16px', alignContent: 'flex-start', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -210,7 +224,9 @@ export function TestaGame() {
                   background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                   position: 'relative',
                   padding: '16px',
-                  margin: 0
+                  margin: 0,
+                  width: '200px',
+                  flex: '0 0 auto'
                 }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
                   {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
