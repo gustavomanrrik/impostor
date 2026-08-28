@@ -858,7 +858,11 @@ export class Room {
       }
     }
     
-    return { correct: false, stateChanged, livesLeft: player.testaLivesLeft };
+    return { 
+      correct: false, 
+      stateChanged, 
+      livesLeft: this.config.testaMode === 'survival' ? player.testaLivesLeft : undefined 
+    };
   }
 
   giveUpTesta(playerId: string): boolean {

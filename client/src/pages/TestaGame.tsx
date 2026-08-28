@@ -58,53 +58,68 @@ export function TestaGame() {
           </div>
         )}
 
-        {/* MAIN CONTENT AREA: Left (My Card) / Right (Enemies) */}
-        <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
+        {/* MAIN CONTENT AREA */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0 }}>
           
-          {/* LEFT COLUMN */}
-          <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
-            {currentPlayer?.hasGuessedTesta ? (
-              <div className="card text-center" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0 }}>
-                <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>
-                <div style={{ 
-                  margin: '16px auto', 
-                  fontSize: '2.5rem', 
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 900,
-                  background: '#fff9c4',
-                  color: '#000',
-                  padding: '16px 32px',
-                  borderRadius: '2px 12px 2px 12px',
-                  boxShadow: '3px 3px 5px rgba(0,0,0,0.2)',
-                  display: 'inline-block',
-                  transform: 'rotate(-2deg)'
-                }}>
-                  {currentPlayer.testaWord}
+          {/* MIDDLE SECTION: Notes (Left) and My Card (Right) */}
+          <div style={{ display: 'flex', gap: '16px', flexShrink: 0 }}>
+            
+            {/* Left: Nota Pessoal */}
+            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📝</span> Nota Pessoal (Só você vê)
+              </h3>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Anote dicas..."
+                style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
+              />
+            </div>
+
+            {/* Right: Meu Cartão */}
+            <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {currentPlayer?.hasGuessedTesta ? (
+                <div className="card text-center" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>
+                  <div style={{ 
+                    margin: '16px auto', 
+                    fontSize: '2.5rem', 
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 900,
+                    background: '#fff9c4',
+                    color: '#000',
+                    padding: '16px 32px',
+                    borderRadius: '2px 12px 2px 12px',
+                    boxShadow: '3px 3px 5px rgba(0,0,0,0.2)',
+                    display: 'inline-block',
+                    transform: 'rotate(-2deg)'
+                  }}>
+                    {currentPlayer.testaWord}
+                  </div>
+                  
+                  {roomState.config.testaMode === 'points' && currentPlayer.testaGuessedCorrectly && (
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                      Você acertou em {currentPlayer.testaGuessOrder}º lugar! 🏆
+                    </div>
+                  )}
+                  
+                  {roomState.config.testaMode === 'survival' && !currentPlayer.testaGuessedCorrectly && (
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                      Você foi eliminado! 💀
+                    </div>
+                  )}
+                  {roomState.config.testaMode === 'survival' && currentPlayer.testaGuessedCorrectly && (
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                      Você sobreviveu! 👑
+                    </div>
+                  )}
+                  
+                  <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
                 </div>
-                
-                {roomState.config.testaMode === 'points' && currentPlayer.testaGuessedCorrectly && (
-                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    Você acertou em {currentPlayer.testaGuessOrder}º lugar! 🏆
-                  </div>
-                )}
-                
-                {roomState.config.testaMode === 'survival' && !currentPlayer.testaGuessedCorrectly && (
-                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    Você foi eliminado! 💀
-                  </div>
-                )}
-                {roomState.config.testaMode === 'survival' && currentPlayer.testaGuessedCorrectly && (
-                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    Você sobreviveu! 👑
-                  </div>
-                )}
-                
-                <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                
-                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
+              ) : (
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
                   {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 ? (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '8px', fontSize: '1.5rem' }}>
                       {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
@@ -158,7 +173,7 @@ export function TestaGame() {
                     </div>
                   </div>
 
-                  <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }}>
+                  <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: 'auto' }}>
                     <label style={{ fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', textAlign: 'center' }}>O que está na minha testa?</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
@@ -175,26 +190,11 @@ export function TestaGame() {
                     </button>
                   </form>
                 </div>
-
-                {/* Nota Pessoal */}
-                <div className="card personal-note-section" style={{ display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
-                  <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>📝</span> Nota Pessoal (Só você vê)
-                  </h3>
-                  <textarea
-                    className="input"
-                    value={personalNotes}
-                    onChange={(e) => setPersonalNotes(e.target.value)}
-                    placeholder="Anote dicas..."
-                    style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
-                  />
-                </div>
-
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* BOTTOM SECTION: Enemies */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               Na testa da galera:
