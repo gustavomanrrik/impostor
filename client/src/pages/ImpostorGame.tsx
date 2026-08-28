@@ -276,7 +276,7 @@ export function ImpostorGame() {
               border: '4px solid var(--text-primary)', margin: 0 
             }}>
               <div style={{ marginBottom: '12px', fontSize: '1.5rem', display: 'flex', gap: '4px' }}>
-                {roomState.impostorsFound !== undefined && gameResult?.impostors.some(i => i.id === p.id) && (
+                {gameResult && gameResult.impostors.some(i => i.id === p.id) && (
                   <span title="Impostor">😈</span>
                 )}
                 {p.isWinner && <span title="Vencedor">👑</span>}

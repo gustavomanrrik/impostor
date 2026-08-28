@@ -392,9 +392,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     socket.on('game:whisperReceived', (data) => {
       const { senderId, text } = data;
       playSuccessSound();
-      setActiveWhispers(prev => [...prev, { senderId, text, timestamp: Date.now() }]);
+      const whisperTimestamp = Date.now();
+      setActiveWhispers(prev => [...prev, { senderId, text, timestamp: whisperTimestamp }]);
       setTimeout(() => {
-        setActiveWhispers(current => current.filter(w => w.timestamp !== data.timestamp && w.text !== text));
+        setActiveWhispers(current => current.filter(w => w.timestamp !== whisperTimestamp));
       }, 5000);
     });
 
@@ -405,11 +406,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           if (!newReactions[reaction]) {
             newReactions[reaction] = [];
           }
-          if (!newReactions[reaction].includes(playerId)) {
-            newReactions[reaction] = [...newReactions[reaction], playerId];
+          if (!newReactions[reaction].includes(reactionPlayerId)) {
+            newReactions[reaction] = [...newReactions[reaction], reactionPlayerId];
           } else {
             // toggle reaction off
-            newReactions[reaction] = newReactions[reaction].filter(id => id !== playerId);
+            newReactions[reaction] = newReactions[reaction].filter(id => id !== reactionPlayerId);
             if (newReactions[reaction].length === 0) {
               delete newReactions[reaction];
             }
