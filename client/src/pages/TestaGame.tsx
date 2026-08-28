@@ -4,6 +4,7 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { KickPlayerButton } from '../components/KickPlayerButton';
+import { Podium } from '../components/Podium';
 
 
 export function TestaGame() {
@@ -285,13 +286,15 @@ export function TestaGame() {
     return (
       <div className="page fade-in text-center">
         <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
-          {roomState.abortedDueToDisconnect ? 'Jogo Cancelado!' : 'Fim de Jogo!'}
+          {roomState.abortedDueToDisconnect ? 'Jogo Cancelado!' : 'Fim de Rodada!'}
         </h1>
         <p className="text-muted" style={{ marginBottom: '24px' }}>
           {roomState.abortedDueToDisconnect 
             ? 'A partida foi encerrada porque não há jogadores suficientes.' 
-            : 'Todos adivinharam (ou desistiram).'}
+            : 'Resultados da rodada:'}
         </p>
+
+        {!roomState.abortedDueToDisconnect && <Podium players={roomState.players} />}
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
           <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>

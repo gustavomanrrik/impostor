@@ -4,6 +4,7 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { KickPlayerButton } from '../components/KickPlayerButton';
+import { Podium } from '../components/Podium';
 
 export function NumbersGame() {
   const { roomState, playerId, myWord, guessNumber, nextRound, playAgain, leaveRoom, addToast, myNumber } = useGame();
@@ -252,8 +253,10 @@ export function NumbersGame() {
         <p className="text-muted" style={{ marginBottom: '24px' }}>
           {roomState.abortedDueToDisconnect 
             ? 'A partida foi encerrada porque não há jogadores suficientes.' 
-            : 'Todos os números foram descobertos.'}
+            : 'Resultados da rodada:'}
         </p>
+
+        {!roomState.abortedDueToDisconnect && <Podium players={roomState.players} />}
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
           <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
