@@ -40,104 +40,108 @@ export function NumbersGame() {
 
   if (roomState.state === GameState.IN_GAME) {
     return (
-      <div className="page" style={{ position: 'relative', overflowX: 'hidden', paddingTop: '24px', margin: '0 auto' }}>
+      <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
           <VoteSkipButton />
         </div>
 
-        <div className="status-badge error" style={{ marginBottom: '8px', background: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'inline-block' }}>
-          🔢 JOGO DOS NÚMEROS
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-          <h2 className="text-center" style={{ fontSize: '2rem', margin: 0 }}>Adivinhe os Números!</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+          <div className="status-badge error" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0 }}>
+            🔢 JOGO DOS NÚMEROS
+          </div>
+          <h2 className="text-center" style={{ fontSize: '1.8rem', margin: 0 }}>Adivinhe os Números!</h2>
           <span className="status-badge" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontSize: '1rem', margin: 0 }}>
             🏆 {currentPlayer?.score || 0} pts
           </span>
         </div>
-        <p className="text-muted text-center" style={{ marginTop: 0, fontSize: '1rem', marginBottom: '16px', maxWidth: '600px', margin: '0 auto' }}>
-          Faça perguntas de "maior/menor" e descubra o número secreto dos outros!
-        </p>
 
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'stretch' }}>
+        {/* MAIN CONTENT AREA: Left (My Number + Note) / Right (Enemies) */}
+        <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
           
-          {/* SEU NÚMERO */}
-          <div className="card text-center" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: 'var(--space-6)', margin: 0 }}>
-            <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase', marginBottom: '16px' }}>O Seu Número Secreto é:</h3>
-            <div style={{ 
-              fontSize: '4.5rem', 
-              fontFamily: 'monospace',
-              fontWeight: 900,
-              background: 'var(--bg-primary)',
-              color: 'var(--text-primary)',
-              border: '4px solid var(--text-primary)',
-              padding: '8px 32px',
-              display: 'inline-flex',
-              boxShadow: '6px 6px 0px 0px var(--text-primary)',
-              marginBottom: '16px'
-            }}>
-              {myNumber}
-            </div>
+          {/* LEFT COLUMN */}
+          <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
             
-            {currentPlayer?.hasBeenDiscovered && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
-                💀 Seu número foi descoberto!
+            {/* SEU NÚMERO */}
+            <div className="card text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
+              <h3 style={{ fontSize: '1.1rem', textTransform: 'uppercase', marginBottom: '12px' }}>O Seu Número Secreto é:</h3>
+              <div style={{ 
+                fontSize: '3.5rem', 
+                fontFamily: 'monospace',
+                fontWeight: 900,
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                border: '4px solid var(--text-primary)',
+                padding: '4px 24px',
+                display: 'inline-flex',
+                boxShadow: '4px 4px 0px 0px var(--text-primary)',
+                marginBottom: '12px'
+              }}>
+                {myNumber}
               </div>
-            )}
-            {currentPlayer?.inSuddenDeath && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#ff3333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
-                ☠️ MORTE SÚBITA! 1 palpite p/ salvar! ☠️
-              </div>
-            )}
-            {roomState.players.some(p => p.inSuddenDeath) && !currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#4CAF50', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
-                🎉 Você sobreviveu! (Aguardando oponentes)
-              </div>
-            )}
-            {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.5rem' }}>
-                {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
-                  <span key={i} style={{ 
-                    opacity: i < (currentPlayer?.numbersLivesLeft || 0) ? 1 : 0.3, 
-                    filter: i < (currentPlayer?.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                    color: 'red'
-                  }}>❤️</span>
-                ))}
-              </div>
-            ) : null}
+              
+              {currentPlayer?.hasBeenDiscovered && (
+                <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
+                  💀 Seu número foi descoberto!
+                </div>
+              )}
+              {currentPlayer?.inSuddenDeath && (
+                <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#ff3333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
+                  ☠️ MORTE SÚBITA! 1 palpite p/ salvar! ☠️
+                </div>
+              )}
+              {roomState.players.some(p => p.inSuddenDeath) && !currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
+                <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#4CAF50', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
+                  🎉 Você sobreviveu! (Aguardando oponentes)
+                </div>
+              )}
+              {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.2rem' }}>
+                  {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
+                    <span key={i} style={{ 
+                      opacity: i < (currentPlayer?.numbersLivesLeft || 0) ? 1 : 0.3, 
+                      filter: i < (currentPlayer?.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
+                      color: 'red'
+                    }}>❤️</span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            {/* NOTA PESSOAL */}
+            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📝</span> Nota Pessoal (Só você vê)
+              </h3>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Ex: Fulano é menor que 50..."
+                style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
+              />
+            </div>
           </div>
 
-          {/* NOTA PESSOAL */}
-          <div className="card personal-note-section" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: 'var(--space-4)', margin: 0 }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>📝</span> Nota Pessoal (Só você vê)
+          {/* RIGHT COLUMN */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
+              Outros Jogadores
             </h3>
-            <textarea
-              className="input"
-              value={personalNotes}
-              onChange={(e) => setPersonalNotes(e.target.value)}
-              placeholder="Ex: asdad é menor que 50..."
-              style={{ width: '100%', flex: 1, minHeight: '150px', resize: 'vertical', padding: '12px' }}
-            />
-          </div>
-          
-        </div>
-
-        {/* OUTROS JOGADORES */}
-        <h3 style={{ marginBottom: '16px', fontSize: '1.4rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px', width: '100%' }}>Outros Jogadores</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
-          {roomState.players.filter(p => p.id !== playerId).map(p => (
-            <div key={p.id} className="card" style={{ 
-              display: 'flex', flexDirection: 'column', gap: '12px', 
-              opacity: !p.isConnected ? 0.5 : 1,
-              border: p.hasBeenDiscovered ? '2px solid #ccc' : '3px solid var(--text-primary)',
-              background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-              padding: '16px',
-              margin: 0
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <AvatarDisplay avatar={p.avatar} size="2.5rem" />
+            
+            {/* ENEMY GRID */}
+            <div className="player-grid" style={{ flex: 1, overflowY: 'auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', alignContent: 'start', paddingRight: '8px' }}>
+              {roomState.players.filter(p => p.id !== playerId).map(p => (
+                <div key={p.id} className="card" style={{ 
+                  display: 'flex', flexDirection: 'column', gap: '8px', 
+                  opacity: !p.isConnected ? 0.5 : 1,
+                  border: p.hasBeenDiscovered ? '2px solid #ccc' : '3px solid var(--text-primary)',
+                  background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+                  padding: '12px',
+                  margin: 0
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AvatarDisplay avatar={p.avatar} size="2rem" />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
                 </div>
@@ -214,6 +218,8 @@ export function NumbersGame() {
               )}
             </div>
           ))}
+            </div>
+          </div>
         </div>
       </div>
     );

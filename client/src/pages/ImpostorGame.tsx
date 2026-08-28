@@ -138,215 +138,221 @@ export function ImpostorGame() {
   // ─── DISCUSSION PHASE ───────────────────────
   if (roomState.state === GameState.DISCUSSION) {
     return (
-      <div className="page" style={{ position: 'relative', overflowX: 'hidden' }}>
+      <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
           <VoteSkipButton />
         </div>
         
-        <div className="status-badge discussion" style={{ marginBottom: '12px' }}>
-          💬 HORA DE DISCUTIR!
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+          <div className="status-badge discussion" style={{ margin: 0 }}>
+            💬 HORA DE DISCUTIR!
+          </div>
+          <h2 className="text-center" style={{ fontSize: '1.8rem', margin: 0 }}>Descubram o Impostor!</h2>
         </div>
-
-        <h2 className="text-center">Hora de discutir!</h2>
-        <p className="text-muted text-center" style={{ marginTop: '8px', fontSize: '0.9rem' }}>
-          Façam perguntas uns aos outros e tentem descobrir quem recebeu uma palavra diferente.
-        </p>
-
+        
         {roomState.config.showImpostorCount && (
-          <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+          <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginTop: 0, marginBottom: '16px' }}>
             Há {roomState.config.customImpostorCount} impostor{roomState.config.customImpostorCount > 1 ? 'es' : ''} entre vocês.
           </p>
         )}
 
-        <div className="spacer-4" />
-
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'stretch' }}>
+        {/* MAIN CONTENT AREA */}
+        <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
           
-          <div className="card" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: 'var(--space-6)', margin: 0 }}>
-            <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Tema: <strong>{themeName}</strong>
-            </p>
-            <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
-            <p 
-              className={wordVisible ? 'word-visible' : 'word-hidden'}
-              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
-            >
-              {myWord || '••••••••'}
-            </p>
-            <button 
-              className="btn btn-ghost btn-sm" 
-              onClick={() => setWordVisible(!wordVisible)} 
-              style={{ marginTop: '16px' }}
-            >
-              {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
-            </button>
-          </div>
-
-          <div className="card personal-note-section" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: 'var(--space-4)', margin: 0 }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>📝</span> Nota Pessoal (Só você vê)
-            </h3>
-            <textarea
-              className="input"
-              value={personalNotes}
-              onChange={(e) => setPersonalNotes(e.target.value)}
-              placeholder="Anote dicas..."
-              style={{ width: '100%', flex: 1, minHeight: '150px', resize: 'vertical' }}
-            />
-          </div>
-        </div>
-
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Pedidos de votação</span>
-            <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-              {roomState.voteRequestCount}/{roomState.voteRequestsNeeded}
-            </span>
-          </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }}
-            />
-          </div>
-
-          <div style={{ marginTop: '8px' }}>
-            {roomState.players.filter(p => p.hasRequestedVote).map(p => (
-              <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {!hasRequestedVote ? (
-          <>
-            {showConfirmVoteRequest ? (
-              <div className="card">
-                <p className="text-center" style={{ marginBottom: '12px' }}>Quer iniciar uma votação?</p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>
-                    Cancelar
-                  </button>
-                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => {
-                    requestVote();
-                    setHasRequestedVote(true);
-                    setShowConfirmVoteRequest(false);
-                  }}>
-                    Confirmar
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                className="btn btn-secondary btn-lg w-full"
-                onClick={() => setShowConfirmVoteRequest(true)}
+          {/* LEFT COLUMN */}
+          <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', paddingRight: '4px' }}>
+            
+            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
+              <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Tema: <strong>{themeName}</strong>
+              </p>
+              <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
+              <p 
+                className={wordVisible ? 'word-visible' : 'word-hidden'}
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
               >
-                🗳️ Pedir votação
+                {myWord || '••••••••'}
+              </p>
+              <button 
+                className="btn btn-ghost btn-sm" 
+                onClick={() => setWordVisible(!wordVisible)} 
+                style={{ marginTop: '12px' }}
+              >
+                {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
               </button>
-            )}
-          </>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <div className="status-badge ready" style={{ margin: 0 }}>
-              ✅ Você pediu votação
             </div>
-            <button 
-              className="btn btn-ghost btn-sm" 
-              style={{ padding: '4px 12px', fontSize: '0.85rem' }}
-              onClick={() => {
-                cancelVoteRequest();
-                setHasRequestedVote(false);
-              }}
-            >
-              Cancelar pedido
-            </button>
-          </div>
-        )}
 
-        <div className="spacer-6" />
-
-        <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', textAlign: 'center' }}>Outros Jogadores</h3>
-        <div className="player-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-          {roomState.players.filter(p => p.id !== playerId).map(p => (
-            <div key={p.id} className="card" style={{ 
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-              border: '4px solid var(--text-primary)', margin: 0 
-            }}>
-              <div style={{ marginBottom: '12px', fontSize: '1.5rem', display: 'flex', gap: '4px' }}>
-                {gameResult && gameResult.impostors.some(i => i.id === p.id) && (
-                  <span title="Impostor">😈</span>
-                )}
-                {p.isWinner && <span title="Vencedor">👑</span>}
-                {p.id === roomState.hostId && <span title="Host">⭐</span>}
+            <div className="card" style={{ padding: '16px', margin: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Pedidos de votação</span>
+                <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                  {roomState.voteRequestCount}/{roomState.voteRequestsNeeded}
+                </span>
               </div>
-              {/* Whisper Bubble */}
-              {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
-                <div key={`${w.timestamp}-${index}`} style={{
-                  position: 'absolute',
-                  top: '-40px',
-                  background: 'var(--primary)',
-                  color: 'var(--bg-primary)',
-                  padding: '8px 12px',
-                  borderRadius: '16px',
-                  borderBottomLeftRadius: '4px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                  zIndex: 20,
-                  maxWidth: '100%',
-                  wordBreak: 'break-word',
-                  animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }}
+                />
+              </div>
+
+              <div style={{ marginTop: '8px' }}>
+                {roomState.players.filter(p => p.hasRequestedVote).map(p => (
+                  <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
+                  </span>
+                ))}
+              </div>
+              
+              <div style={{ marginTop: '12px' }}>
+                {!hasRequestedVote ? (
+                  <>
+                    {showConfirmVoteRequest ? (
+                      <div>
+                        <p className="text-center" style={{ marginBottom: '8px', fontSize: '0.9rem' }}>Iniciar votação?</p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>
+                            Cancelar
+                          </button>
+                          <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => {
+                            requestVote();
+                            setHasRequestedVote(true);
+                            setShowConfirmVoteRequest(false);
+                          }}>
+                            Confirmar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        className="btn btn-secondary w-full"
+                        onClick={() => setShowConfirmVoteRequest(true)}
+                      >
+                        🗳️ Pedir votação
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div className="status-badge ready" style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem' }}>
+                      ✅ Votação solicitada
+                    </div>
+                    <button 
+                      className="btn btn-ghost btn-sm" 
+                      style={{ padding: '4px 12px', fontSize: '0.85rem' }}
+                      onClick={() => {
+                        cancelVoteRequest();
+                        setHasRequestedVote(false);
+                      }}
+                    >
+                      Cancelar pedido
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '120px' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📝</span> Nota Pessoal (Só você vê)
+              </h3>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Anote dicas..."
+                style={{ width: '100%', flex: 1, minHeight: '80px', resize: 'none', padding: '12px' }}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
+              Outros Jogadores
+            </h3>
+            
+            <div className="player-grid" style={{ flex: 1, overflowY: 'auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignContent: 'start', paddingRight: '8px' }}>
+              {roomState.players.filter(p => p.id !== playerId).map(p => (
+                <div key={p.id} className="card" style={{ 
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
+                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0 
                 }}>
-                  {w.text}
+                  <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>
+                    {gameResult && gameResult.impostors.some(i => i.id === p.id) && (
+                      <span title="Impostor">😈</span>
+                    )}
+                    {p.isWinner && <span title="Vencedor">👑</span>}
+                    {p.id === roomState.hostId && <span title="Host">⭐</span>}
+                  </div>
+                  {/* Whisper Bubble */}
+                  {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
+                    <div key={`${w.timestamp}-${index}`} style={{
+                      position: 'absolute',
+                      top: '-40px',
+                      background: 'var(--primary)',
+                      color: 'var(--bg-primary)',
+                      padding: '8px 12px',
+                      borderRadius: '16px',
+                      borderBottomLeftRadius: '4px',
+                      fontWeight: 'bold',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                      zIndex: 20,
+                      maxWidth: '100%',
+                      wordBreak: 'break-word',
+                      animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    }}>
+                      {w.text}
+                    </div>
+                  ))}
+
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <AvatarDisplay avatar={p.avatar} size="5rem" />
+                  </div>
+                  <span style={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '1.2rem', 
+                      fontFamily: 'var(--font-display)',
+                      textAlign: 'center',
+                      marginTop: '4px'
+                  }}>
+                    {p.name}
+                  </span>
+                  
+                  {whisperingTo === p.id ? (
+                    <form 
+                      onSubmit={(e) => handleWhisperSubmit(e, p.id)} 
+                      style={{ display: 'flex', width: '100%', gap: '4px', marginTop: '12px' }}
+                    >
+                      <input
+                        autoFocus
+                        type="text"
+                        className="input"
+                        placeholder="Sussurro..."
+                        value={whisperInput}
+                        onChange={e => setWhisperInput(e.target.value)}
+                        style={{ flex: 1, padding: '4px 8px' }}
+                        onBlur={() => setTimeout(() => setWhisperingTo(null), 150)}
+                      />
+                      <button type="submit" className="btn btn-primary btn-sm">Enviar</button>
+                    </form>
+                  ) : (
+                    <button 
+                      className="btn btn-secondary btn-sm"
+                      style={{ marginTop: '12px', width: '100%' }}
+                      onClick={() => {
+                        setWhisperingTo(p.id);
+                        setWhisperInput('');
+                      }}
+                    >
+                      💬 Sussurrar
+                    </button>
+                  )}
                 </div>
               ))}
-
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <AvatarDisplay avatar={p.avatar} size="6.5rem" />
-              </div>
-              <span style={{ 
-                  fontWeight: 'bold', 
-                  fontSize: '1.3rem', 
-                  fontFamily: 'var(--font-display)',
-                  textAlign: 'center',
-                  marginTop: '8px'
-              }}>
-                {p.name}
-              </span>
-              
-              {whisperingTo === p.id ? (
-                <form 
-                  onSubmit={(e) => handleWhisperSubmit(e, p.id)} 
-                  style={{ display: 'flex', width: '100%', gap: '4px', marginTop: '12px' }}
-                >
-                  <input
-                    autoFocus
-                    type="text"
-                    className="input"
-                    placeholder="Sussurro..."
-                    value={whisperInput}
-                    onChange={e => setWhisperInput(e.target.value)}
-                    style={{ flex: 1, padding: '4px 8px' }}
-                    onBlur={() => setTimeout(() => setWhisperingTo(null), 150)}
-                  />
-                  <button type="submit" className="btn btn-primary btn-sm">Enviar</button>
-                </form>
-              ) : (
-                <button 
-                  className="btn btn-secondary btn-sm"
-                  style={{ marginTop: '12px', width: '100%' }}
-                  onClick={() => {
-                    setWhisperingTo(p.id);
-                    setWhisperInput('');
-                  }}
-                >
-                  💬 Sussurrar
-                </button>
-              )}
             </div>
-          ))}
+          </div>
         </div>
-        <div className="spacer-6" />
       </div>
     );
   }
