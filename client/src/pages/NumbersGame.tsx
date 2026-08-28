@@ -81,13 +81,18 @@ export function NumbersGame() {
             </div>
             
             {currentPlayer?.hasBeenDiscovered && (
-              <div className="status-badge error" style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: 'var(--text-primary)', color: 'white' }}>
-                💀 Descobriram o seu número!
+              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
+                💀 Seu número foi descoberto!
               </div>
             )}
             {currentPlayer?.inSuddenDeath && (
-              <div className="status-badge error" style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: 'red', color: 'white', fontWeight: 'bold' }}>
-                ☠️ MORTE SÚBITA! 1 PALPITE PARA SE SALVAR! ☠️
+              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#ff3333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
+                ☠️ MORTE SÚBITA! 1 palpite p/ salvar! ☠️
+              </div>
+            )}
+            {roomState.players.some(p => p.inSuddenDeath) && !currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
+              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#4CAF50', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
+                🎉 Você sobreviveu! (Aguardando oponentes)
               </div>
             )}
             {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
@@ -137,6 +142,12 @@ export function NumbersGame() {
                   <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
                 </div>
               </div>
+              
+              {p.inSuddenDeath && (
+                <div style={{ background: '#ff3333', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', marginTop: '-4px' }}>
+                  ☠️ Em Morte Súbita!
+                </div>
+              )}
 
               <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
                 background: 'var(--bg-primary)', 
