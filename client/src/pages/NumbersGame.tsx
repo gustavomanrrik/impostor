@@ -148,7 +148,19 @@ export function NumbersGame() {
               </div>
               
               {p.inSuddenDeath && (
-                <div style={{ background: '#ff3333', color: 'white', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', marginTop: '-4px' }}>
+                <div style={{ 
+                  background: '#ff3333', 
+                  color: 'white', 
+                  padding: '4px 8px', 
+                  border: '2px solid black',
+                  borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px', 
+                  fontSize: '0.85rem', 
+                  fontWeight: 'bold', 
+                  textAlign: 'center', 
+                  marginTop: '-4px',
+                  transform: 'rotate(-2deg)',
+                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)'
+                }}>
                   ☠️ Em Morte Súbita!
                 </div>
               )}
