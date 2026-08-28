@@ -154,23 +154,25 @@ export function NumbersGame() {
               )}
 
               <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
-                background: 'var(--bg-primary)', 
-                border: '3px solid var(--text-primary)',
-                padding: '12px', 
-                fontFamily: 'monospace',
-                fontSize: '2.5rem',
+                background: '#fff9c4', 
+                color: '#000',
+                border: '2px solid #000',
+                padding: '4px 12px', 
+                fontFamily: 'var(--font-display)',
+                fontSize: '2rem',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                boxShadow: '4px 4px 0px 0px rgba(0,0,0,0.1)',
+                boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
                 position: 'relative',
-                minHeight: '80px',
-                overflow: 'hidden'
+                minHeight: '60px',
+                overflow: 'hidden',
+                transform: 'rotate(2deg)'
               }}>
                 {p.hasBeenDiscovered ? (
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 900 }}>{p.numberValue}</span>
+                  <span style={{ color: '#000', fontWeight: 900 }}>{p.numberValue}</span>
                 ) : (
-                  <span className={guesses[p.id] ? 'text-primary' : 'text-muted'} style={{ fontWeight: 900, fontSize: guesses[p.id] ? '2rem' : '2.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{guesses[p.id] || '???'}</span>
+                  <span className={guesses[p.id] ? '' : 'text-muted'} style={{ fontWeight: 900, color: guesses[p.id] ? '#000' : 'rgba(0,0,0,0.3)', fontSize: guesses[p.id] ? '2rem' : '2.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{guesses[p.id] || '...'}</span>
                 )}
                 {damagedPlayers[p.id] && (
                   <span style={{
@@ -178,7 +180,7 @@ export function NumbersGame() {
                     top: '50%', left: '50%',
                     transform: 'translate(-50%, -50%)',
                     color: 'red',
-                    fontSize: '4rem',
+                    fontSize: '3rem',
                     fontWeight: 'bold',
                     textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
                     zIndex: 2
