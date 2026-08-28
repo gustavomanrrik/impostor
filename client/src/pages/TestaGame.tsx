@@ -3,6 +3,7 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
+import { KickPlayerButton } from '../components/KickPlayerButton';
 
 
 export function TestaGame() {
@@ -42,7 +43,7 @@ export function TestaGame() {
           <VoteSkipButton />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
           <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0 }}>
             🧠 JOGO DA TESTA
           </div>
@@ -59,26 +60,12 @@ export function TestaGame() {
         )}
 
         {/* MAIN CONTENT AREA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, width: '100%' }}>
           
-          {/* MIDDLE SECTION: Notes (Left) and My Card (Right) */}
-          <div style={{ display: 'flex', gap: '16px', flexShrink: 0 }}>
+          {/* MIDDLE SECTION: My Card (Left) and Notes (Right) */}
+          <div style={{ display: 'flex', gap: '16px', flexShrink: 0, width: '100%' }}>
             
-            {/* Left: Nota Pessoal */}
-            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>📝</span> Nota Pessoal (Só você vê)
-              </h3>
-              <textarea
-                className="input"
-                value={personalNotes}
-                onChange={(e) => setPersonalNotes(e.target.value)}
-                placeholder="Anote dicas..."
-                style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
-              />
-            </div>
-
-            {/* Right: Meu Cartão */}
+            {/* Left: Meu Cartão */}
             <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {currentPlayer?.hasGuessedTesta ? (
                 <div className="card text-center" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -192,6 +179,20 @@ export function TestaGame() {
                 </div>
               )}
             </div>
+            
+            {/* Right: Nota Pessoal */}
+            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📝</span> Nota Pessoal (Só você vê)
+              </h3>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Anote dicas..."
+                style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
+              />
+            </div>
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
@@ -211,6 +212,7 @@ export function TestaGame() {
                   padding: '16px',
                   margin: 0
                 }}>
+                  <KickPlayerButton playerId={p.id} playerName={p.name} />
                   {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
                     <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>
                       {Array.from({ length: roomState.config.testaLives }).map((_, i) => (

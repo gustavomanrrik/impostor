@@ -3,6 +3,7 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
+import { KickPlayerButton } from '../components/KickPlayerButton';
 
 export function ImpostorGame() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes, sendWhisper, activeWhispers } = useGame();
@@ -276,8 +277,9 @@ export function ImpostorGame() {
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0 
+                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0, position: 'relative' 
                 }}>
+                  <KickPlayerButton playerId={p.id} playerName={p.name} />
                   <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>
                     {gameResult && gameResult.impostors.some(i => i.id === p.id) && (
                       <span title="Impostor">😈</span>

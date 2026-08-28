@@ -3,6 +3,7 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
+import { KickPlayerButton } from '../components/KickPlayerButton';
 
 export function NumbersGame() {
   const { roomState, playerId, myWord, guessNumber, nextRound, playAgain, leaveRoom, addToast, myNumber } = useGame();
@@ -138,8 +139,10 @@ export function NumbersGame() {
                   border: p.hasBeenDiscovered ? '2px solid #ccc' : '3px solid var(--text-primary)',
                   background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                   padding: '12px',
-                  margin: 0
+                  margin: 0,
+                  position: 'relative'
                 }}>
+                  <KickPlayerButton playerId={p.id} playerName={p.name} />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <AvatarDisplay avatar={p.avatar} size="2rem" />
                 <div style={{ flex: 1, minWidth: 0 }}>
