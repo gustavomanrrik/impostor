@@ -1994,4 +1994,20 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
     margin-bottom: 4px;
     order: 3;
   }
+  .mobile-only-flex {
+    display: flex !important;
+  }
+  .home-games-grid {
+    gap: 12px !important;
+  }
+  .home-game-card {
+    padding: 16px !important;
+  }
+  .home-game-icon {
+    font-size: 2.5rem !important;
+    margin-bottom: 8px !important;
+  }
+}
+.mobile-only-flex {
+  display: none !important;
 }

@@ -87,7 +87,28 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
         >
           joguinhos bacanudos
         </div>
-      ) : <div style={{ pointerEvents: 'none' }} className="topbar-title" />}
+      ) : (
+        <div 
+          className="fade-in topbar-title mobile-only-flex"
+          style={{ 
+            fontFamily: 'var(--font-display)', 
+            fontWeight: 900, 
+            fontSize: '1.2rem',
+            textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            flexDirection: 'column',
+            alignItems: 'center',
+            lineHeight: 1,
+            marginTop: '4px'
+          }}
+        >
+          <div>joguinhos bacanudos</div>
+          <div style={{ fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-muted)', textShadow: 'none', letterSpacing: '0.02em', marginTop: '2px' }}>
+            a melhor coleção de jogos pra jogar com a galera
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto', flex: 1, justifyContent: 'flex-end' }}>
 
