@@ -117,9 +117,9 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         </span>
       </button>
 
-      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', textAlign: 'right', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif' }}>
+      <div style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', textAlign: 'right', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif', color: 'var(--text-primary)' }}>
         {formatTime(progress)}
-      </span>
+      </div>
 
       <input 
         type="range"
@@ -131,9 +131,9 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         style={{ flex: 1 }}
       />
 
-      <span style={{ fontSize: '0.9rem', minWidth: '40px', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif' }}>
+      <div style={{ fontSize: '0.9rem', minWidth: '40px', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif', color: 'var(--text-primary)' }}>
         {formatTime(duration)}
-      </span>
+      </div>
     </div>
   );
 }
