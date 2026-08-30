@@ -253,7 +253,7 @@ export function Chat() {
                     />
                   )}
                   {msg.audioUrl && (
-                    <CustomAudioPlayer src={msg.audioUrl} autoPlay={!isMe && autoPlayAudio && index >= initialMessagesCount.current} />
+                    <CustomAudioPlayer src={msg.audioUrl} autoPlay={autoPlayAudio && index >= initialMessagesCount.current} />
                   )}
                   
                   {/* Floating Reaction Trigger */}
