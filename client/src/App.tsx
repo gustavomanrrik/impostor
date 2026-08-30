@@ -41,7 +41,33 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       minHeight: '48px',
       flexShrink: 0,
     }}>
-      <div style={{ flex: 1, pointerEvents: 'none' }} className="hide-on-mobile" />
+      <div style={{ flex: 1, pointerEvents: 'auto', display: 'flex', justifyContent: 'flex-start' }}>
+        {roomState && (
+          <button
+            onClick={leaveRoom}
+            style={{
+              background: '#ff4d4d',
+              border: '2px solid var(--text-primary)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0 12px',
+              height: '32px',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: '#fff',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+            title="Sair da Sala"
+          >
+            sair
+          </button>
+        )}
+      </div>
+
       {page !== 'home' ? (
         <div 
           className="fade-in topbar-title"
@@ -56,40 +82,14 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
-            flex: '1 1 auto',
-            textAlign: 'center',
           }}
           title={roomState ? '' : 'Voltar ao Início'}
         >
           joguinhos bacanudos
         </div>
-      ) : <div style={{ flex: 1, pointerEvents: 'none' }} />}
+      ) : <div style={{ pointerEvents: 'none' }} className="topbar-title" />}
 
-      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto' }}>
-        {roomState && (
-          <button
-            onClick={leaveRoom}
-            style={{
-              background: 'var(--bg-glass-strong)',
-              border: '2px solid var(--text-primary)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '0 8px',
-              height: '32px',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              color: 'var(--text-primary)',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-            title="Sair da Sala"
-          >
-            sair
-          </button>
-        )}
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto', flex: 1, justifyContent: 'flex-end' }}>
 
         <button
           onClick={() => { setSoundEnabled(toggleSound()); }}

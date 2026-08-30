@@ -1992,5 +1992,6 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
     flex: 1 1 100% !important;
     text-align: center !important;
     margin-bottom: 4px;
+    order: 3;
   }
 }
