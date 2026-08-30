@@ -155,7 +155,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [activeWhispers, setActiveWhispers] = useState<{ senderId: string; text: string; timestamp: number }[]>([]);
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isChatMinimized, setIsChatMinimized] = useState(window.innerWidth < 1024);
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const hasSetupListeners = useRef(false);
   const ignoreReconnections = useRef(false);
