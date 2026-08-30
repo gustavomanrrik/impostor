@@ -110,11 +110,13 @@ export interface RoomConfig {
   // Visibility and Access
   isPublic?: boolean;
   password?: string;
+  roomName?: string;
 }
 
 // Informações resumidas de uma sala pública
 export interface PublicRoomInfo {
   code: string;
+  roomName: string;
   hostName: string;
   playerCount: number;
   maxPlayers: number;

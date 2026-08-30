@@ -63,6 +63,7 @@ export class GameManager {
       if (room.config.isPublic && room.playerCount > 0 && room.state === 'LOBBY') {
         publicRooms.push({
           code,
+          roomName: room.config.roomName || `Sala de ${room.players.get(room.host)?.name || 'Alguém'}`,
           hostName: room.players.get(room.host)?.name || 'Desconhecido',
           playerCount: room.playerCount,
           maxPlayers: 20, // max genérico

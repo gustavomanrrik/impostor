@@ -14,11 +14,12 @@ export function OnlineCreate() {
   
   const [playerName, setPlayerName] = useState(getSavedPlayerName());
   const [avatar, setAvatar] = useState(getSavedAvatar() || getRandomAvatar());
+  const [roomName, setRoomName] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [password, setPassword] = useState('');
   
   const handleCreate = () => {
-    if (!playerName.trim()) return;
+    if (!playerName.trim() || !roomName.trim()) return;
 
     // A sala será criada com configurações padrão e depois o Host pode alterá-las no Lobby
     const config = {
@@ -33,6 +34,7 @@ export function OnlineCreate() {
       useFlatMode: false,
       isPublic,
       password: isPublic ? undefined : password,
+      roomName: roomName.trim(),
     };
 
     savePlayerName(playerName.trim());
@@ -53,7 +55,7 @@ export function OnlineCreate() {
 
       {/* Name and Avatar */}
       <div className="card" style={{ marginBottom: '16px' }}>
-        <div className="input-group">
+        <div className="input-group" style={{ marginBottom: '12px' }}>
           <label className="input-label">Seu Nome e Avatar</label>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <AvatarSelector 
@@ -69,6 +71,18 @@ export function OnlineCreate() {
               style={{ flex: 1, height: '48px' }}
             />
           </div>
+        </div>
+        
+        <div className="input-group">
+          <label className="input-label">Nome da Sala</label>
+          <input
+            className="input"
+            value={roomName}
+            onChange={e => setRoomName(e.target.value)}
+            placeholder="Ex: Sala do Gustavo"
+            maxLength={30}
+            style={{ width: '100%', height: '48px' }}
+          />
         </div>
       </div>
 
@@ -113,7 +127,7 @@ export function OnlineCreate() {
         className="btn btn-primary"
         style={{ width: '100%', height: '56px', fontSize: '1.2rem', marginBottom: '16px' }}
         onClick={handleCreate}
-        disabled={!playerName.trim()}
+        disabled={!playerName.trim() || !roomName.trim()}
       >
         Criar e ir pro Lobby 🚀
       </button>
