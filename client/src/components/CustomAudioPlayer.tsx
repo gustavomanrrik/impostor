@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause } from 'lucide-react';
 
 interface CustomAudioPlayerProps {
   src: string;
@@ -117,8 +118,8 @@ export function CustomAudioPlayer({ src, autoPlay }: CustomAudioPlayerProps) {
           flexShrink: 0
         }}
       >
-        <span style={{ transform: isPlaying ? 'none' : 'translateX(2px)' }}>
-          {isPlaying ? '⏸' : '▶'}
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', transform: isPlaying ? 'none' : 'translateX(1px)' }}>
+          {isPlaying ? <Pause size={16} strokeWidth={3} fill="currentColor" /> : <Play size={16} strokeWidth={3} fill="currentColor" />}
         </span>
       </button>
 

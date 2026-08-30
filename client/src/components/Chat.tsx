@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
 import { CustomAudioPlayer } from './CustomAudioPlayer';
+import { Mic, Square, Trash2, Paperclip, Send, Volume2, VolumeX } from 'lucide-react';
 
 export function Chat() {
   const { chatMessages, sendChatMessage, sendChatImage, sendChatAudio, playerId, roomState, addToast, isChatMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage, mobileTab } = useGame();
@@ -195,10 +196,10 @@ export function Chat() {
               <button 
                 className="btn btn-ghost btn-sm" 
                 onClick={toggleAutoPlayAudio}
-                style={{ padding: '2px 6px', fontSize: '1.2rem', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}
+                style={{ padding: '2px 6px', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}
                 title={autoPlayAudio ? 'Áudios tocando automaticamente' : 'Auto-play de áudio desativado'}
               >
-                {autoPlayAudio ? '🔊' : '🔇'}
+                {autoPlayAudio ? <Volume2 size={20} strokeWidth={2.5} /> : <VolumeX size={20} strokeWidth={2.5} />}
               </button>
             </div>
           )}
@@ -213,7 +214,7 @@ export function Chat() {
             return (
               <div key={msg.id} className={`chat-message ${isMe ? 'chat-message-me' : ''}`}>
                 {!isMe && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '-10px', zIndex: 2, position: 'relative', marginLeft: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '-10px', zIndex: 0, position: 'relative', marginLeft: '4px' }}>
                     <AvatarDisplay avatar={roomState?.players.find(p => p.id === msg.playerId)?.avatar || '👤'} size="36px" />
                     <span className="chat-message-name" style={{ paddingLeft: 0, marginBottom: '10px' }}>{msg.playerName}</span>
                   </div>
@@ -222,6 +223,7 @@ export function Chat() {
                   className="chat-message-bubble" 
                   style={{ 
                     position: 'relative',
+                    zIndex: 1,
                     ...((!msg.text && (msg.imageUrl || msg.audioUrl)) ? {
                       background: 'transparent',
                       border: 'none',
@@ -389,9 +391,9 @@ export function Chat() {
                 className="btn btn-ghost btn-sm"
                 onClick={() => setAudioPreviewUrl(null)}
                 title="Descartar áudio"
-                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--error)' }}
+                style={{ padding: '4px 8px', color: 'var(--error)' }}
               >
-                🗑️
+                <Trash2 size={20} strokeWidth={2.5} />
               </button>
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 <CustomAudioPlayer src={audioPreviewUrl} />
@@ -404,9 +406,9 @@ export function Chat() {
                   setAudioPreviewUrl(null);
                 }}
                 title="Enviar áudio"
-                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0, border: 'none', background: 'transparent' }}
+                style={{ padding: '4px 8px', color: 'var(--text-primary)', flexShrink: 0, border: 'none', background: 'transparent' }}
               >
-                ➤
+                <Send size={20} strokeWidth={2.5} />
               </button>
             </div>
           ) : (
@@ -414,29 +416,29 @@ export function Chat() {
               <button 
                 type="button" 
                 className="btn btn-ghost btn-sm" 
-                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0 }}
+                style={{ padding: '4px 8px', color: 'var(--text-primary)', flexShrink: 0 }}
                 onClick={() => fileInputRef.current?.click()}
                 title="Enviar imagem ou áudio"
               >
-                <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📎</span>
+                <Paperclip size={20} strokeWidth={2.5} />
               </button>
               <button 
                 type="button" 
                 className="btn btn-ghost btn-sm" 
                 style={{ 
                   padding: '4px 8px', 
-                  fontSize: '1.2rem', 
                   color: isRecording ? 'var(--bg-primary)' : 'var(--text-primary)',
                   background: isRecording ? 'var(--text-primary)' : 'transparent',
                   flexShrink: 0,
-                  animation: isRecording ? 'pulse 1s infinite' : 'none'
+                  animation: isRecording ? 'pulse 1s infinite' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
                 onClick={toggleRecording}
                 title={isRecording ? "Parar e visualizar gravação" : "Gravar áudio"}
               >
-                <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>
-                  {isRecording ? '⏹' : '🎙️'}
-                </span>
+                {isRecording ? <Square size={20} strokeWidth={2.5} fill="currentColor" /> : <Mic size={20} strokeWidth={2.5} />}
               </button>
               <input 
                 type="file" 
@@ -454,8 +456,8 @@ export function Chat() {
                 maxLength={200}
                 style={{ flex: 1, minWidth: '50px' }}
               />
-              <button type="submit" className="btn btn-ghost btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0, padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}>
-                ➤
+              <button type="submit" className="btn btn-ghost btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0, padding: '4px 8px', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}>
+                <Send size={20} strokeWidth={2.5} />
               </button>
             </>
           )}
