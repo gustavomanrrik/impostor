@@ -127,7 +127,7 @@ export function Chat() {
                 )}
                 <div 
                   className="chat-message-bubble" 
-                  style={{ position: 'relative', padding: (!msg.text && msg.imageUrl) ? '0' : undefined, overflow: 'hidden' }}
+                  style={{ position: 'relative' }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id);
@@ -140,8 +140,10 @@ export function Chat() {
                       alt="imagem enviada" 
                       style={{ 
                         maxWidth: '100%', 
-                        display: 'block',
-                        cursor: 'pointer'
+                        borderRadius: 'var(--radius-sm)', 
+                        marginTop: msg.text ? '8px' : '0',
+                        cursor: 'pointer',
+                        border: '2px solid var(--glass-border)'
                       }} 
                       onClick={() => setSelectedImage(msg.imageUrl || null)}
                     />
