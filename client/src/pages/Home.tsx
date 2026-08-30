@@ -36,7 +36,7 @@ export function Home() {
           mfp games
         </h1>
         <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500, fontFamily: 'var(--font-display)' }}>
-          a melhor coleção de jogos pra jogar com a galera
+          joguinhos clean pra quando nao tiver nada pra fazer
         </p>
       </div>
 
