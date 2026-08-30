@@ -83,6 +83,8 @@ interface GameContextType {
   setMobileTab: (tab: 'me' | 'others' | 'chat') => void;
   hasUnreadChat: boolean;
   setHasUnreadChat: (hasUnread: boolean) => void;
+  mutedPlayers: string[];
+  toggleMutePlayer: (playerId: string) => void;
   
   // Custom Theme Collaboration
   customThemeWords: string[];
@@ -160,6 +162,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isChatMinimized, setIsChatMinimized] = useState(window.innerWidth < 1024);
   const [mobileTab, setMobileTab] = useState<'me' | 'others' | 'chat'>('me');
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
+  const [mutedPlayers, setMutedPlayers] = useState<string[]>([]);
   const hasSetupListeners = useRef(false);
   const ignoreReconnections = useRef(false);
 
@@ -389,17 +392,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('chat:newMessage', (message) => {
-      setChatMessages(prev => [...prev, message]);
+      setMutedPlayers(currentMuted => {
+        if (!currentMuted.includes(message.playerId)) {
+          setChatMessages(prev => [...prev, message]);
+        }
+        return currentMuted;
+      });
     });
 
     socket.on('game:whisperReceived', (data) => {
       const { senderId, text } = data;
-      playSuccessSound();
-      const whisperTimestamp = Date.now();
-      setActiveWhispers(prev => [...prev, { senderId, text, timestamp: whisperTimestamp }]);
-      setTimeout(() => {
-        setActiveWhispers(current => current.filter(w => w.timestamp !== whisperTimestamp));
-      }, 5000);
+      setMutedPlayers(currentMuted => {
+        if (!currentMuted.includes(senderId)) {
+          playSuccessSound();
+          const whisperTimestamp = Date.now();
+          setActiveWhispers(prev => [...prev, { senderId, text, timestamp: whisperTimestamp }]);
+          setTimeout(() => {
+            setActiveWhispers(current => current.filter(w => w.timestamp !== whisperTimestamp));
+          }, 5000);
+        }
+        return currentMuted;
+      });
     });
 
     socket.on('chat:messageReaction', ({ messageId, playerId: reactionPlayerId, reaction }) => {
@@ -590,6 +603,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
     isChatMinimized, setIsChatMinimized,
     mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,
+    mutedPlayers, toggleMutePlayer: (id: string) => {
+      setMutedPlayers(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+    },
     sendWhisper, activeWhispers,
     localState, setLocalState,
     toasts, addToast, showSuspense,
