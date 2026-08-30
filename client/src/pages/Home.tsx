@@ -62,7 +62,7 @@ export function Home() {
 
       <div style={{ margin: '32px 0', width: '100%', height: '1px', background: 'var(--glass-border)' }}></div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
         <button
           className="btn btn-secondary"
           onClick={() => navigate('public-rooms')}
