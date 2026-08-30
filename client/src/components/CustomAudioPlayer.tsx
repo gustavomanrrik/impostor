@@ -107,7 +107,7 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         </span>
       </button>
 
-      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', textAlign: 'right', fontFamily: 'var(--font-family, "Comic Sans MS", cursive)' }}>
+      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', textAlign: 'right', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif' }}>
         {formatTime(progress)}
       </span>
 
@@ -121,7 +121,7 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         style={{ flex: 1 }}
       />
 
-      <span style={{ fontSize: '0.9rem', minWidth: '40px', fontFamily: 'var(--font-family, "Comic Sans MS", cursive)' }}>
+      <span style={{ fontSize: '0.9rem', minWidth: '40px', fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive, sans-serif' }}>
         {formatTime(duration)}
       </span>
     </div>
