@@ -158,10 +158,10 @@ export function ImpostorGame() {
         )}
 
         {/* MAIN CONTENT AREA */}
-        <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
+        <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
           
           {/* LEFT COLUMN */}
-          <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', paddingRight: '4px' }}>
+          <div className="responsive-col-left fixed-width" style={{ overflowY: 'auto', paddingRight: '4px' }}>
             
             <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
               <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -535,7 +535,7 @@ export function ImpostorGame() {
         {/* Result Cards Container */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px', width: '100%', alignItems: 'stretch' }}>
           {/* Votes */}
-          <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
+          <div className="card" style={{ flex: '1 1 280px', margin: 0 }}>
             <p style={{ fontWeight: 600, marginBottom: '12px' }}>Resultado da votação</p>
             {gameResult.votes.map((v, i) => (
               <div key={v.playerId} className="vote-result">
@@ -557,7 +557,7 @@ export function ImpostorGame() {
           </div>
 
           {/* Reveal */}
-          <div className="card" style={{ flex: '1 1 250px', margin: 0, padding: 'var(--space-4)' }}>
+          <div className="card" style={{ flex: '1 1 280px', margin: 0, padding: 'var(--space-4)' }}>
             <div style={{ marginBottom: '12px' }}>
               <span className="result-word-label">Tema</span>
               <p className="result-word" style={{ color: 'var(--text)' }}>

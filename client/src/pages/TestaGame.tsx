@@ -78,10 +78,10 @@ export function TestaGame() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, width: '100%' }}>
           
           {/* MIDDLE SECTION: My Card (Left) and Notes (Right) */}
-          <div style={{ display: 'flex', gap: '16px', flexShrink: 0, width: '100%' }}>
+          <div className="responsive-row" style={{ flexShrink: 0 }}>
             
             {/* Left: Meu Cartão */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="responsive-col-left">
               {currentPlayer?.hasGuessedTesta ? (
                 <div className="card text-center" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>

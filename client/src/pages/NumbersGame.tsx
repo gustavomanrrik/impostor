@@ -59,10 +59,10 @@ export function NumbersGame() {
         </div>
 
         {/* MAIN CONTENT AREA: Left (My Number + Note) / Right (Enemies) */}
-        <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
+        <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
           
           {/* LEFT COLUMN */}
-          <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
+          <div className="responsive-col-left fixed-width" style={{ overflowY: 'auto' }}>
             
             {/* SEU NÚMERO */}
             <div className="card text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>

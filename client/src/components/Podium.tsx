@@ -25,19 +25,19 @@ export function Podium({ players }: PodiumProps) {
     if (!player) return <div style={{ flex: 1, minWidth: '80px' }} />;
     
     return (
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        position: 'relative',
-        minWidth: '90px',
-        maxWidth: '150px',
-        transform: show ? 'translateY(0)' : 'translateY(100%)',
-        opacity: show ? 1 : 0,
-        transition: `all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${place === 1 ? '0.6s' : place === 2 ? '0.3s' : '0s'}`,
-      }}>
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          position: 'relative',
+          minWidth: '70px',
+          maxWidth: '120px',
+          transform: show ? 'translateY(0)' : 'translateY(100%)',
+          opacity: show ? 1 : 0,
+          transition: `all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${place === 1 ? '0.6s' : place === 2 ? '0.3s' : '0s'}`,
+        }}>
         <div style={{ 
           marginBottom: '8px', 
           display: 'flex', 
@@ -52,11 +52,11 @@ export function Podium({ players }: PodiumProps) {
           <span style={{ 
             fontWeight: 900, 
             marginTop: '8px',
-            fontSize: place === 1 ? '1.2rem' : '1rem',
+            fontSize: place === 1 ? '1.1rem' : '0.9rem',
             textAlign: 'center',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
-            maxWidth: '120px',
+            maxWidth: '100%',
             whiteSpace: 'nowrap',
             fontFamily: 'var(--font-display)',
             textTransform: 'uppercase',
@@ -68,7 +68,7 @@ export function Podium({ players }: PodiumProps) {
           }}>
             {player.name}
           </span>
-          <span style={{ fontWeight: 900, color: 'var(--bg-primary)', background: 'var(--text-primary)', padding: '2px 8px', borderRadius: '4px', marginTop: '4px', fontSize: '0.9rem' }}>
+          <span style={{ fontWeight: 900, color: 'var(--bg-primary)', background: 'var(--text-primary)', padding: '2px 8px', borderRadius: '4px', marginTop: '4px', fontSize: '0.85rem' }}>
             {player.score} pts
           </span>
         </div>

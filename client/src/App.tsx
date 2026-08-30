@@ -29,7 +29,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       top: 0,
       zIndex: 50,
       display: 'flex',
-      justifyContent: 'flex-end',
+      justifyContent: 'space-between',
       alignItems: 'center',
       gap: '8px',
       padding: '8px 12px',
@@ -38,91 +38,92 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       minHeight: '48px',
       flexShrink: 0,
     }}>
-      {page !== 'home' && (
+      {page !== 'home' ? (
         <div
           className="fade-in"
           onClick={() => { if (!roomState) navigate('home'); }}
           style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
             fontFamily: 'var(--font-display)',
             fontWeight: 800,
-            fontSize: '1.5rem',
+            fontSize: '1.2rem',
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
           title={roomState ? '' : 'Voltar ao Início'}
         >
           joguinhos bacanudos
         </div>
-      )}
+      ) : <div />}
 
-      {roomState && (
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+        {roomState && (
+          <button
+            onClick={leaveRoom}
+            style={{
+              background: 'var(--bg-glass-strong)',
+              border: '2px solid var(--text-primary)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0 8px',
+              height: '32px',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: 'var(--text-primary)',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+            title="Sair da Sala"
+          >
+            sair
+          </button>
+        )}
+
         <button
-          onClick={leaveRoom}
+          onClick={() => { setSoundEnabled(toggleSound()); }}
           style={{
             background: 'var(--bg-glass-strong)',
             border: '2px solid var(--text-primary)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '0 12px',
-            height: '36px',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
             cursor: 'pointer',
-            fontSize: '0.85rem',
-            fontFamily: 'var(--font-display)',
-            fontWeight: 700,
+            fontSize: '0.9rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
-            color: 'var(--text-primary)',
-            boxShadow: 'var(--shadow-sm)',
+            justifyContent: 'center',
+            flexShrink: 0,
           }}
-          title="Sair da Sala"
+          title={soundEnabled ? 'Silenciar Sons' : 'Ativar Sons'}
         >
-          sair
+          {soundEnabled ? '🔊' : '🔇'}
         </button>
-      )}
 
-      <button
-        onClick={() => { setSoundEnabled(toggleSound()); }}
-        style={{
-          background: 'var(--bg-glass-strong)',
-          border: '2px solid var(--text-primary)',
-          borderRadius: '50%',
-          width: '36px',
-          height: '36px',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-        title={soundEnabled ? 'Silenciar Sons' : 'Ativar Sons'}
-      >
-        {soundEnabled ? '🔊' : '🔇'}
-      </button>
-
-      <button
-        onClick={toggleTheme}
-        style={{
-          background: 'var(--bg-glass-strong)',
-          border: '2px solid var(--text-primary)',
-          borderRadius: '50%',
-          width: '36px',
-          height: '36px',
-          cursor: 'pointer',
-          fontSize: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-        title="Alternar tema"
-      >
-        {theme === 'light' ? '🌙' : '☀️'}
-      </button>
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: 'var(--bg-glass-strong)',
+            border: '2px solid var(--text-primary)',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+          title="Alternar tema"
+        >
+          {theme === 'light' ? '🌙' : '☀️'}
+        </button>
+      </div>
     </div>
   );
 
