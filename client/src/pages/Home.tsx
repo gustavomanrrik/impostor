@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameType } from '@shared/types';
 
 export function Home() {
   const { navigate, selectedGameType, setSelectedGameType } = useGame();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (titleRef.current) {
+        // Gera valores verdadeiramente aleatórios a cada ciclo
+        const x = (Math.random() * 6 - 3).toFixed(1);
+        const y = (Math.random() * 8 - 4).toFixed(1);
+        const r = (Math.random() * 4 - 2).toFixed(1);
+        titleRef.current.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+        titleRef.current.style.transition = 'transform 0.8s ease-in-out';
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSelectGame = (game: GameType) => {
     setSelectedGameType(game);
@@ -16,7 +32,7 @@ export function Home() {
 
       {/* Logo & Slogan Area (Desktop Only) */}
       <div className="hide-on-mobile" style={{ textAlign: 'center', marginBottom: '40px', marginTop: '16px' }}>
-        <h1 className="float-animation" style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0 8px 0', whiteSpace: 'nowrap' }}>
+        <h1 ref={titleRef} style={{ display: 'inline-block', fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0 8px 0', whiteSpace: 'nowrap' }}>
           joguinhos bacanudos
         </h1>
         <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500, fontFamily: 'var(--font-display)' }}>
