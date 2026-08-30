@@ -26,6 +26,18 @@ export function Chat() {
     }
   }, [chatMessages, isMinimized]);
 
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveReactionPicker(null);
+    };
+    if (activeReactionPicker) {
+      window.addEventListener('click', handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [activeReactionPicker]);
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -179,10 +191,13 @@ export function Chat() {
                       e.currentTarget.style.opacity = '0.8';
                       e.currentTarget.style.transform = 'scale(1)';
                     }}
-                    onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id);
+                    }}
                     title="Adicionar reação (ou botão direito na mensagem)"
                   >
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.2rem', marginTop: '-2px' }}>+</span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.2rem', marginTop: '-2px', color: 'var(--text-primary)' }}>+</span>
                   </div>
                   
                   {/* Reaction Picker Popover */}
