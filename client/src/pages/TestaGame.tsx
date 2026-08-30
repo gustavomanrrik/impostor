@@ -13,6 +13,7 @@ export function TestaGame() {
   const [personalNotes, setPersonalNotes] = useState('');
   const [isNoteExpanded, setIsNoteExpanded] = useState(false);
   const [isDamaged, setIsDamaged] = useState(false);
+  const [isMyMenuOpen, setIsMyMenuOpen] = useState(false);
 
   if (!roomState) return null;
 
@@ -41,15 +42,21 @@ export function TestaGame() {
     return (
       <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         
-        <VoteSkipButton />
-
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0 }}>
-            🧠 JOGO DA TESTA
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <VoteSkipButton />
+            <button onClick={() => setIsNoteExpanded(true)} className="btn btn-ghost btn-sm" style={{ fontSize: '1.2rem', padding: '4px 8px' }} title="Notas Pessoais">
+              📝
+            </button>
           </div>
-          <h2 className="text-center" style={{ fontSize: '1.8rem', margin: 0 }}>Quem sou eu?</h2>
-          <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0 }}>
-            Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '2px 8px', fontSize: '0.8rem' }}>
+              🧠 JOGO DA TESTA
+            </div>
+            <h2 className="text-center" style={{ fontSize: '1.4rem', margin: 0 }}>Quem sou eu?</h2>
+            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '2px 8px', fontSize: '0.8rem' }}>
+              Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
+            </div>
           </div>
         </div>
 
@@ -78,11 +85,11 @@ export function TestaGame() {
           
 
 
-          {/* MIDDLE SECTION: My Card (Left) and Notes (Right) */}
-          <div className="responsive-row" style={{ flexShrink: 0, minHeight: 0 }}>
+          {/* MIDDLE SECTION: My Card */}
+          <div style={{ flexShrink: 0, minHeight: 0, maxWidth: '320px', margin: '0 auto', width: '100%' }}>
             
             {/* LEFT: Meu Personagem */}
-            <div className="responsive-col-left">
+            <div>
               {currentPlayer?.hasGuessedTesta ? (
                 <div className="card text-center" style={{ border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>
@@ -122,9 +129,22 @@ export function TestaGame() {
                   <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
                 </div>
               ) : (
-                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%', position: 'relative' }}>
+                  
+                  {/* Menu do Jogador */}
+                  <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}>
+                    <button onClick={() => setIsMyMenuOpen(!isMyMenuOpen)} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px' }}>⋮</button>
+                    {isMyMenuOpen && (
+                      <div style={{ position: 'absolute', top: '100%', right: 0, background: 'var(--bg-primary)', border: '2px solid var(--text-primary)', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 20 }}>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => { handleGiveUp(); setIsMyMenuOpen(false); }} style={{ color: 'var(--error)', whiteSpace: 'nowrap', padding: '4px 8px' }}>
+                          🏳️ Desistir
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '8px', fontSize: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '8px', fontSize: '1.2rem' }}>
                       {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
                         <span key={i} style={{ 
                           opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
@@ -136,8 +156,8 @@ export function TestaGame() {
                     </div>
                   ) : null}
 
-                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '8px', display: 'inline-block' }}>
-                    <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="4.5rem" />
+                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '4px', display: 'inline-block' }}>
+                    <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="3.5rem" />
                     
                     <div style={{ 
                       position: 'absolute',
@@ -176,45 +196,19 @@ export function TestaGame() {
                     </div>
                   </div>
 
-                  <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: 'auto' }}>
-                    <label style={{ fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', textAlign: 'center' }}>O que está na minha testa?</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                  <form onSubmit={handleGuess} style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%', marginTop: 'auto' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
                       <input
                         type="text"
                         className="input"
+                        placeholder="Seu palpite..."
                         value={guess}
                         onChange={(e) => setGuess(e.target.value)}
-                        style={{ flex: 1, fontSize: '1.1rem' }}
+                        style={{ flex: 1, fontSize: '0.9rem', padding: '4px 8px' }}
                       />
-                      <button type="submit" className="btn btn-primary" style={{ padding: '0 16px' }}>Enviar</button>
+                      <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '0 12px' }}>➤</button>
                     </div>
-                    <button type="button" className="btn btn-ghost btn-sm w-full" onClick={handleGiveUp} style={{ marginTop: '4px' }}>
-                      🏳️ Desistir
-                    </button>
                   </form>
-                </div>
-              )}
-            </div>
-            
-            {/* RIGHT COLUMN: Nota Pessoal */}
-            <div className="personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', margin: 0, minHeight: isNoteExpanded ? '150px' : 'auto' }}>
-              {!isNoteExpanded ? (
-                <button className="btn btn-ghost fade-in" onClick={() => setIsNoteExpanded(true)} style={{ width: '100%', border: '4px dashed var(--text-primary)', height: '100%', minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  📝 Abrir Nota Pessoal
-                </button>
-              ) : (
-                <div className="card fade-in" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
-                  <h3 onClick={() => setIsNoteExpanded(false)} style={{ fontSize: '1rem', cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📝 Nota Pessoal (Só você vê)</span>
-                    <span>▼</span>
-                  </h3>
-                  <textarea
-                    className="input"
-                    value={personalNotes}
-                    onChange={(e) => setPersonalNotes(e.target.value)}
-                    placeholder="Ex: Fulano é o impostor..."
-                    style={{ width: '100%', flex: 1, resize: 'none', padding: '12px', marginTop: '12px' }}
-                  />
                 </div>
               )}
             </div>
@@ -364,8 +358,27 @@ export function TestaGame() {
           </button>
         )}
       </div>
-    );
-  }
 
-  return null;
+      {isNoteExpanded && (
+        <div 
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} 
+          onClick={() => setIsNoteExpanded(false)}
+        >
+          <div className="card fade-in" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', background: 'var(--bg-primary)' }}>
+            <h3 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>📝 Nota Pessoal (Só você vê)</span>
+              <button onClick={() => setIsNoteExpanded(false)} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px' }}>❌</button>
+            </h3>
+            <textarea
+              className="input"
+              value={personalNotes}
+              onChange={(e) => setPersonalNotes(e.target.value)}
+              placeholder="Ex: Fulano é tal personagem..."
+              style={{ width: '100%', minHeight: '150px', resize: 'none', padding: '12px' }}
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
