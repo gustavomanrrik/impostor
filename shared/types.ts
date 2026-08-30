@@ -297,6 +297,7 @@ export interface ServerToClientEvents {
   'room:created': (data: { roomCode: string; playerId: string }) => void;
   'room:joined': (data: { playerId: string; roomState: RoomPublicState; word?: string; isImpostor?: boolean; numberValue?: number }) => void;
   'room:updated': (roomState: RoomPublicState) => void;
+  'room:testaGuessAttempt': (data: { playerId: string; guess: string; correct: boolean }) => void;
   'room:playerJoined': (player: PublicPlayer) => void;
   'room:playerLeft': (playerId: string) => void;
   'room:playerDisconnected': (playerId: string) => void;

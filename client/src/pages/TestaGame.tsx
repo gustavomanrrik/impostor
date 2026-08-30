@@ -8,7 +8,7 @@ import { Podium } from '../components/Podium';
 
 
 export function TestaGame() {
-  const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes, mobileTab } = useGame();
+  const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes, mobileTab, activeTestaGuesses } = useGame();
   const [guess, setGuess] = useState('');
   const [personalNotes, setPersonalNotes] = useState('');
   const [isNoteExpanded, setIsNoteExpanded] = useState(false);
@@ -180,6 +180,11 @@ export function TestaGame() {
 
                   <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '4px', display: 'inline-block' }}>
                     <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="3.5rem" />
+                    {activeTestaGuesses.filter(g => g.playerId === playerId).map(g => (
+                      <div key={g.id} className={`floating-guess ${g.correct ? 'correct' : 'incorrect'}`}>
+                        {g.guess}
+                      </div>
+                    ))}
                     
                     <div style={{ 
                       position: 'absolute',
@@ -261,6 +266,11 @@ export function TestaGame() {
 
                   <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <AvatarDisplay avatar={p.avatar} size="5rem" />
+                    {activeTestaGuesses.filter(g => g.playerId === p.id).map(g => (
+                      <div key={g.id} className={`floating-guess ${g.correct ? 'correct' : 'incorrect'}`}>
+                        {g.guess}
+                      </div>
+                    ))}
                     
                     <div style={{ 
                       background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',

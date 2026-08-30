@@ -71,6 +71,7 @@ interface GameContextType {
   giveUpTesta: () => void;
   guessNumber: (targetId: string, guess: number) => Promise<boolean>;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
+  activeTestaGuesses: { id: string; playerId: string; guess: string; correct: boolean }[];
   fetchPublicRooms: () => void;
   
   // Chat
@@ -161,6 +162,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [showSuspense, setShowSuspense] = useState(false);
   const [customThemeWords, setCustomThemeWords] = useState<string[]>([]);
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
+  const [activeTestaGuesses, setActiveTestaGuesses] = useState<{ id: string; playerId: string; guess: string; correct: boolean }[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [activeWhispers, setActiveWhispers] = useState<{ senderId: string; text: string; timestamp: number }[]>([]);
   const [isChatMinimized, setIsChatMinimized] = useState(window.innerWidth < 1024);
@@ -200,6 +202,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setChatMessages([]);
       setActiveWhispers([]);
       setActiveReactions([]);
+      setActiveTestaGuesses([]);
       setHasUnreadChat(false);
       setCustomThemeWords([]);
       setLocalState(null);
@@ -406,6 +409,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }, 4000);
     });
 
+    socket.on('room:testaGuessAttempt', (data) => {
+      const guessId = Math.random().toString(36).substring(2, 9);
+      setActiveTestaGuesses(prev => [...prev, { id: guessId, playerId: data.playerId, guess: data.guess, correct: data.correct }]);
+      setTimeout(() => {
+        setActiveTestaGuesses(prev => prev.filter(g => g.id !== guessId));
+      }, 4000);
+    });
+
     socket.on('chat:newMessage', (message) => {
       setMutedPlayers(currentMuted => {
         if (!currentMuted.includes(message.playerId)) {
@@ -499,6 +510,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setChatMessages([]);
     setActiveWhispers([]);
     setActiveReactions([]);
+    setActiveTestaGuesses([]);
     setHasUnreadChat(false);
     setCustomThemeWords([]);
     setPage('home');
@@ -628,7 +640,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
-    sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
+    sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions, activeTestaGuesses,
     chatMessages, sendChatMessage, sendChatImage, sendChatAudio, reactToChatMessage,
     isChatMinimized, setIsChatMinimized,
     mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,

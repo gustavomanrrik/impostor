@@ -254,6 +254,12 @@ export function registerSocketHandlers(
       
       const result = room.guessTestaWord(playerId, guess);
       
+      io.to(room.code).emit('room:testaGuessAttempt', {
+        playerId,
+        guess,
+        correct: result.correct
+      });
+
       if (callback) {
         callback({ correct: result.correct });
       }
