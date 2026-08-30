@@ -90,10 +90,11 @@ export function Chat() {
           <button 
             className="btn btn-ghost btn-sm" 
             onClick={toggleMinimize}
-            style={{ padding: '4px 8px', fontSize: '1rem', color: 'var(--text-primary)' }}
+            style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}
             title={isMinimized ? 'Abrir chat' : 'Fechar chat'}
           >
-            {isMinimized ? '◀' : '▶'}
+            <span className="chat-icon-mobile">{isMinimized ? '💬' : '⬇️'}</span>
+            <span className="chat-icon-desktop">{isMinimized ? '◀' : '▶'}</span>
           </button>
           {!isMinimized && (
             <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'space-between' }}>

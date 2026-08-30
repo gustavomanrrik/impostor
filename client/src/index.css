@@ -1715,3 +1715,47 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 }
 
  
+/* === Mobile Tabs === */
+.mobile-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  background: var(--bg-card);
+  border: 3px solid var(--text-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-btn.active {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  box-shadow: 2px 2px 0 rgba(0,0,0,1);
+}
+
+.chat-icon-mobile { display: inline; }
+.chat-icon-desktop { display: none; }
+
+@media (max-width: 899px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .mobile-tabs {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chat-icon-mobile { display: none; }
+  .chat-icon-desktop { display: inline; }
+}

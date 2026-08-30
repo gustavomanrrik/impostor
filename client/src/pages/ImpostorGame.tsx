@@ -14,6 +14,7 @@ export function ImpostorGame() {
   const [hasVoted, setHasVoted] = useState(false);
   const [hasRequestedVote, setHasRequestedVote] = useState(false);
   const [showConfirmVoteRequest, setShowConfirmVoteRequest] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
   const [isAnimatingJudgement, setIsAnimatingJudgement] = useState(false);
   const [customReaction, setCustomReaction] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -158,10 +159,15 @@ export function ImpostorGame() {
         )}
 
         {/* MAIN CONTENT AREA */}
+        <div className="mobile-tabs">
+          <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
+          <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Outros Jogadores</button>
+        </div>
+
         <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
           
           {/* LEFT COLUMN */}
-          <div className="responsive-col-left fixed-width" style={{ overflowY: 'auto', paddingRight: '4px' }}>
+          <div className={`responsive-col-left fixed-width ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ overflowY: 'auto', paddingRight: '4px' }}>
             
             <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
               <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -268,16 +274,17 @@ export function ImpostorGame() {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className={mobileTab !== 'others' ? 'hide-on-mobile' : ''} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               Outros Jogadores
             </h3>
             
-            <div className="player-grid" style={{ flex: 1, overflowY: 'auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignContent: 'start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '16px', alignContent: 'flex-start', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0, position: 'relative' 
+                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0, position: 'relative',
+                  width: '240px', flex: '1 1 240px', maxWidth: '300px'
                 }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
                   <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>

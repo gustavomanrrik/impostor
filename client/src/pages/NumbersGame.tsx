@@ -11,6 +11,7 @@ export function NumbersGame() {
   const [guesses, setGuesses] = useState<Record<string, string>>({});
   const [damagedPlayers, setDamagedPlayers] = useState<Record<string, boolean>>({});
   const [personalNotes, setPersonalNotes] = useState('');
+  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
 
   // Reset local state whenever a new round/game starts
   useEffect(() => {
@@ -58,11 +59,16 @@ export function NumbersGame() {
           </span>
         </div>
 
+        <div className="mobile-tabs">
+          <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
+          <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Outros Jogadores</button>
+        </div>
+
         {/* MAIN CONTENT AREA: Left (My Number + Note) / Right (Enemies) */}
         <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
           
           {/* LEFT COLUMN */}
-          <div className="responsive-col-left fixed-width" style={{ overflowY: 'auto' }}>
+          <div className={`responsive-col-left fixed-width ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ overflowY: 'auto' }}>
             
             {/* SEU NÚMERO */}
             <div className="card text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
@@ -126,7 +132,7 @@ export function NumbersGame() {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className={mobileTab !== 'others' ? 'hide-on-mobile' : ''} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               Outros Jogadores
             </h3>

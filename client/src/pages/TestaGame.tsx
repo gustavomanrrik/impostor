@@ -11,6 +11,7 @@ export function TestaGame() {
   const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
   const [guess, setGuess] = useState('');
   const [personalNotes, setPersonalNotes] = useState('');
+  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
   const [isDamaged, setIsDamaged] = useState(false);
 
   if (!roomState) return null;
@@ -77,8 +78,13 @@ export function TestaGame() {
         {/* MAIN CONTENT AREA */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, width: '100%' }}>
           
+          <div className="mobile-tabs">
+            <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
+            <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Testa da Galera</button>
+          </div>
+
           {/* MIDDLE SECTION: My Card (Left) and Notes (Right) */}
-          <div className="responsive-row" style={{ flexShrink: 0 }}>
+          <div className={`responsive-row ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ flexShrink: 0 }}>
             
             {/* Left: Meu Cartão */}
             <div className="responsive-col-left">
@@ -211,7 +217,7 @@ export function TestaGame() {
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
-          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
+          <div className={`card ${mobileTab !== 'others' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               na testa da galera:
             </h3>
