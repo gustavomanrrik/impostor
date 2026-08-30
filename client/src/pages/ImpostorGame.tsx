@@ -339,8 +339,6 @@ export function ImpostorGame() {
                       💬
                     </button>
                   )}
-                </div>
-
                   {/* Whisper Input */}
                   {whisperingTo === p.id && (
                     <form 
