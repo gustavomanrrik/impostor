@@ -14,11 +14,12 @@ import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
 import { ReactionsOverlay } from './components/ReactionsOverlay';
+import { BottomNav } from './components/BottomNav';
 
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
 function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
-  const { page, navigate, toasts, showSuspense, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
+  const { page, navigate, toasts, showSuspense, mobileTab, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
   const showChat = page === 'lobby' || page === 'game';
   const [soundEnabled, setSoundEnabled] = useState(isSoundsEnabled());
 
@@ -40,7 +41,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
     }}>
       {page !== 'home' ? (
         <div
-          className="fade-in"
+          className="fade-in hide-on-mobile"
           onClick={() => { if (!roomState) navigate('home'); }}
           style={{
             fontFamily: 'var(--font-display)',
@@ -135,7 +136,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       {showSuspense && <SuspenseReveal />}
 
       <div className={`app-layout ${showChat ? 'with-chat' : ''}`}>
-        <div className="main-content">
+        <div className={`main-content ${showChat && mobileTab === 'chat' ? 'hide-on-mobile' : ''}`}>
           <ReactionsOverlay />
           <div key={page} className="page-transition" style={{ height: '100%', width: '100%' }}>
             {page === 'home' && <Home />}
@@ -152,11 +153,12 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
         </div>
         
         {showChat && (
-          <div className={`sidebar-content ${isChatMinimized ? 'minimized' : ''}`}>
+          <div className={`sidebar-content ${isChatMinimized ? 'minimized' : ''} ${mobileTab === 'chat' ? 'show-on-mobile' : ''}`}>
             <Chat />
           </div>
         )}
       </div>
+      {showChat && <BottomNav />}
     </div>
   );
 }

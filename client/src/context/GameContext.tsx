@@ -79,6 +79,8 @@ interface GameContextType {
   reactToChatMessage: (messageId: string, reaction: string) => void;
   isChatMinimized: boolean;
   setIsChatMinimized: (minimized: boolean) => void;
+  mobileTab: 'me' | 'others' | 'chat';
+  setMobileTab: (tab: 'me' | 'others' | 'chat') => void;
   hasUnreadChat: boolean;
   setHasUnreadChat: (hasUnread: boolean) => void;
   
@@ -156,6 +158,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [activeWhispers, setActiveWhispers] = useState<{ senderId: string; text: string; timestamp: number }[]>([]);
   const [isChatMinimized, setIsChatMinimized] = useState(window.innerWidth < 1024);
+  const [mobileTab, setMobileTab] = useState<'me' | 'others' | 'chat'>('me');
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const hasSetupListeners = useRef(false);
   const ignoreReconnections = useRef(false);
@@ -585,7 +588,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
     chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
-    isChatMinimized, setIsChatMinimized, hasUnreadChat, setHasUnreadChat,
+    isChatMinimized, setIsChatMinimized,
+    mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,
     sendWhisper, activeWhispers,
     localState, setLocalState,
     toasts, addToast, showSuspense,

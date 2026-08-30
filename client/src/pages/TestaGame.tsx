@@ -78,10 +78,7 @@ export function TestaGame() {
         {/* MAIN CONTENT AREA */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, width: '100%' }}>
           
-          <div className="mobile-tabs">
-            <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
-            <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Testa da Galera</button>
-          </div>
+
 
           {/* MIDDLE SECTION: My Card (Left) and Notes (Right) */}
           <div className={`responsive-row ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ flexShrink: 0 }}>

@@ -264,63 +264,18 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 }
 
 .sidebar-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: var(--bg-primary);
-  width: 100%;
-  padding: 0;
-  border-top: 3px solid var(--text-primary);
-  max-height: 60vh; 
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  overflow: hidden;
-  box-shadow: 0 -4px 15px rgba(0,0,0,1);
-}
-
-.sidebar-content.minimized {
-  max-height: 48px;
-  width: 48px;
-  height: 48px;
-  left: auto;
-  right: 16px;
-  bottom: 16px;
-  border: 3px solid var(--text-primary);
-  border-radius: 50%;
-  box-shadow: 4px 4px 0 rgba(0,0,0,1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Esconder titulos e ajustar botões no modo mobile minimizado */
-.sidebar-content.minimized .chat-header h3 {
-  display: none;
-}
-.sidebar-content.minimized .chat-header {
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.sidebar-content.minimized .chat-header button {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+  display: none; /* Oculto no mobile, renderizado de outra forma */
 }
 
 @media (min-width: 1024px) {
   .sidebar-content {
+    display: flex; /* Volta a aparecer no desktop */
     position: relative;
     width: 350px;
     max-height: none;
     padding: 0;
     border-top: none;
     border-left: 3px solid var(--glass-border);
-    display: flex;
     flex-direction: column;
     height: 100%;
     box-shadow: none;
@@ -374,18 +329,20 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 /* â”€â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .card {
   background: var(--bg-card);
-  border: 3px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-4); /* Reduced for mobile */
+  padding: 12px;
   width: 100%;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   transition: var(--transition-base);
 }
 
 @media (min-width: 480px) {
   .card {
+    border-width: 3px;
     border-radius: var(--radius-xl);
-    padding: var(--space-6);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -1759,3 +1716,62 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   .chat-icon-mobile { display: none; }
   .chat-icon-desktop { display: inline; }
 }
+/* === Bottom Navigation (Mobile) === */
+.bottom-nav {
+  display: flex;
+  background: var(--bg-primary);
+  border-top: 3px solid var(--text-primary);
+  height: 64px;
+  width: 100%;
+  position: relative;
+  z-index: 100;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 8px 0;
+}
+.nav-btn.active {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+.nav-btn span {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.unread-badge {
+  position: absolute;
+  top: 8px;
+  right: calc(50% - 16px);
+  width: 12px;
+  height: 12px;
+  background-color: var(--error);
+  border: 2px solid var(--bg-primary);
+  border-radius: 50%;
+}
+.hide-on-desktop {
+  display: flex;
+}
+@media (min-width: 900px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+.sidebar-content.show-on-mobile {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+/* Overriding the mobile-tabs since they are removed from JSX, we just ensure they don't break anything if left in */

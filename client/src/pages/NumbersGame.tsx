@@ -59,10 +59,7 @@ export function NumbersGame() {
           </span>
         </div>
 
-        <div className="mobile-tabs">
-          <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
-          <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Outros Jogadores</button>
-        </div>
+
 
         {/* MAIN CONTENT AREA: Left (My Number + Note) / Right (Enemies) */}
         <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>

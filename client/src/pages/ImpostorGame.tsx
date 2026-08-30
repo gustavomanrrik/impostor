@@ -159,10 +159,7 @@ export function ImpostorGame() {
         )}
 
         {/* MAIN CONTENT AREA */}
-        <div className="mobile-tabs">
-          <button className={`tab-btn ${mobileTab === 'me' ? 'active' : ''}`} onClick={() => setMobileTab('me')}>Meu Painel</button>
-          <button className={`tab-btn ${mobileTab === 'others' ? 'active' : ''}`} onClick={() => setMobileTab('others')}>Outros Jogadores</button>
-        </div>
+
 
         <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
           
