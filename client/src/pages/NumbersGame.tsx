@@ -132,7 +132,7 @@ export function NumbersGame() {
             </h3>
             
             {/* ENEMY GRID */}
-            <div className="player-grid" style={{ flex: 1, overflowY: 'auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', alignContent: 'start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '12px', alignContent: 'flex-start', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', gap: '8px', 
@@ -141,11 +141,14 @@ export function NumbersGame() {
                   background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                   padding: '12px',
                   margin: 0,
-                  position: 'relative'
+                  position: 'relative',
+                  width: '240px',
+                  flex: '1 1 240px',
+                  maxWidth: '300px'
                 }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AvatarDisplay avatar={p.avatar} size="2rem" />
+                    <AvatarDisplay avatar={p.avatar} size="2.5rem" />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
                 </div>
