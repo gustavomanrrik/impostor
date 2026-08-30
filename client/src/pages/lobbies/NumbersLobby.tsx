@@ -2,40 +2,19 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { KickPlayerButton } from '../../components/KickPlayerButton';
+import { RoomCodeBox } from '../../components/RoomCodeBox';
 
 export function NumbersLobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
     updateConfig, resetScores, kickPlayer
   } = useGame();
-  
-  const [copied, setCopied] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   if (!roomState) return null;
 
   const isHost = roomState.hostId === playerId || roomState.players.find(p => p.id === playerId)?.isHost === true;
   const canStart = roomState.players.length >= 2;
   const config = roomState.config;
-
-  const handleCopyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(roomState.code);
-      setCopied(true);
-      addToast('success', 'Código copiado!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      addToast('error', 'Falha ao copiar.');
-    }
-  };
-
-  const handleShare = async () => {
-    const url = `${window.location.origin}?room=${roomState.code}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      addToast('success', 'Link copiado!');
-    } catch { /* user cancelled */ }
-  };
 
   return (
     <div className="w-full">
@@ -48,40 +27,7 @@ export function NumbersLobby() {
           </div>
           <p className="text-muted" style={{ marginBottom: '24px' }}>Tente descobrir o número dos outros antes que descubram o seu!</p>
 
-          {/* Room Code */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>{roomState.config.roomName || 'SALA'}</span>
-              <span>{roomState.code}</span>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ padding: '4px 12px' }}>
-              {copied ? '✅' : '📋'}
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ padding: '4px 12px' }}>
-              📤
-            </button>
-          </div>
-
-          {!roomState.config.isPublic && roomState.config.password && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', marginTop: '-16px' }}>
-              <div className="room-code" style={{ fontSize: '1.2rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', background: 'var(--bg-secondary)', borderStyle: 'dashed' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', textTransform: 'uppercase' }}>Senha da Sala</span>
-                {showPassword ? roomState.config.password : '••••••••'}
-              </div>
-              <button 
-                className="btn btn-secondary btn-sm" 
-                onMouseDown={() => setShowPassword(true)}
-                onMouseUp={() => setShowPassword(false)}
-                onMouseLeave={() => setShowPassword(false)}
-                onTouchStart={() => setShowPassword(true)}
-                onTouchEnd={() => setShowPassword(false)}
-                style={{ padding: '4px 12px', height: '100%' }}
-                title="Mostrar senha"
-              >
-                👁️
-              </button>
-            </div>
-          )}
+          <RoomCodeBox />
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '16px' }}>

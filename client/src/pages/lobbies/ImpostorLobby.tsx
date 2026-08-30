@@ -3,6 +3,7 @@ import { useGame } from '../../context/GameContext';
 import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { KickPlayerButton } from '../../components/KickPlayerButton';
+import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { Difficulty, ImpostorMode } from '@shared/types';
 
 export function ImpostorLobby() {
@@ -12,12 +13,10 @@ export function ImpostorLobby() {
     updateConfig, resetScores, navigate, kickPlayer
   } = useGame();
   
-  const [copied, setCopied] = useState(false);
   const [newWord, setNewWord] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [show18Modal, setShow18Modal] = useState(false);
   const [pendingTheme, setPendingTheme] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
   
   const hasConfirmed18 = localStorage.getItem('impostor_18plus_confirmed') === 'true';
 
@@ -35,25 +34,6 @@ export function ImpostorLobby() {
   const canStart = roomState.players.length >= 3;
   const selectedTheme = themes.find(t => t.id === roomState.config.theme);
   const config = roomState.config;
-
-  const handleCopyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(roomState.code);
-      setCopied(true);
-      addToast('success', 'Código copiado!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      addToast('error', 'Falha ao copiar.');
-    }
-  };
-
-  const handleShare = async () => {
-    const url = `${window.location.origin}?room=${roomState.code}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      addToast('success', 'Link copiado!');
-    } catch { /* user cancelled */ }
-  };
 
   const handleAddWord = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,40 +101,7 @@ export function ImpostorLobby() {
           </div>
           <p className="text-muted" style={{ marginBottom: '16px', fontSize: '0.9rem' }}>Descubra quem está com a palavra errada!</p>
 
-          {/* Room Code */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>{roomState.config.roomName || 'SALA'}</span>
-              <span>{roomState.code}</span>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ padding: '4px 12px' }}>
-              {copied ? '✅' : '📋'}
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ padding: '4px 12px' }}>
-              📤
-            </button>
-          </div>
-
-          {!roomState.config.isPublic && roomState.config.password && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', marginTop: '-8px' }}>
-              <div className="room-code" style={{ fontSize: '1.2rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', background: 'var(--bg-secondary)', borderStyle: 'dashed' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', textTransform: 'uppercase' }}>Senha da Sala</span>
-                {showPassword ? roomState.config.password : '••••••••'}
-              </div>
-              <button 
-                className="btn btn-secondary btn-sm" 
-                onMouseDown={() => setShowPassword(true)}
-                onMouseUp={() => setShowPassword(false)}
-                onMouseLeave={() => setShowPassword(false)}
-                onTouchStart={() => setShowPassword(true)}
-                onTouchEnd={() => setShowPassword(false)}
-                style={{ padding: '4px 12px', height: '100%' }}
-                title="Mostrar senha"
-              >
-                👁️
-              </button>
-            </div>
-          )}
+          <RoomCodeBox />
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '12px', padding: '12px 16px' }}>
