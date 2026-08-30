@@ -6,7 +6,7 @@ import { VoteSkipButton } from '../components/VoteSkipButton';
 import { KickPlayerButton } from '../components/KickPlayerButton';
 
 export function ImpostorGame() {
-  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes, sendWhisper, activeWhispers } = useGame();
+  const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes, sendWhisper, activeWhispers, mobileTab } = useGame();
   const [wordVisible, setWordVisible] = useState(false);
   const [personalNotes, setPersonalNotes] = useState('');
   const [wordSeen, setWordSeen] = useState(false);
@@ -14,7 +14,6 @@ export function ImpostorGame() {
   const [hasVoted, setHasVoted] = useState(false);
   const [hasRequestedVote, setHasRequestedVote] = useState(false);
   const [showConfirmVoteRequest, setShowConfirmVoteRequest] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
   const [isAnimatingJudgement, setIsAnimatingJudgement] = useState(false);
   const [customReaction, setCustomReaction] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -276,83 +275,89 @@ export function ImpostorGame() {
               Outros Jogadores
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '16px', alignContent: 'flex-start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-                  border: '4px solid var(--text-primary)', padding: '16px', margin: 0, position: 'relative',
-                  width: '240px', flex: '1 1 240px', maxWidth: '300px'
+                  display: 'flex', flexDirection: 'column',
+                  opacity: !p.isConnected ? 0.5 : 1,
+                  border: '2px solid var(--text-primary)',
+                  background: 'var(--bg-primary)',
+                  padding: '8px 12px',
+                  margin: 0,
+                  position: 'relative',
+                  width: '100%',
+                  cursor: hasRequestedVote ? 'pointer' : 'default'
+                }}
+                onClick={() => {
+                  if (hasRequestedVote) setSelectedVote(p.id);
                 }}>
-                  <KickPlayerButton playerId={p.id} playerName={p.name} />
-                  <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>
-                    {gameResult && gameResult.impostors.some(i => i.id === p.id) && (
-                      <span title="Impostor">😈</span>
-                    )}
-                    {p.isWinner && <span title="Vencedor">👑</span>}
-                    {p.id === roomState.hostId && <span title="Host">⭐</span>}
-                  </div>
-                  {/* Whisper Bubble */}
-                  {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
-                    <div key={`${w.timestamp}-${index}`} style={{
-                      position: 'absolute',
-                      top: '-40px',
-                      background: 'var(--primary)',
-                      color: 'var(--bg-primary)',
-                      padding: '8px 12px',
-                      borderRadius: '16px',
-                      borderBottomLeftRadius: '4px',
-                      fontWeight: 'bold',
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                      zIndex: 20,
-                      maxWidth: '100%',
-                      wordBreak: 'break-word',
-                      animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                    }}>
-                      {w.text}
+                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', width: '100%' }}>
+                    <KickPlayerButton playerId={p.id} playerName={p.name} />
+                    
+                    <div style={{ flexShrink: 0, position: 'relative' }}>
+                      <AvatarDisplay avatar={p.avatar} size="3.5rem" />
+                      {selectedVote === p.id && (
+                        <div style={{
+                          position: 'absolute', top: -5, right: -5, background: 'var(--primary)',
+                          color: 'var(--bg-primary)', borderRadius: '50%', width: '20px', height: '20px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px'
+                        }}>✓</div>
+                      )}
+                      {/* Whisper Bubble */}
+                      {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
+                        <div key={`${w.timestamp}-${index}`} style={{
+                          position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)',
+                          background: 'var(--primary)', color: 'var(--bg-primary)', padding: '4px 8px',
+                          borderRadius: '12px', borderBottomLeftRadius: '0', fontWeight: 'bold', fontSize: '0.9rem',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 20, whiteSpace: 'nowrap',
+                          animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                        }}>
+                          {w.text}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                      <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                      <div style={{ display: 'flex', gap: '4px', fontSize: '1rem', marginTop: '4px' }}>
+                        {p.isWinner && <span title="Vencedor">👑</span>}
+                        {p.id === roomState.hostId && <span title="Host">⭐</span>}
+                      </div>
+                    </div>
 
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <AvatarDisplay avatar={p.avatar} size="5rem" />
+                    {!hasRequestedVote && (
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'auto' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setWhisperingTo(whisperingTo === p.id ? null : p.id);
+                          setWhisperInput('');
+                        }}
+                      >
+                        💬
+                      </button>
+                    )}
                   </div>
-                  <span style={{ 
-                      fontWeight: 'bold', 
-                      fontSize: '1.2rem', 
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'center',
-                      marginTop: '4px'
-                  }}>
-                    {p.name}
-                  </span>
-                  
-                  {whisperingTo === p.id ? (
+
+                  {/* Whisper Input */}
+                  {whisperingTo === p.id && (
                     <form 
                       onSubmit={(e) => handleWhisperSubmit(e, p.id)} 
-                      style={{ display: 'flex', width: '100%', gap: '4px', marginTop: '12px' }}
+                      style={{ display: 'flex', width: '100%', gap: '4px', marginTop: '8px' }}
                     >
                       <input
                         autoFocus
                         type="text"
                         className="input"
-                        placeholder="Sussurro..."
+                        placeholder="Sussurro secreto..."
                         value={whisperInput}
                         onChange={e => setWhisperInput(e.target.value)}
-                        style={{ flex: 1, padding: '4px 8px' }}
+                        style={{ flex: 1, padding: '4px 8px', fontSize: '0.9rem' }}
                         onBlur={() => setTimeout(() => setWhisperingTo(null), 150)}
                       />
-                      <button type="submit" className="btn btn-primary btn-sm">Enviar</button>
+                      <button type="submit" className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.9rem', minHeight: 'auto' }}>Enviar</button>
                     </form>
-                  ) : (
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ marginTop: '12px', width: '100%' }}
-                      onClick={() => {
-                        setWhisperingTo(p.id);
-                        setWhisperInput('');
-                      }}
-                    >
-                      💬 Sussurrar
-                    </button>
                   )}
                 </div>
               ))}

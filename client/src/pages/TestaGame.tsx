@@ -8,10 +8,9 @@ import { Podium } from '../components/Podium';
 
 
 export function TestaGame() {
-  const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes } = useGame();
+  const { roomState, playerId, nextRound, playAgain, leaveRoom, addToast, guessTesta, giveUpTesta, themes, mobileTab } = useGame();
   const [guess, setGuess] = useState('');
   const [personalNotes, setPersonalNotes] = useState('');
-  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
   const [isDamaged, setIsDamaged] = useState(false);
 
   if (!roomState) return null;
@@ -138,28 +137,28 @@ export function TestaGame() {
                     </div>
                   ) : null}
 
-                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '16px', display: 'inline-block' }}>
-                    <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="6rem" />
+                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '8px', display: 'inline-block' }}>
+                    <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="4.5rem" />
                     
                     <div style={{ 
                       position: 'absolute',
-                      top: '-20px',
+                      top: '-15px',
                       left: '50%',
                       transform: 'translateX(-50%) rotate(5deg)',
                       background: '#fff9c4',
                       color: '#000',
-                      padding: '4px 12px',
+                      padding: '2px 8px',
                       fontFamily: 'var(--font-display)',
                       border: '2px solid #000',
-                      fontSize: '1.2rem',
+                      fontSize: '1rem',
                       boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
-                      minWidth: '80px',
-                      maxWidth: '240px',
+                      minWidth: '60px',
+                      maxWidth: '180px',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       textAlign: 'center',
-                      minHeight: '32px'
+                      minHeight: '24px'
                     }}>
                       {guess || '...'}
                       {isDamaged && (
@@ -199,8 +198,8 @@ export function TestaGame() {
             </div>
             
             {/* Right: Nota Pessoal */}
-            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '12px', margin: 0, minHeight: '100px' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>📝</span> Nota Pessoal (Só você vê)
               </h3>
               <textarea
@@ -219,50 +218,36 @@ export function TestaGame() {
               na testa da galera:
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '16px', alignContent: 'flex-start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', 
                   opacity: !p.isConnected ? 0.5 : 1,
                   border: p.hasGuessedTesta ? '2px solid #ccc' : '2px solid var(--text-primary)',
                   background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                   position: 'relative',
-                  padding: '16px',
+                  padding: '8px 12px',
                   margin: 0,
-                  width: '200px',
-                  flex: '0 0 auto'
+                  width: '100%'
                 }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
-                  {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta ? (
-                    <div style={{ marginBottom: '8px', fontSize: '1.2rem', display: 'flex', gap: '4px' }}>
-                      {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
-                        <span key={i} style={{ 
-                          opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
-                          color: 'red',
-                          textShadow: '0 0 2px rgba(255,0,0,0.4)',
-                          lineHeight: 1
-                        }}>❤️</span>
-                      ))}
-                    </div>
-                  ) : null}
 
-                  <div style={{ position: 'relative', marginTop: '4px' }}>
-                    <AvatarDisplay avatar={p.avatar} size="5rem" />
+                  <div style={{ position: 'relative', flexShrink: 0, marginTop: '12px' }}>
+                    <AvatarDisplay avatar={p.avatar} size="4rem" />
                     
-                    {/* Post-it simulado na testa do Avatar */}
                     <div style={{ 
                       position: 'absolute',
-                      top: '-20px',
+                      top: '-16px',
                       left: '50%',
                       transform: 'translateX(-50%) rotate(5deg)',
                       background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
                       color: p.hasGuessedTesta ? '#888' : '#000',
-                      padding: '4px 12px',
+                      padding: '2px 8px',
                       fontFamily: 'var(--font-display)',
                       border: '2px solid #000',
-                      fontSize: '1.2rem',
+                      fontSize: '1rem',
                       boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
-                      maxWidth: '200px',
+                      maxWidth: '120px',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -272,9 +257,23 @@ export function TestaGame() {
                     </div>
                   </div>
                   
-                  <h4 style={{ margin: '8px 0 0 0', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none', fontSize: '1.4rem' }}>
-                    {p.name}
-                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}>
+                    <h4 style={{ margin: '0', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none', fontSize: '1.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {p.name}
+                    </h4>
+                    {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta && (
+                      <div style={{ display: 'flex', gap: '4px', marginTop: '4px', fontSize: '1rem' }}>
+                        {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                          <span key={i} style={{ 
+                            opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
+                            color: 'red',
+                            textShadow: '0 0 2px rgba(255,0,0,0.4)',
+                            lineHeight: 1
+                          }}>❤️</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

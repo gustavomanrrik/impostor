@@ -7,11 +7,10 @@ import { KickPlayerButton } from '../components/KickPlayerButton';
 import { Podium } from '../components/Podium';
 
 export function NumbersGame() {
-  const { roomState, playerId, myWord, guessNumber, nextRound, playAgain, leaveRoom, addToast, myNumber } = useGame();
+  const { roomState, playerId, guessNumber, nextRound, playAgain, leaveRoom, myNumber, mobileTab } = useGame();
   const [guesses, setGuesses] = useState<Record<string, string>>({});
   const [damagedPlayers, setDamagedPlayers] = useState<Record<string, boolean>>({});
   const [personalNotes, setPersonalNotes] = useState('');
-  const [mobileTab, setMobileTab] = useState<'me' | 'others'>('me');
 
   // Reset local state whenever a new round/game starts
   useEffect(() => {
@@ -133,115 +132,80 @@ export function NumbersGame() {
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               Outros Jogadores
             </h3>
-            
-            {/* ENEMY GRID */}
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '12px', alignContent: 'flex-start', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
-                  display: 'flex', flexDirection: 'column', gap: '8px', 
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', 
                   opacity: !p.isConnected ? 0.5 : 1,
-                  border: p.hasBeenDiscovered ? '2px solid #ccc' : '3px solid var(--text-primary)',
+                  border: p.hasBeenDiscovered ? '2px solid #ccc' : '2px solid var(--text-primary)',
                   background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-                  padding: '12px',
+                  padding: '8px 12px',
                   margin: 0,
                   position: 'relative',
-                  width: '240px',
-                  flex: '1 1 240px',
-                  maxWidth: '300px'
+                  width: '100%'
                 }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AvatarDisplay avatar={p.avatar} size="2.5rem" />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
-                </div>
-              </div>
-              
-              {p.inSuddenDeath && (
-                <div style={{ 
-                  background: '#ff3333', 
-                  color: 'white', 
-                  padding: '4px 8px', 
-                  border: '2px solid black',
-                  borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px', 
-                  fontSize: '0.85rem', 
-                  fontWeight: 'bold', 
-                  textAlign: 'center', 
-                  marginTop: '-4px',
-                  transform: 'rotate(-2deg)',
-                  boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)'
-                }}>
-                  ☠️ Em Morte Súbita!
-                </div>
-              )}
+                  
+                  <div style={{ flexShrink: 0 }}>
+                    <AvatarDisplay avatar={p.avatar} size="3.5rem" />
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                    <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                    
+                    {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 && !p.hasBeenDiscovered && (
+                      <div style={{ display: 'flex', gap: '2px', marginTop: '4px' }}>
+                        {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
+                          <span key={i} style={{ 
+                            opacity: i < (p.numbersLivesLeft || 0) ? 1 : 0.3, 
+                            filter: i < (p.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
+                            color: 'red', fontSize: '1rem'
+                          }}>❤️</span>
+                        ))}
+                      </div>
+                    )}
 
-              <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
-                background: '#fff9c4', 
-                color: '#000',
-                border: '2px solid #000',
-                padding: '4px 12px', 
-                fontFamily: 'var(--font-display)',
-                fontSize: '2rem',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
-                position: 'relative',
-                minHeight: '60px',
-                overflow: 'hidden',
-                transform: 'rotate(2deg)'
-              }}>
-                {p.hasBeenDiscovered ? (
-                  <span style={{ color: '#000', fontWeight: 900 }}>{p.numberValue}</span>
-                ) : (
-                  <span className={guesses[p.id] ? '' : 'text-muted'} style={{ fontWeight: 900, color: guesses[p.id] ? '#000' : 'rgba(0,0,0,0.3)', fontSize: guesses[p.id] ? '2rem' : '2.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{guesses[p.id] || '...'}</span>
-                )}
-                {damagedPlayers[p.id] && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '50%', left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    color: 'red',
-                    fontSize: '3rem',
-                    fontWeight: 'bold',
-                    textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff',
-                    zIndex: 2
+                    {p.inSuddenDeath && (
+                      <div style={{ 
+                        background: '#ff3333', color: 'white', padding: '2px 6px', border: '2px solid black',
+                        borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px', fontSize: '0.75rem', 
+                        fontWeight: 'bold', display: 'inline-block', alignSelf: 'flex-start', marginTop: '4px'
+                      }}>
+                        ☠️ Morte Súbita!
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
+                    background: '#fff9c4', color: '#000', border: '2px solid #000',
+                    padding: '4px 8px', textAlign: 'center', minWidth: '80px', flexShrink: 0,
+                    boxShadow: '2px 2px 0 rgba(0,0,0,0.2)', position: 'relative'
                   }}>
-                    ❌
-                  </span>
-                )}
-              </div>
-
-              {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', fontSize: '1.2rem' }}>
-                  {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
-                    <span key={i} style={{ 
-                      opacity: i < (p.numbersLivesLeft || 0) ? 1 : 0.3, 
-                      filter: i < (p.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                      color: 'red'
-                    }}>❤️</span>
-                  ))}
+                    {p.hasBeenDiscovered ? (
+                      <div style={{ fontWeight: 900, fontSize: '1.5rem' }}>{p.numberValue}</div>
+                    ) : (
+                      <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
+                        <input
+                          type="number"
+                          className="input"
+                          value={guesses[p.id] || ''}
+                          onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
+                          style={{ width: '40px', padding: '2px', textAlign: 'center', fontSize: '1rem', border: '1px solid #000', margin: 0 }}
+                          min={roomState.config.numbersMin || 1}
+                          max={roomState.config.numbersMax || 100}
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '0.8rem', minHeight: 'auto', margin: 0 }}>Go</button>
+                      </form>
+                    )}
+                    {damagedPlayers[p.id] && (
+                      <span style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        color: 'red', fontSize: '2rem', fontWeight: 'bold', textShadow: '2px 2px 0 #fff'
+                      }}>❌</span>
+                    )}
+                  </div>
                 </div>
-              ) : null}
-
-              {(!currentPlayer?.hasBeenDiscovered || currentPlayer?.inSuddenDeath) && (
-                <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
-                  <input
-                    type="number"
-                    className="input"
-                    value={guesses[p.id] || ''}
-                    onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
-                    placeholder="Chute"
-                    disabled={p.hasBeenDiscovered}
-                    style={{ flex: 1, fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 'bold' }}
-                  />
-                  <button type="submit" className="btn btn-primary" style={{ padding: '8px 12px' }} disabled={p.hasBeenDiscovered}>
-                    Chutar
-                  </button>
-                </form>
-              )}
-            </div>
-          ))}
+              ))}
             </div>
           </div>
         </div>
