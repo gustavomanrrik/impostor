@@ -1385,13 +1385,23 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   color: white;
 }
 
-/* â”€â”€â”€ Back Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Back Button ──────────────────────────────── */
 .back-btn {
   align-self: flex-start;
   margin-bottom: var(--space-3);
 }
 
-/* â”€â”€â”€ Loading Spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+@media (max-width: 600px) {
+  .back-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    margin: 0;
+    z-index: 50;
+  }
+}
+
+/* ─── Loading Spinner ──────────────────────────── */
 .spinner {
   width: 40px;
   height: 40px;

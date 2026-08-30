@@ -30,11 +30,9 @@ export function OnlineJoin() {
 
   return (
     <div className="page fade-in" style={{ maxWidth: '400px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '24px', minHeight: '100%', paddingBottom: '10vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '16px' }}>
-        <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
-          ← Voltar
-        </button>
-      </div>
+      <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
+        ← Voltar
+      </button>
 
       <h2 className="text-gradient">Entrar em Sala</h2>
       <p className="text-muted" style={{ marginTop: '4px' }}>Insira o código recebido</p>

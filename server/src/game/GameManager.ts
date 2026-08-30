@@ -59,7 +59,9 @@ export class GameManager {
    */
   getPublicRooms(): PublicRoomInfo[] {
     const publicRooms: PublicRoomInfo[] = [];
+    console.log(`[GameManager] getPublicRooms called. Total rooms: ${this.rooms.size}`);
     for (const [code, room] of this.rooms) {
+      console.log(`[GameManager] Room ${code}: isPublic=${room.config.isPublic}, players=${room.playerCount}, state=${room.state}`);
       if (room.config.isPublic && room.playerCount > 0 && room.state === 'LOBBY') {
         publicRooms.push({
           code,

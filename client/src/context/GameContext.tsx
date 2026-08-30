@@ -471,9 +471,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [navigate]);
 
   const fetchPublicRooms = useCallback(() => {
-    const socket = getSocket();
-    if (!socket) connectSocket();
-    getSocket()?.emit('room:listPublic');
+    connectSocket();
+    getSocket().emit('room:listPublic');
   }, []);
 
   const joinRoom = useCallback((playerName: string, avatar: string, roomCode: string, password?: string) => {
