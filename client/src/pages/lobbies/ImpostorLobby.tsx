@@ -17,6 +17,7 @@ export function ImpostorLobby() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [show18Modal, setShow18Modal] = useState(false);
   const [pendingTheme, setPendingTheme] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const hasConfirmed18 = localStorage.getItem('impostor_18plus_confirmed') === 'true';
 
@@ -132,6 +133,27 @@ export function ImpostorLobby() {
               📤
             </button>
           </div>
+
+          {!roomState.config.isPublic && roomState.config.password && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', marginTop: '-8px' }}>
+              <div className="room-code" style={{ fontSize: '1.2rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', background: 'var(--bg-secondary)', borderStyle: 'dashed' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px', textTransform: 'uppercase' }}>Senha da Sala</span>
+                {showPassword ? roomState.config.password : '••••••••'}
+              </div>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onMouseDown={() => setShowPassword(true)}
+                onMouseUp={() => setShowPassword(false)}
+                onMouseLeave={() => setShowPassword(false)}
+                onTouchStart={() => setShowPassword(true)}
+                onTouchEnd={() => setShowPassword(false)}
+                style={{ padding: '4px 12px', height: '100%' }}
+                title="Mostrar senha"
+              >
+                👁️
+              </button>
+            </div>
+          )}
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '12px', padding: '12px 16px' }}>
