@@ -606,9 +606,6 @@ export function ImpostorGame() {
                   <button className="btn btn-secondary" style={{ flex: 2, height: '44px' }} onClick={changeTheme}>
                     🎨 Novo tema
                   </button>
-                  <button className="btn btn-ghost" style={{ flex: 1, height: '44px' }} onClick={leaveRoom}>
-                    🚪 Sair
-                  </button>
                 </div>
               </>
             )}
@@ -618,11 +615,6 @@ export function ImpostorGame() {
             <div className="status-badge waiting">
               ⏳ Aguardando o host decidir...
             </div>
-            {roomState.currentRound >= (roomState.config.totalRounds || 3) && (
-              <button className="btn btn-ghost" onClick={leaveRoom}>
-                🚪 Sair da sala
-              </button>
-            )}
           </div>
         )}
       </div>

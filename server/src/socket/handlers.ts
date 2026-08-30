@@ -2,9 +2,9 @@
 // IMPOSTOR GAME — Socket.io Handlers
 // ============================================
 import { Server, Socket } from 'socket.io';
-import { GameManager } from '../game/GameManager.ts';
-import { WordEngine } from '../game/WordEngine.ts';
-import { ClientToServerEvents, ServerToClientEvents, RoomConfig, CustomTheme, GameType } from '../../../shared/types.ts';
+import { GameManager } from '../game/GameManager';
+import { WordEngine } from '../game/WordEngine';
+import { ClientToServerEvents, ServerToClientEvents, RoomConfig, CustomTheme, GameType, ChatMessage } from '../../../shared/types';
 
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 

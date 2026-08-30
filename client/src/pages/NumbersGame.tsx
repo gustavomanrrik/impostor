@@ -292,11 +292,6 @@ export function NumbersGame() {
         )}
 
         <div className="spacer-4" />
-        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 3)) && (
-          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-            🚪 Sair da sala
-          </button>
-        )}
       </div>
     );
   }

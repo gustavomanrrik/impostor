@@ -376,12 +376,7 @@ export function TestaGame() {
           </div>
         )}
 
-        <div className="spacer-4" />
-        {(!isHost || roomState.currentRound >= (roomState.config.totalRounds || 1)) && (
-          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-            🚪 Sair da sala
-          </button>
-        )}
+
       </div>
       {noteModalContent}
       </>

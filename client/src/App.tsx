@@ -46,7 +46,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
           <button
             onClick={leaveRoom}
             style={{
-              background: '#ff4d4d',
+              background: 'var(--bg-glass-strong)',
               border: '2px solid var(--text-primary)',
               borderRadius: 'var(--radius-sm)',
               padding: '0 12px',

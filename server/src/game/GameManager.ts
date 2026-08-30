@@ -60,10 +60,10 @@ export class GameManager {
   getPublicRooms(): PublicRoomInfo[] {
     const publicRooms: PublicRoomInfo[] = [];
     for (const [code, room] of this.rooms) {
-      if (room.config.isPublic && room.playerCount > 0) {
+      if (room.config.isPublic && room.playerCount > 0 && room.state === 'LOBBY') {
         publicRooms.push({
           code,
-          hostName: room.players.get(room.hostId)?.name || 'Desconhecido',
+          hostName: room.players.get(room.host)?.name || 'Desconhecido',
           playerCount: room.playerCount,
           maxPlayers: 20, // max genérico
           gameType: room.config.gameType,

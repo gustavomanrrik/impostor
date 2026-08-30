@@ -522,16 +522,7 @@ export class Room {
     return { count, needed, started };
   }
 
-  cancelVoteRequest(playerId: string): boolean {
-    if (this.state !== GameState.DISCUSSION) return false;
-    
-    const player = this.players.get(playerId);
-    if (!player) return false;
 
-    player.hasRequestedVote = false;
-    this.voteRequests.delete(playerId);
-    return true;
-  }
 
   voteSkip(playerId: string): { skipped: boolean } {
     if (this.state !== GameState.WORD_REVEAL && this.state !== GameState.DISCUSSION && this.state !== GameState.IN_GAME) return { skipped: false };

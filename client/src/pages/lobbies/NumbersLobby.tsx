@@ -252,10 +252,6 @@ export function NumbersLobby() {
           </div>
         </div>
       </div>
-      <div className="spacer-4" />
-      <button className="btn btn-ghost btn-sm w-full" style={{ marginBottom: '16px' }} onClick={leaveRoom}>
-        🚪 Sair da sala
-      </button>
     </div>
   );
 }
