@@ -122,9 +122,10 @@ export function TestaLobby() {
           <p className="text-muted" style={{ marginBottom: '24px' }}>Adivinhe qual palavra colaram na sua testa!</p>
 
           {/* Room Code */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center' }}>
-              {roomState.code}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>{roomState.config.roomName || 'SALA'}</span>
+              <span>{roomState.code}</span>
             </div>
             <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ padding: '4px 12px' }}>
               {copied ? '✅' : '📋'}
