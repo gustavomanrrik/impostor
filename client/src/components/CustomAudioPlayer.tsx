@@ -73,12 +73,12 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '8px',
+      gap: '12px',
       background: 'var(--bg-primary)',
       border: '2px solid var(--text-primary)',
       borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
-      padding: '4px 12px',
-      minWidth: '200px',
+      padding: '8px 16px',
+      minWidth: '220px',
       maxWidth: '100%',
       marginTop: '8px'
     }}>
@@ -107,7 +107,7 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         </span>
       </button>
 
-      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', minWidth: '35px', textAlign: 'right' }}>
+      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', textAlign: 'right', fontFamily: 'var(--font-family, "Comic Sans MS", cursive)' }}>
         {formatTime(progress)}
       </span>
 
@@ -117,17 +117,11 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
         max={duration || 100}
         value={progress}
         onChange={handleSeek}
-        style={{
-          flex: 1,
-          height: '4px',
-          WebkitAppearance: 'none',
-          background: 'var(--text-primary)',
-          borderRadius: '2px',
-          cursor: 'pointer'
-        }}
+        className="custom-audio-range"
+        style={{ flex: 1 }}
       />
 
-      <span style={{ fontSize: '0.8rem', minWidth: '35px' }}>
+      <span style={{ fontSize: '0.9rem', minWidth: '40px', fontFamily: 'var(--font-family, "Comic Sans MS", cursive)' }}>
         {formatTime(duration)}
       </span>
     </div>

@@ -1754,6 +1754,38 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* === Audio Player Range Slider === */
+.custom-audio-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.custom-audio-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  background: var(--text-primary);
+  border: 2px solid var(--bg-primary);
+  cursor: pointer;
+}
+
+.custom-audio-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  background: var(--text-primary);
+  border: 2px solid var(--bg-primary);
+  cursor: pointer;
+}
+
 @media (min-width: 1024px) {
   .chat-icon-mobile { display: none; }
   .chat-icon-desktop { display: inline; }

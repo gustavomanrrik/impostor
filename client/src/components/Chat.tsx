@@ -111,10 +111,11 @@ export function Chat() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         if (typeof ev.target?.result === 'string') {
-          setAudioPreviewUrl(ev.target.result);
+          sendChatAudio(ev.target.result);
         }
       };
       reader.readAsDataURL(file);
+      return;
     } else if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (ev) => {
@@ -373,13 +374,13 @@ export function Chat() {
               </div>
               <button 
                 type="button" 
-                className="btn btn-primary btn-sm"
+                className="btn btn-ghost btn-sm"
                 onClick={() => {
                   sendChatAudio(audioPreviewUrl);
                   setAudioPreviewUrl(null);
                 }}
                 title="Enviar áudio"
-                style={{ padding: '4px 8px', fontSize: '1.2rem', flexShrink: 0 }}
+                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0, border: 'none', background: 'transparent' }}
               >
                 ➤
               </button>
@@ -429,7 +430,7 @@ export function Chat() {
                 maxLength={200}
                 style={{ flex: 1, minWidth: '50px' }}
               />
-              <button type="submit" className="btn btn-primary btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0, padding: '4px 12px', fontSize: '1.2rem' }}>
+              <button type="submit" className="btn btn-ghost btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0, padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}>
                 ➤
               </button>
             </>
