@@ -551,7 +551,7 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   font-size: 1rem;
   padding: var(--space-4);
   background: var(--bg-glass-strong);
-  border: 3px solid rgba(255, 255, 255, 0.1);
+  border: 3px solid var(--text-primary);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   width: 100%;
@@ -560,8 +560,9 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 }
 
 .input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  border-color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-glass);
 }
 
 .input::placeholder {
