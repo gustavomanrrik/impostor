@@ -41,16 +41,12 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
     }}>
       {page !== 'home' ? (
         <div
-          key={page}
-          className="logo-drop-in hide-on-mobile"
+          className="fade-in hide-on-mobile"
           onClick={() => { if (!roomState) navigate('home'); }}
           style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
             fontFamily: 'var(--font-display)',
             fontWeight: 800,
-            fontSize: '1.4rem',
+            fontSize: '1.2rem',
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
