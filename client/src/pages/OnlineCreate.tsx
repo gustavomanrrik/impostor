@@ -77,11 +77,11 @@ export function OnlineCreate() {
         Criar e ir pro Lobby 🚀
       </button>
 
-      <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginBottom: '24px' }}>
+      <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginBottom: '8px' }}>
         Apenas você terá o poder de alterar o tema e iniciar a partida.
       </p>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '16px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '8px 0 16px 0' }}>
         <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
         <span className="text-muted" style={{ fontSize: '0.9rem' }}>ou</span>
         <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
