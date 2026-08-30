@@ -603,6 +603,23 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   animation: slideIn var(--transition-slow) ease-out;
 }
 
+.vote-skip-wrapper {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .vote-skip-wrapper {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+}
+
 .player-dot {
   width: 10px;
   height: 10px;

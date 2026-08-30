@@ -140,9 +140,7 @@ export function ImpostorGame() {
   if (roomState.state === GameState.DISCUSSION) {
     return (
       <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
-        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-          <VoteSkipButton />
-        </div>
+        <VoteSkipButton />
         
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
           <div className="status-badge discussion" style={{ margin: 0 }}>
@@ -375,9 +373,7 @@ export function ImpostorGame() {
     if (hasVoted) {
       return (
         <div className="page" style={{ position: 'relative', margin: '0 auto' }}>
-          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-            <VoteSkipButton />
-          </div>
+          <VoteSkipButton />
 
           <div className="status-badge voting" style={{ marginBottom: '12px' }}>
             🗳️ VOTAÇÃO
@@ -411,9 +407,7 @@ export function ImpostorGame() {
 
     return (
       <div className="page" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-          <VoteSkipButton />
-        </div>
+        <VoteSkipButton />
         <div className="status-badge voting" style={{ marginBottom: '12px' }}>
           🗳️ VOTAÇÃO
         </div>
@@ -468,9 +462,7 @@ export function ImpostorGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <div className="page fade-in" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-          <VoteSkipButton />
-        </div>
+        <VoteSkipButton />
         <div className="spinner" style={{ margin: '40px auto' }} />
         <p className="text-muted text-center">Contabilizando votos...</p>
       </div>

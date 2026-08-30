@@ -24,7 +24,8 @@ export function KickPlayerButton({ playerId, playerName }: { playerId: string, p
   }, [isOpen]);
 
   return (
-    <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10 }}>
+    <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {isMuted && <span title="Silenciado" style={{ fontSize: '1.2rem', filter: 'drop-shadow(1px 1px 0px #000)' }}>🔇</span>}
       <button 
         className="btn btn-ghost" 
         style={{ padding: '0 4px', fontSize: '1.2rem', lineHeight: 1, minWidth: 'auto', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '4px' }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
+import { KickPlayerButton } from '../../components/KickPlayerButton';
 import { Difficulty, ImpostorMode } from '@shared/types';
 
 export function ImpostorLobby() {
@@ -159,9 +160,7 @@ export function ImpostorLobby() {
                   </span>
                   {player.isHost && <span className="player-badge">HOST</span>}
                   {isHost && player.id !== playerId && (
-                    <button className="btn btn-ghost btn-sm" onClick={() => kickPlayer(player.id)} title="Expulsar jogador" style={{ padding: '0 8px', marginLeft: 'auto' }}>
-                      Expulsar
-                    </button>
+                    <KickPlayerButton playerId={player.id} playerName={player.name} />
                   )}
                   {!player.isConnected && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>

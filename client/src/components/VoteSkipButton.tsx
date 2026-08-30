@@ -12,7 +12,7 @@ export function VoteSkipButton() {
   if (!me || me.isWinner || me.hasBeenDiscovered || me.isSpectator) return null;
   
   return (
-    <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
+    <div className="vote-skip-wrapper">
       <button 
         onClick={() => voteSkip()}
         disabled={me.hasVotedSkip}

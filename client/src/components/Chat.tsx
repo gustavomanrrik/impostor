@@ -120,14 +120,14 @@ export function Chat() {
             return (
               <div key={msg.id} className={`chat-message ${isMe ? 'chat-message-me' : ''}`}>
                 {!isMe && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <AvatarDisplay avatar={roomState?.players.find(p => p.id === msg.playerId)?.avatar || '👤'} size="20px" />
-                    <span className="chat-message-name" style={{ paddingLeft: 0, marginBottom: 0 }}>{msg.playerName}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '-10px', zIndex: 2, position: 'relative', marginLeft: '4px' }}>
+                    <AvatarDisplay avatar={roomState?.players.find(p => p.id === msg.playerId)?.avatar || '👤'} size="36px" />
+                    <span className="chat-message-name" style={{ paddingLeft: 0, marginBottom: '10px' }}>{msg.playerName}</span>
                   </div>
                 )}
                 <div 
                   className="chat-message-bubble" 
-                  style={{ position: 'relative' }}
+                  style={{ position: 'relative', padding: (!msg.text && msg.imageUrl) ? '0' : undefined, overflow: 'hidden' }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id);
@@ -140,10 +140,8 @@ export function Chat() {
                       alt="imagem enviada" 
                       style={{ 
                         maxWidth: '100%', 
-                        borderRadius: 'var(--radius-sm)', 
-                        marginTop: msg.text ? '8px' : '0',
-                        cursor: 'pointer',
-                        border: '2px solid var(--glass-border)'
+                        display: 'block',
+                        cursor: 'pointer'
                       }} 
                       onClick={() => setSelectedImage(msg.imageUrl || null)}
                     />
@@ -182,7 +180,7 @@ export function Chat() {
                     onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
                     title="Adicionar reação (ou botão direito na mensagem)"
                   >
-                    ➕
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.2rem', marginTop: '-2px' }}>+</span>
                   </div>
                   
                   {/* Reaction Picker Popover */}
@@ -281,7 +279,7 @@ export function Chat() {
             onClick={() => fileInputRef.current?.click()}
             title="Enviar imagem"
           >
-            📷
+            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📷</span>
           </button>
           <input 
             type="file" 

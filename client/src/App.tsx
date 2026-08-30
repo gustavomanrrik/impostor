@@ -39,25 +39,32 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       minHeight: '48px',
       flexShrink: 0,
     }}>
+      <div style={{ flex: 1, pointerEvents: 'none' }} />
       {page !== 'home' ? (
-        <div
+        <div 
           className="fade-in hide-on-mobile"
-          onClick={() => { if (!roomState) navigate('home'); }}
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
+          onClick={() => {
+            if (!roomState) navigate('home');
+          }}
+          style={{ 
+            fontFamily: 'var(--font-display)', 
+            fontWeight: 900, 
             fontSize: '1.2rem',
+            textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)'
           }}
           title={roomState ? '' : 'Voltar ao Início'}
         >
           joguinhos bacanudos
         </div>
-      ) : <div />}
+      ) : null}
 
-      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto' }}>
         {roomState && (
           <button
             onClick={leaveRoom}

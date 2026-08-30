@@ -3,17 +3,16 @@ import { useGame } from '../context/GameContext';
 import { GameType } from '@shared/types';
 
 export function Home() {
-  const { navigate, setSelectedGameType } = useGame();
+  const { navigate, selectedGameType, setSelectedGameType } = useGame();
 
   const handleSelectGame = (game: GameType) => {
     setSelectedGameType(game);
-    navigate('online-create');
   };
 
   return (
     <div className="page page-centered fade-in" style={{ justifyContent: 'center', width: '100%', maxWidth: '800px' }}>
       {/* Logo Area */}
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '32px', marginTop: '32px' }}>
         <h1 style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0', whiteSpace: 'nowrap' }}>
           joguinhos bacanudos
         </h1>
@@ -33,7 +32,13 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🎭</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>impostor</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra quem recebeu a palavra diferente.</p>
+          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>descubra quem recebeu a palavra diferente.</p>
+          {selectedGameType === GameType.IMPOSTOR && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
+              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
+              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
+            </div>
+          )}
         </div>
 
         {/* Jogo 2: Jogo da Testa */}
@@ -44,7 +49,13 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🗣️</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo da testa</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>adivinhe a palavra que está na sua testa.</p>
+          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>adivinhe a palavra que está na sua testa.</p>
+          {selectedGameType === GameType.TESTA && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
+              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
+              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
+            </div>
+          )}
         </div>
 
         {/* Jogo 3: Jogo dos Números */}
@@ -55,7 +66,13 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🔢</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo dos números</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra os números dos outros jogadores.</p>
+          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>descubra os números dos outros jogadores.</p>
+          {selectedGameType === GameType.NUMBERS && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
+              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
+              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
+            </div>
+          )}
         </div>
 
       </div>

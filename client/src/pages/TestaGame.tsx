@@ -40,9 +40,7 @@ export function TestaGame() {
     return (
       <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         
-        <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
-          <VoteSkipButton />
-        </div>
+        <VoteSkipButton />
 
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
           <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0 }}>
