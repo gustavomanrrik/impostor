@@ -14,8 +14,17 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const setAudioData = () => {
-      setDuration(audio.duration);
+    const handleLoadedMetadata = () => {
+      if (audio.duration === Infinity) {
+        audio.currentTime = 1e101;
+        audio.addEventListener('seeked', function getDuration() {
+          audio.removeEventListener('seeked', getDuration);
+          setDuration(audio.duration);
+          audio.currentTime = 0;
+        });
+      } else {
+        setDuration(audio.duration);
+      }
     };
 
     const setAudioTime = () => {
@@ -25,18 +34,19 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
     const handleEnded = () => {
       setIsPlaying(false);
       setProgress(0);
+      audio.currentTime = 0;
     };
 
-    audio.addEventListener('loadedmetadata', setAudioData);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', setAudioTime);
     audio.addEventListener('ended', handleEnded);
 
     if (audio.readyState >= 1) {
-      setAudioData();
+      handleLoadedMetadata();
     }
 
     return () => {
-      audio.removeEventListener('loadedmetadata', setAudioData);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleEnded);
     };
