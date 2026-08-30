@@ -77,9 +77,23 @@ export function OnlineCreate() {
         Criar e ir pro Lobby 🚀
       </button>
 
-      <p className="text-muted text-center" style={{ fontSize: '0.85rem' }}>
+      <p className="text-muted text-center" style={{ fontSize: '0.85rem', marginBottom: '24px' }}>
         Apenas você terá o poder de alterar o tema e iniciar a partida.
       </p>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '16px 0' }}>
+        <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
+        <span className="text-muted" style={{ fontSize: '0.9rem' }}>ou</span>
+        <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
+      </div>
+
+      <button
+        className="btn btn-secondary"
+        style={{ width: '100%', height: '56px', fontSize: '1.1rem' }}
+        onClick={() => navigate('online-join')}
+      >
+        Entrar com código da sala →
+      </button>
     </div>
   );
 }

@@ -7,6 +7,7 @@ export function Home() {
 
   const handleSelectGame = (game: GameType) => {
     setSelectedGameType(game);
+    navigate('online-create');
   };
 
   return (
@@ -32,13 +33,7 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🎭</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>impostor</h2>
-          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>descubra quem recebeu a palavra diferente.</p>
-          {selectedGameType === GameType.IMPOSTOR && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
-              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
-              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
-            </div>
-          )}
+          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra quem recebeu a palavra diferente.</p>
         </div>
 
         {/* Jogo 2: Jogo da Testa */}
@@ -49,13 +44,7 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🗣️</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo da testa</h2>
-          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>adivinhe a palavra que está na sua testa.</p>
-          {selectedGameType === GameType.TESTA && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
-              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
-              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
-            </div>
-          )}
+          <p className="text-muted" style={{ fontSize: '1rem' }}>adivinhe a palavra que está na sua testa.</p>
         </div>
 
         {/* Jogo 3: Jogo dos Números */}
@@ -66,13 +55,7 @@ export function Home() {
         >
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🔢</div>
           <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo dos números</h2>
-          <p className="text-muted" style={{ fontSize: '1rem', flex: 1 }}>descubra os números dos outros jogadores.</p>
-          {selectedGameType === GameType.NUMBERS && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }} onClick={e => e.stopPropagation()}>
-              <button className="btn btn-primary" onClick={() => navigate('online-create')} style={{ width: '100%' }}>Criar Sala</button>
-              <button className="btn btn-secondary" onClick={() => navigate('online-join')} style={{ width: '100%' }}>Entrar com Código</button>
-            </div>
-          )}
+          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra os números dos outros jogadores.</p>
         </div>
 
       </div>
