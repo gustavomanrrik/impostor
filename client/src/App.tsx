@@ -41,7 +41,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       minHeight: '48px',
       flexShrink: 0,
     }}>
-      <div style={{ flex: 1, pointerEvents: 'auto', display: 'flex', justifyContent: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', pointerEvents: 'auto' }}>
         {roomState && (
           <button
             onClick={leaveRoom}
@@ -58,7 +58,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              color: '#fff',
+              color: 'var(--text-primary)',
               boxShadow: 'var(--shadow-sm)',
             }}
             title="Sair da Sala"
@@ -66,38 +66,28 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
             sair
           </button>
         )}
+
+        <div 
+          className="fade-in topbar-title"
+          onClick={() => {
+            if (!roomState && page !== 'home') navigate('home');
+          }}
+          style={{ 
+            fontFamily: 'var(--font-display)', 
+            fontWeight: 900, 
+            fontSize: 'clamp(1.1rem, 4vw, 1.25rem)',
+            textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
+            cursor: (!roomState && page !== 'home') ? 'pointer' : 'default',
+            pointerEvents: 'auto',
+            whiteSpace: 'nowrap',
+          }}
+          title={(!roomState && page !== 'home') ? 'Voltar ao Início' : ''}
+        >
+          joguinhos bacanudos
+        </div>
       </div>
 
-      <div 
-        className="fade-in topbar-title"
-        onClick={() => {
-          if (!roomState && page !== 'home') navigate('home');
-        }}
-        style={{ 
-          fontFamily: 'var(--font-display)', 
-          fontWeight: 900, 
-          fontSize: 'clamp(1rem, 4vw, 1.2rem)',
-          textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
-          cursor: (!roomState && page !== 'home') ? 'pointer' : 'default',
-          pointerEvents: 'auto',
-          whiteSpace: 'nowrap',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          lineHeight: 1,
-          marginTop: page === 'home' ? '4px' : '0'
-        }}
-        title={(!roomState && page !== 'home') ? 'Voltar ao Início' : ''}
-      >
-        <div>joguinhos bacanudos</div>
-        {page === 'home' && (
-          <div style={{ fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-muted)', textShadow: 'none', letterSpacing: '0.02em', marginTop: '2px' }}>
-            a melhor coleção de jogos pra jogar com a galera
-          </div>
-        )}
-      </div>
-
-      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto', flex: 1, justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto' }}>
 
         <button
           onClick={() => { setSoundEnabled(toggleSound()); }}

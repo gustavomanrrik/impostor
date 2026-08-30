@@ -14,6 +14,13 @@ export function Home() {
     <div className="page page-centered fade-in" style={{ justifyContent: 'center', width: '100%', maxWidth: '800px' }}>
 
 
+      {/* Slogan Area (Desktop Only) */}
+      <div className="hide-on-mobile" style={{ textAlign: 'center', marginBottom: '32px', marginTop: '16px' }}>
+        <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500, fontFamily: 'var(--font-display)' }}>
+          a melhor coleção de jogos pra jogar com a galera
+        </p>
+      </div>
+
       {/* Games Grid */}
       <div className="home-games-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px', width: '100%' }}>
         
