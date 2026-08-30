@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
+import { CustomAudioPlayer } from './CustomAudioPlayer';
 
 export function Chat() {
   const { chatMessages, sendChatMessage, sendChatImage, sendChatAudio, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage } = useGame();
@@ -8,6 +9,7 @@ export function Chat() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevMessagesLength = useRef(chatMessages.length);
@@ -81,7 +83,7 @@ export function Chat() {
         const reader = new FileReader();
         reader.onloadend = () => {
           if (typeof reader.result === 'string') {
-            sendChatAudio(reader.result);
+            setAudioPreviewUrl(reader.result);
           }
         };
         reader.readAsDataURL(audioBlob);
@@ -109,7 +111,7 @@ export function Chat() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         if (typeof ev.target?.result === 'string') {
-          sendChatAudio(ev.target.result);
+          setAudioPreviewUrl(ev.target.result);
         }
       };
       reader.readAsDataURL(file);
@@ -224,18 +226,7 @@ export function Chat() {
                     />
                   )}
                   {msg.audioUrl && (
-                    <audio 
-                      controls 
-                      src={msg.audioUrl} 
-                      style={{ 
-                        marginTop: msg.text ? '8px' : '0', 
-                        maxWidth: '100%', 
-                        outline: 'none',
-                        border: '2px solid var(--text-primary)',
-                        borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
-                        background: 'var(--bg-card)'
-                      }} 
-                    />
+                    <CustomAudioPlayer src={msg.audioUrl} />
                   )}
                   
                   {/* Floating Reaction Trigger */}
@@ -366,52 +357,83 @@ export function Chat() {
         </div>
 
         <form style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '16px', paddingTop: 0 }} onSubmit={handleSend}>
-          <button 
-            type="button" 
-            className="btn btn-ghost btn-sm" 
-            style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0 }}
-            onClick={() => fileInputRef.current?.click()}
-            title="Enviar imagem ou áudio"
-          >
-            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📎</span>
-          </button>
-          <button 
-            type="button" 
-            className="btn btn-ghost btn-sm" 
-            style={{ 
-              padding: '4px 8px', 
-              fontSize: '1.2rem', 
-              color: isRecording ? 'var(--bg-primary)' : 'var(--text-primary)',
-              background: isRecording ? 'var(--text-primary)' : 'transparent',
-              flexShrink: 0,
-              animation: isRecording ? 'pulse 1s infinite' : 'none'
-            }}
-            onClick={toggleRecording}
-            title={isRecording ? "Parar e enviar gravação" : "Gravar áudio"}
-          >
-            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>
-              {isRecording ? '⏹' : '🎙️'}
-            </span>
-          </button>
-          <input 
-            type="file" 
-            accept="image/*,audio/*" 
-            style={{ display: 'none' }} 
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-          />
-          <input
-            type="text"
-            className="input chat-input"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="digite algo..."
-            maxLength={200}
-            style={{ flex: 1, minWidth: '50px' }}
-          />
-          <button type="submit" className="btn btn-primary btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0 }}>
-            enviar
-          </button>
+          {audioPreviewUrl ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+              <button 
+                type="button" 
+                className="btn btn-ghost btn-sm"
+                onClick={() => setAudioPreviewUrl(null)}
+                title="Descartar áudio"
+                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--error)' }}
+              >
+                🗑️
+              </button>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <CustomAudioPlayer src={audioPreviewUrl} />
+              </div>
+              <button 
+                type="button" 
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  sendChatAudio(audioPreviewUrl);
+                  setAudioPreviewUrl(null);
+                }}
+                title="Enviar áudio"
+                style={{ padding: '4px 8px', fontSize: '1.2rem', flexShrink: 0 }}
+              >
+                ➤
+              </button>
+            </div>
+          ) : (
+            <>
+              <button 
+                type="button" 
+                className="btn btn-ghost btn-sm" 
+                style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0 }}
+                onClick={() => fileInputRef.current?.click()}
+                title="Enviar imagem ou áudio"
+              >
+                <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📎</span>
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-ghost btn-sm" 
+                style={{ 
+                  padding: '4px 8px', 
+                  fontSize: '1.2rem', 
+                  color: isRecording ? 'var(--bg-primary)' : 'var(--text-primary)',
+                  background: isRecording ? 'var(--text-primary)' : 'transparent',
+                  flexShrink: 0,
+                  animation: isRecording ? 'pulse 1s infinite' : 'none'
+                }}
+                onClick={toggleRecording}
+                title={isRecording ? "Parar e visualizar gravação" : "Gravar áudio"}
+              >
+                <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>
+                  {isRecording ? '⏹' : '🎙️'}
+                </span>
+              </button>
+              <input 
+                type="file" 
+                accept="image/*,audio/*" 
+                style={{ display: 'none' }} 
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <input
+                type="text"
+                className="input chat-input"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="digite algo..."
+                maxLength={200}
+                style={{ flex: 1, minWidth: '50px' }}
+              />
+              <button type="submit" className="btn btn-primary btn-sm chat-send-btn" disabled={!inputText.trim()} style={{ flexShrink: 0, padding: '4px 12px', fontSize: '1.2rem' }}>
+                ➤
+              </button>
+            </>
+          )}
         </form>
       </div>
 
