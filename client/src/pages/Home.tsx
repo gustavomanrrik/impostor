@@ -12,15 +12,7 @@ export function Home() {
 
   return (
     <div className="page page-centered fade-in" style={{ justifyContent: 'center', width: '100%', maxWidth: '800px' }}>
-      {/* Logo Area */}
-      <div className="hide-on-mobile" style={{ textAlign: 'center', marginBottom: '32px', marginTop: '32px' }}>
-        <h1 style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0', whiteSpace: 'nowrap' }}>
-          joguinhos bacanudos
-        </h1>
-        <p className="text-muted" style={{ fontSize: '1.1rem', fontWeight: 500 }}>
-          a melhor coleção de jogos pra jogar com a galera
-        </p>
-      </div>
+
 
       {/* Games Grid */}
       <div className="home-games-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px', width: '100%' }}>
