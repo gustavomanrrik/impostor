@@ -136,6 +136,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /* Prevent rubber-band scroll on iOS */
   overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 #root {
