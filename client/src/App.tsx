@@ -133,7 +133,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       <ToastContainer toasts={toasts} />
       {showSuspense && <SuspenseReveal />}
 
-      <div className={`app-layout ${showChat ? 'with-chat' : ''}`}>
+      <div className={`app-layout ${showChat ? 'with-chat with-bottom-nav' : ''}`}>
         <div className={`main-content ${showChat && mobileTab === 'chat' ? 'hide-on-mobile' : ''}`}>
           <ReactionsOverlay />
           <div key={page} className="page-transition" style={{ height: '100%', width: '100%' }}>
