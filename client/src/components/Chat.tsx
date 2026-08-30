@@ -195,10 +195,11 @@ export function Chat() {
                   className="chat-message-bubble" 
                   style={{ 
                     position: 'relative',
-                    ...((!msg.text && msg.imageUrl) ? {
+                    ...((!msg.text && (msg.imageUrl || msg.audioUrl)) ? {
                       background: 'transparent',
                       border: 'none',
-                      padding: '4px'
+                      boxShadow: 'none',
+                      padding: 0
                     } : {})
                   }}
                   onContextMenu={(e) => {
@@ -242,8 +243,8 @@ export function Chat() {
                     className="chat-reaction-trigger"
                     style={{ 
                       position: 'absolute', 
-                      right: '-14px', 
-                      bottom: '-10px', 
+                      right: '-8px', 
+                      bottom: '-8px', 
                       cursor: 'pointer', 
                       background: 'var(--bg-primary)', 
                       border: '2px solid var(--text-primary)', 
@@ -256,8 +257,8 @@ export function Chat() {
                       fontSize: '0.8rem',
                       boxShadow: '2px 2px 0 rgba(0,0,0,1)',
                       zIndex: 5,
-                      opacity: 0.8,
-                      transition: 'transform 0.1s, opacity 0.1s'
+                      opacity: 1,
+                      transition: 'transform 0.1s'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.opacity = '1';
