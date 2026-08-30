@@ -14,9 +14,9 @@ export function Home() {
         const y = (Math.random() * 8 - 4).toFixed(1);
         const r = (Math.random() * 4 - 2).toFixed(1);
         titleRef.current.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
-        titleRef.current.style.transition = 'transform 0.8s ease-in-out';
+        titleRef.current.style.transition = 'transform 0.8s linear';
       }
-    }, 800);
+    }, 750);
 
     return () => clearInterval(interval);
   }, []);
