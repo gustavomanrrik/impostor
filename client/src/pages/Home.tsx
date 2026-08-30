@@ -65,8 +65,15 @@ export function Home() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
         <button
           className="btn btn-secondary"
+          onClick={() => navigate('public-rooms')}
+          style={{ padding: '12px 24px', fontSize: '1.1rem', width: '280px' }}
+        >
+          🌐 buscar salas públicas
+        </button>
+        <button
+          className="btn btn-secondary"
           onClick={() => navigate('online-join')}
-          style={{ padding: '12px 24px', fontSize: '1.1rem' }}
+          style={{ padding: '12px 24px', fontSize: '1.1rem', width: '280px' }}
           id="btn-join-room"
         >
           entrar com código da sala →

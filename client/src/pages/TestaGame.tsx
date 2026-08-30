@@ -38,8 +38,30 @@ export function TestaGame() {
     }
   };
 
+  const noteModalContent = isNoteExpanded && (
+    <div 
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} 
+      onClick={() => setIsNoteExpanded(false)}
+    >
+      <div className="card fade-in" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', background: 'var(--bg-primary)' }}>
+        <h3 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>📝 Nota Pessoal (Só você vê)</span>
+          <button onClick={() => setIsNoteExpanded(false)} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px' }}>❌</button>
+        </h3>
+        <textarea
+          className="input"
+          value={personalNotes}
+          onChange={(e) => setPersonalNotes(e.target.value)}
+          placeholder="Ex: Fulano é tal personagem..."
+          style={{ width: '100%', minHeight: '150px', resize: 'none', padding: '12px' }}
+        />
+      </div>
+    </div>
+  );
+
   if (roomState.state === GameState.IN_GAME) {
     return (
+      <>
       <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
@@ -289,12 +311,15 @@ export function TestaGame() {
           </div>
         </div>
       </div>
+      {noteModalContent}
+      </>
     );
   }
 
   // ─── RESULT PHASE ───────────────────────
   if (roomState.state === GameState.RESULT) {
     return (
+      <>
       <div className="page fade-in text-center">
         <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
           {roomState.abortedDueToDisconnect ? 'Jogo Cancelado!' : 'Fim de Rodada!'}
@@ -358,27 +383,10 @@ export function TestaGame() {
           </button>
         )}
       </div>
+      {noteModalContent}
+      </>
+    );
+  }
 
-      {isNoteExpanded && (
-        <div 
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} 
-          onClick={() => setIsNoteExpanded(false)}
-        >
-          <div className="card fade-in" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', background: 'var(--bg-primary)' }}>
-            <h3 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>📝 Nota Pessoal (Só você vê)</span>
-              <button onClick={() => setIsNoteExpanded(false)} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px' }}>❌</button>
-            </h3>
-            <textarea
-              className="input"
-              value={personalNotes}
-              onChange={(e) => setPersonalNotes(e.target.value)}
-              placeholder="Ex: Fulano é tal personagem..."
-              style={{ width: '100%', minHeight: '150px', resize: 'none', padding: '12px' }}
-            />
-          </div>
-        </div>
-      )}
-    </>
-  );
+  return null;
 }

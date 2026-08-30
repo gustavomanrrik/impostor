@@ -2,7 +2,7 @@
 // IMPOSTOR GAME — GameManager (Gerenciador de Salas)
 // ============================================
 import { Room } from './Room';
-import { RoomConfig } from '../../../shared/types';
+import { RoomConfig, PublicRoomInfo } from '../../../shared/types';
 
 export class GameManager {
   private rooms: Map<string, Room> = new Map();
@@ -52,6 +52,26 @@ export class GameManager {
       players: room.playerCount,
       state: room.state,
     }));
+  }
+
+  /**
+   * Retorna as informações das salas públicas.
+   */
+  getPublicRooms(): PublicRoomInfo[] {
+    const publicRooms: PublicRoomInfo[] = [];
+    for (const [code, room] of this.rooms) {
+      if (room.config.isPublic && room.playerCount > 0) {
+        publicRooms.push({
+          code,
+          hostName: room.players.get(room.hostId)?.name || 'Desconhecido',
+          playerCount: room.playerCount,
+          maxPlayers: 20, // max genérico
+          gameType: room.config.gameType,
+          hasPassword: !!room.config.password
+        });
+      }
+    }
+    return publicRooms;
   }
 
   /**

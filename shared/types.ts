@@ -106,6 +106,20 @@ export interface RoomConfig {
   numbersMode?: 'points' | 'survival';
 
   impostorNoWord?: boolean;
+
+  // Visibility and Access
+  isPublic?: boolean;
+  password?: string;
+}
+
+// Informações resumidas de uma sala pública
+export interface PublicRoomInfo {
+  code: string;
+  hostName: string;
+  playerCount: number;
+  maxPlayers: number;
+  gameType: GameType;
+  hasPassword: boolean;
 }
 
 // Grupo de pares por dificuldade
@@ -235,7 +249,8 @@ export interface GameHistoryEntry {
 export interface ClientToServerEvents {
   // Lobby
   'room:create': (data: { playerName: string; avatar: string; config: RoomConfig; customTheme?: CustomTheme }) => void;
-  'room:join': (data: { playerName: string; avatar: string; roomCode: string }) => void;
+  'room:join': (data: { playerName: string; avatar: string; roomCode: string; password?: string }) => void;
+  'room:listPublic': () => void;
   'room:leave': () => void;
   'room:updateConfig': (config: Partial<RoomConfig>) => void;
   'room:kick': (playerId: string) => void;
@@ -286,6 +301,7 @@ export interface ServerToClientEvents {
   'room:playerReconnected': (playerId: string) => void;
   'room:hostChanged': (newHostId: string) => void;
   'room:closed': () => void;
+  'room:publicList': (rooms: PublicRoomInfo[]) => void;
 
   // Chat
   'chat:newMessage': (message: ChatMessage) => void;

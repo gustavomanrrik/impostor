@@ -14,6 +14,8 @@ export function OnlineCreate() {
   
   const [playerName, setPlayerName] = useState(getSavedPlayerName());
   const [avatar, setAvatar] = useState(getSavedAvatar() || getRandomAvatar());
+  const [isPublic, setIsPublic] = useState(true);
+  const [password, setPassword] = useState('');
   
   const handleCreate = () => {
     if (!playerName.trim()) return;
@@ -29,6 +31,8 @@ export function OnlineCreate() {
       showImpostorCount: true,
       soundEnabled: true,
       useFlatMode: false,
+      isPublic,
+      password: isPublic ? undefined : password,
     };
 
     savePlayerName(playerName.trim());
@@ -48,7 +52,7 @@ export function OnlineCreate() {
       </div>
 
       {/* Name and Avatar */}
-      <div className="card" style={{ marginBottom: '24px' }}>
+      <div className="card" style={{ marginBottom: '16px' }}>
         <div className="input-group">
           <label className="input-label">Seu Nome e Avatar</label>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -65,6 +69,43 @@ export function OnlineCreate() {
               style={{ flex: 1, height: '48px' }}
             />
           </div>
+        </div>
+      </div>
+
+      {/* Privacidade */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div className="input-group">
+          <label className="input-label">Privacidade da Sala</label>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <button 
+              className={`btn ${isPublic ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ flex: 1, fontSize: '1rem', padding: '8px' }}
+              onClick={() => setIsPublic(true)}
+            >
+              🌐 Pública
+            </button>
+            <button 
+              className={`btn ${!isPublic ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ flex: 1, fontSize: '1rem', padding: '8px' }}
+              onClick={() => setIsPublic(false)}
+            >
+              🔒 Privada
+            </button>
+          </div>
+          
+          {!isPublic && (
+            <div className="fade-in">
+              <input
+                className="input"
+                type="text"
+                placeholder="Senha (Opcional)"
+                value={password}
+                onChange={e => setPassword(e.target.value.trim())}
+                maxLength={10}
+                style={{ width: '100%', height: '40px' }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

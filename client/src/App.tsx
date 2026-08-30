@@ -10,6 +10,7 @@ import { LocalGame } from './pages/LocalGame';
 import { HowToPlay } from './pages/HowToPlay';
 import { Settings } from './pages/Settings';
 import { History } from './pages/History';
+import { PublicRooms } from './pages/PublicRooms';
 import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
@@ -30,6 +31,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       top: 0,
       zIndex: 50,
       display: 'flex',
+      flexWrap: 'wrap',
       justifyContent: 'space-between',
       alignItems: 'center',
       gap: '8px',
@@ -39,30 +41,29 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       minHeight: '48px',
       flexShrink: 0,
     }}>
-      <div style={{ flex: 1, pointerEvents: 'none' }} />
+      <div style={{ flex: 1, pointerEvents: 'none' }} className="hide-on-mobile" />
       {page !== 'home' ? (
         <div 
-          className="fade-in hide-on-mobile"
+          className="fade-in topbar-title"
           onClick={() => {
             if (!roomState) navigate('home');
           }}
           style={{ 
             fontFamily: 'var(--font-display)', 
             fontWeight: 900, 
-            fontSize: '1.2rem',
+            fontSize: 'clamp(1rem, 4vw, 1.2rem)',
             textShadow: '2px 2px 0px rgba(0,0,0,0.2)',
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)'
+            flex: '1 1 auto',
+            textAlign: 'center',
           }}
           title={roomState ? '' : 'Voltar ao Início'}
         >
           joguinhos bacanudos
         </div>
-      ) : null}
+      ) : <div style={{ flex: 1, pointerEvents: 'none' }} />}
 
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0, pointerEvents: 'auto' }}>
         {roomState && (
@@ -147,6 +148,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
             {page === 'home' && <Home />}
             {page === 'online-create' && <OnlineCreate />}
             {page === 'online-join' && <OnlineJoin />}
+            {page === 'public-rooms' && <PublicRooms />}
             {page === 'lobby' && <Lobby />}
             {page === 'game' && <Game />}
             {page === 'local-setup' && <LocalSetup />}

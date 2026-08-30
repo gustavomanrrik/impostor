@@ -8,7 +8,7 @@ import {
   addPlayedGroup, addHistoryEntry, savePlayerName,
 } from '../services/localStorage';
 import { playJoinSound, playStartSound, playVotingStartedSound, playSuspenseSound, playWinSound, playLoseSound, playVoteSound, playErrorSound, playSuccessSound } from '../services/sounds';
-import type { RoomPublicState, GameResult, ThemeListItem, GameHistoryEntry, ChatMessage } from '@shared/types';
+import type { RoomPublicState, GameResult, ThemeListItem, GameHistoryEntry, ChatMessage, PublicRoomInfo } from '@shared/types';
 import { GameType, GameState } from '@shared/types';
 
 // ─── Types ───────────────────────
@@ -16,6 +16,7 @@ export type Page =
   | 'home'
   | 'online-create'
   | 'online-join'
+  | 'public-rooms'
   | 'lobby'
   | 'game'
   | 'local-setup'
@@ -46,10 +47,11 @@ interface GameContextType {
   gameResult: GameResult | null;
   isConnected: boolean;
   themes: ThemeListItem[];
+  publicRooms: PublicRoomInfo[];
 
   // Actions
   createRoom: (playerName: string, avatar: string, config: any, customTheme?: any) => void;
-  joinRoom: (playerName: string, avatar: string, roomCode: string) => void;
+  joinRoom: (playerName: string, avatar: string, roomCode: string, password?: string) => void;
   leaveRoom: () => void;
   kickPlayer: (playerId: string) => void;
   updateConfig: (updates: any) => void;
@@ -69,6 +71,7 @@ interface GameContextType {
   giveUpTesta: () => void;
   guessNumber: (targetId: string, guess: number) => Promise<boolean>;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
+  fetchPublicRooms: () => void;
   
   // Chat
   chatMessages: ChatMessage[];
@@ -164,6 +167,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [mobileTab, setMobileTab] = useState<'me' | 'others' | 'chat'>('me');
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const [mutedPlayers, setMutedPlayers] = useState<string[]>([]);
+  const [publicRooms, setPublicRooms] = useState<PublicRoomInfo[]>([]);
   const hasSetupListeners = useRef(false);
   const ignoreReconnections = useRef(false);
 
@@ -201,7 +205,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       .then(r => r.json())
       .then(setThemes)
       .catch(() => {
-        // Fallback themes
         setThemes([
           { id: 'relacionamentos', name: 'Relacionamentos', icon: '💕', groupCount: 25 },
           { id: 'comida', name: 'Comida e Bebida', icon: '🍕', groupCount: 30 },
@@ -234,7 +237,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('connect', () => {
       setIsConnected(true);
-      // Try reconnection
       const data = getReconnectionData();
       if (data) {
         socket.emit('room:reconnect', data);
@@ -246,7 +248,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on('error', (data) => {
-      addToast('error', data.message);
+      console.error('Socket error:', data);
+      
+      if (data.code === 'INVALID_PASSWORD') {
+        addToast('error', 'Senha incorreta!');
+        return;
+      }
+
       if (data.code === 'KICKED' || data.code === 'ROOM_NOT_FOUND' || data.code === 'RECONNECT_FAILED') {
         clearReconnectionData();
         setRoomState(null);
@@ -328,7 +336,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => {
         setShowSuspense(false);
         setGameResult(result);
-        // Save to history
         const historyEntry: GameHistoryEntry = {
           id: Date.now().toString(),
           date: new Date().toISOString(),
@@ -385,7 +392,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('game:reactionReceived', (data) => {
       const reactionId = Math.random().toString(36).substring(2, 9);
-      const randomTop = Math.random() * 40 + 20; // fixed initial top position
+      const randomTop = Math.random() * 40 + 20;
       setActiveReactions(prev => [...prev, { id: reactionId, playerId: data.playerId, reaction: data.reaction, top: randomTop }]);
       setTimeout(() => {
         setActiveReactions(prev => prev.filter(r => r.id !== reactionId));
@@ -426,7 +433,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           if (!newReactions[reaction].includes(reactionPlayerId)) {
             newReactions[reaction] = [...newReactions[reaction], reactionPlayerId];
           } else {
-            // toggle reaction off
             newReactions[reaction] = newReactions[reaction].filter(id => id !== reactionPlayerId);
             if (newReactions[reaction].length === 0) {
               delete newReactions[reaction];
@@ -438,10 +444,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }));
     });
 
+    socket.on('room:publicList', (rooms) => {
+      setPublicRooms(rooms);
+    });
+
     return () => {
       // Don't remove listeners on cleanup since we use ref guard
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); 
 
   // ─── Actions ───────────────────────
   const createRoom = useCallback((playerName: string, avatar: string, config: any, customTheme?: any) => {
@@ -451,16 +461,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     savePlayerName(playerName);
     const socket = getSocket();
     socket.emit('room:create', { playerName, avatar, config, customTheme });
+  }, [navigate]);
+
+  const fetchPublicRooms = useCallback(() => {
+    const socket = getSocket();
+    if (!socket) connectSocket();
+    getSocket()?.emit('room:listPublic');
   }, []);
 
-  const joinRoom = useCallback((playerName: string, avatar: string, roomCode: string) => {
+  const joinRoom = useCallback((playerName: string, avatar: string, roomCode: string, password?: string) => {
     ignoreReconnections.current = true;
     clearReconnectionData();
     connectSocket();
     savePlayerName(playerName);
     const socket = getSocket();
-    socket.emit('room:join', { playerName, avatar, roomCode });
-  }, []);
+    setPlayerId(null);
+    setRoomState(null);
+    socket.emit('room:join', { playerName, avatar, roomCode, password });
+  }, [navigate]);
 
   const leaveRoom = useCallback(() => {
     getSocket().emit('room:leave');
@@ -615,6 +633,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     localState, setLocalState,
     toasts, addToast, showSuspense,
     customThemeWords, addCustomWord, removeCustomWord,
+    publicRooms, fetchPublicRooms,
   };
 
   return (

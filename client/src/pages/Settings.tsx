@@ -16,10 +16,10 @@ export function Settings() {
   const [avatar, setAvatar] = React.useState(getSavedAvatar() || getRandomAvatar());
 
   return (
-    <div className="page" style={{ paddingTop: '32px' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-          <button className="btn btn-ghost" onClick={() => navigate('home')} aria-label="Voltar" style={{ padding: '4px 12px' }}>
+    <div className="page" style={{ paddingTop: '48px', paddingBottom: '32px' }}>
+      <div style={{ maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+          <button className="btn btn-ghost" onClick={() => navigate('home')} aria-label="Voltar" style={{ padding: '8px 16px', marginLeft: '-8px' }}>
             ← Voltar
           </button>
         </div>

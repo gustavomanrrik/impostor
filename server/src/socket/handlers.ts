@@ -601,6 +601,17 @@ export function registerSocketHandlers(
       }
     });
 
+    // ─── LISTAR SALAS PÚBLICAS ─────────────────────────
+
+    socket.on('room:listPublic', () => {
+      try {
+        const rooms = gameManager.getPublicRooms();
+        socket.emit('room:publicList', rooms);
+      } catch (err: any) {
+        console.error(err);
+      }
+    });
+
     // ─── VOLTAR AO LOBBY (MUDAR TEMA) ─────────────────────────
 
     socket.on('game:changeTheme', () => {
@@ -617,7 +628,6 @@ export function registerSocketHandlers(
     });
 
     // ─── RECONEXÃO ─────────────────────────
-
     socket.on('room:reconnect', (data) => {
       const { roomCode, playerId } = data;
       const room = gameManager.getRoom(roomCode);
