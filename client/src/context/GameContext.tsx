@@ -174,7 +174,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   // ─── Toast ───────────────────────
   const addToast = useCallback((type: ToastItem['type'], message: string) => {
     const id = Date.now().toString() + Math.random();
-    setToasts(prev => [...prev, { id, type, message }]);
+    setToasts(prev => {
+      const existing = prev.find(t => t.message === message && t.type === type);
+      if (existing) {
+        // If it already exists, replace its ID so it remounts and replays the animation
+        return prev.map(t => t.id === existing.id ? { id, type, message } : t);
+      }
+      return [...prev, { id, type, message }];
+    });
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);

@@ -28,38 +28,39 @@ export function Home() {
         <div 
           className="card card-interactive home-game-card" 
           onClick={() => handleSelectGame(GameType.IMPOSTOR)}
-          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px', flex: '1 1 200px', maxWidth: '320px' }}
         >
-          <div className="home-game-icon" style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🎭</div>
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>impostor</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra quem recebeu a palavra diferente.</p>
+          <div className="home-game-header">
+            <div className="home-game-icon">🎭</div>
+            <h2>impostor</h2>
+          </div>
+          <p className="text-muted">descubra quem recebeu a palavra diferente.</p>
         </div>
 
         {/* Jogo 2: Jogo da Testa */}
         <div 
           className="card card-interactive home-game-card" 
           onClick={() => handleSelectGame(GameType.TESTA)}
-          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px', flex: '1 1 200px', maxWidth: '320px' }}
         >
-          <div className="home-game-icon" style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🗣️</div>
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo da testa</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>adivinhe a palavra que está na sua testa.</p>
+          <div className="home-game-header">
+            <div className="home-game-icon">🗣️</div>
+            <h2>jogo da testa</h2>
+          </div>
+          <p className="text-muted">adivinhe a palavra que está na sua testa.</p>
         </div>
 
         {/* Jogo 3: Jogo dos Números */}
         <div 
           className="card card-interactive home-game-card" 
           onClick={() => handleSelectGame(GameType.NUMBERS)}
-          style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px', flex: '1 1 200px', maxWidth: '320px' }}
         >
-          <div className="home-game-icon" style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🔢</div>
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>jogo dos números</h2>
-          <p className="text-muted" style={{ fontSize: '1rem' }}>descubra os números dos outros jogadores.</p>
+          <div className="home-game-header">
+            <div className="home-game-icon">🔢</div>
+            <h2>jogo dos números</h2>
+          </div>
+          <p className="text-muted">descubra os números dos outros jogadores.</p>
         </div>
 
       </div>
-
-      <div style={{ margin: '32px 0', width: '100%', height: '1px', background: 'var(--glass-border)' }}></div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
         <button

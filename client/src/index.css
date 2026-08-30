@@ -2004,10 +2004,49 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   .home-game-card {
     padding: 16px !important;
   }
-  .home-game-icon {
-    font-size: 2.5rem !important;
+  .home-game-header {
+    flex-direction: row !important;
+    gap: 16px !important;
     margin-bottom: 8px !important;
   }
+  .home-game-icon {
+    font-size: 2.5rem !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+.home-game-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+
+.home-game-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.home-game-header h2 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.home-game-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.home-game-card p {
+  font-size: 1rem;
+  margin: 0;
 }
 .mobile-only-flex {
   display: none !important;
