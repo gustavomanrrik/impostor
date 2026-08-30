@@ -263,7 +263,7 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   width: 100%;
   padding: 0;
   border-top: 3px solid var(--glass-border);
-  max-height: 250px;
+  max-height: 180px; /* Reduzido drasticamente para mobile */
   transition: max-height 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
 }
@@ -1461,7 +1461,7 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 250px;
+  max-height: 180px; /* Reduzido drasticamente para mobile */
   overflow: hidden;
   padding: 0;
   border-radius: var(--radius-md);
