@@ -83,7 +83,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
           }}
           title={(!roomState && page !== 'home') ? 'Voltar ao Início' : ''}
         >
-          joguinhos bacanudos
+          mfp games
         </div>
       </div>
 
