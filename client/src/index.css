@@ -137,6 +137,16 @@ body {
   /* Prevent rubber-band scroll on iOS */
   overscroll-behavior: none;
   touch-action: manipulation;
+  
+  /* Disable text selection everywhere */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in inputs and textareas so typing/editing still works */
+input, textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
 }
 
 #root {
