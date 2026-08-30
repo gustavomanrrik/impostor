@@ -42,6 +42,7 @@ export interface ChatMessage {
   playerName: string;
   text: string;
   imageUrl?: string;
+  audioUrl?: string;
   timestamp: number;
   reactions?: Record<string, string[]>; // emoji/text -> array of playerIds
 }
@@ -243,6 +244,7 @@ export interface ClientToServerEvents {
   // Chat
   'chat:sendMessage': (message: string) => void;
   'chat:sendImage': (imageUrl: string) => void;
+  'chat:sendAudio': (audioUrl: string) => void;
   'chat:react': (messageId: string, reaction: string) => void;
 
   // Game

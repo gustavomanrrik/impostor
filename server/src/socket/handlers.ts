@@ -458,6 +458,32 @@ export function registerSocketHandlers(
       io.to(room.code).emit('chat:newMessage', message);
     });
 
+    socket.on('chat:sendAudio', (audioUrl: string) => {
+      const room = findRoomBySocket(socket);
+      // Let's accept data:audio/ for audio attachments/recordings
+      if (!room || !audioUrl || !audioUrl.startsWith('data:audio/')) return;
+
+      // Limit payload size (audio can be larger, let's say 2MB base64 ~ 2.6MB string length)
+      if (audioUrl.length > 2800000) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+      
+      const player = room.getPublicState().players.find(p => p.id === playerId);
+      if (!player) return;
+
+      const message = {
+        id: Math.random().toString(36).substring(2, 9),
+        playerId,
+        playerName: player.name,
+        text: '',
+        audioUrl: audioUrl,
+        timestamp: Date.now(),
+      };
+
+      io.to(room.code).emit('chat:newMessage', message);
+    });
+
     // ─── VOTAR ─────────────────────────
 
     socket.on('game:vote', (votedForId) => {

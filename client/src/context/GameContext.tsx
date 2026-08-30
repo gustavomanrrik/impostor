@@ -76,6 +76,7 @@ interface GameContextType {
   sendWhisper: (targetId: string, text: string) => void;
   activeWhispers: { senderId: string; text: string; timestamp: number }[];
   sendChatImage: (imageUrl: string) => void;
+  sendChatAudio: (audioUrl: string) => void;
   reactToChatMessage: (messageId: string, reaction: string) => void;
   isChatMinimized: boolean;
   setIsChatMinimized: (minimized: boolean) => void;
@@ -589,6 +590,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('chat:sendImage', imageUrl);
   }, []);
 
+  const sendChatAudio = useCallback((audioUrl: string) => {
+    getSocket().emit('chat:sendAudio', audioUrl);
+  }, []);
+
   const reactToChatMessage = useCallback((messageId: string, reaction: string) => {
     getSocket().emit('chat:react', messageId, reaction);
   }, []);
@@ -600,7 +605,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
     sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions,
-    chatMessages, sendChatMessage, sendChatImage, reactToChatMessage,
+    chatMessages, sendChatMessage, sendChatImage, sendChatAudio, reactToChatMessage,
     isChatMinimized, setIsChatMinimized,
     mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,
     mutedPlayers, toggleMutePlayer: (id: string) => {

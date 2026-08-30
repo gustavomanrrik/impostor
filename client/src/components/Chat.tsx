@@ -3,13 +3,16 @@ import { useGame } from '../context/GameContext';
 import { AvatarDisplay } from './AvatarDisplay';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, sendChatImage, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage } = useGame();
+  const { chatMessages, sendChatMessage, sendChatImage, sendChatAudio, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage } = useGame();
   const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const prevMessagesLength = useRef(chatMessages.length);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,43 +55,94 @@ export function Chat() {
     setIsMinimized(!isMinimized);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const toggleRecording = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+      }
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            sendChatAudio(reader.result);
+          }
+        };
+        reader.readAsDataURL(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      addToast('error', 'Erro ao acessar o microfone.');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      addToast('error', 'Imagem muito grande (máx 5MB)');
+      addToast('error', 'Arquivo muito grande (máx 5MB)');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const maxDim = 800;
-
-        if (width > height && width > maxDim) {
-          height *= maxDim / width;
-          width = maxDim;
-        } else if (height > maxDim) {
-          width *= maxDim / height;
-          height = maxDim;
+    if (file.type.startsWith('audio/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (typeof ev.target?.result === 'string') {
+          sendChatAudio(ev.target.result);
         }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-        
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        sendChatImage(compressedBase64);
       };
-      img.src = ev.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          sendChatImage(compressedBase64);
+        };
+        img.src = ev.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -166,6 +220,20 @@ export function Chat() {
                         display: 'block'
                       }} 
                       onClick={() => setSelectedImage(msg.imageUrl || null)}
+                    />
+                  )}
+                  {msg.audioUrl && (
+                    <audio 
+                      controls 
+                      src={msg.audioUrl} 
+                      style={{ 
+                        marginTop: msg.text ? '8px' : '0', 
+                        maxWidth: '100%', 
+                        outline: 'none',
+                        border: '2px solid var(--text-primary)',
+                        borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
+                        background: 'var(--bg-card)'
+                      }} 
                     />
                   )}
                   
@@ -302,16 +370,34 @@ export function Chat() {
             className="btn btn-ghost btn-sm" 
             style={{ padding: '4px 8px', fontSize: '1.2rem', color: 'var(--text-primary)', flexShrink: 0 }}
             onClick={() => fileInputRef.current?.click()}
-            title="Enviar imagem"
+            title="Enviar imagem ou áudio"
           >
-            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📷</span>
+            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>📎</span>
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-ghost btn-sm" 
+            style={{ 
+              padding: '4px 8px', 
+              fontSize: '1.2rem', 
+              color: isRecording ? 'var(--bg-primary)' : 'var(--text-primary)',
+              background: isRecording ? 'var(--text-primary)' : 'transparent',
+              flexShrink: 0,
+              animation: isRecording ? 'pulse 1s infinite' : 'none'
+            }}
+            onClick={toggleRecording}
+            title={isRecording ? "Parar e enviar gravação" : "Gravar áudio"}
+          >
+            <span style={{ display: 'inline-block', transform: 'translateY(-2px)' }}>
+              {isRecording ? '⏹' : '🎙️'}
+            </span>
           </button>
           <input 
             type="file" 
-            accept="image/*" 
+            accept="image/*,audio/*" 
             style={{ display: 'none' }} 
             ref={fileInputRef}
-            onChange={handleImageUpload}
+            onChange={handleFileUpload}
           />
           <input
             type="text"
