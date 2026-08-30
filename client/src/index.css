@@ -1775,3 +1775,11 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   flex: 1;
 }
 /* Overriding the mobile-tabs since they are removed from JSX, we just ensure they don't break anything if left in */
+@keyframes logoDropIn {
+  0% { transform: translate(-50%, -150%); opacity: 0; }
+  60% { transform: translate(-50%, -40%); opacity: 1; }
+  100% { transform: translate(-50%, -50%); opacity: 1; }
+}
+.logo-drop-in {
+  animation: logoDropIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}

@@ -41,17 +41,19 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
     }}>
       {page !== 'home' ? (
         <div
-          className="fade-in hide-on-mobile"
+          key={page}
+          className="logo-drop-in hide-on-mobile"
           onClick={() => { if (!roomState) navigate('home'); }}
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
             fontFamily: 'var(--font-display)',
             fontWeight: 800,
-            fontSize: '1.2rem',
+            fontSize: '1.4rem',
             cursor: roomState ? 'default' : 'pointer',
             pointerEvents: 'auto',
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
           }}
           title={roomState ? '' : 'Voltar ao Início'}
         >
