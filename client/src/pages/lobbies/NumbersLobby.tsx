@@ -75,14 +75,14 @@ export function NumbersLobby() {
               {roomState.players.map(player => (
                 <div key={player.id} className="player-item">
                   <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
-                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                     <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
                       {player.name}
-                      {player.isWinner && <span title="Vencedor da rodada anterior" style={{ marginLeft: '4px' }}>👑</span>}
-                      <span className="text-muted" style={{ marginLeft: '8px', fontSize: '0.8rem' }}>{player.score} pts</span>
                       {player.id === playerId && ' (você)'}
                     </span>
+                    {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
+                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0 }}>{player.score} pts</span>
                   </span>
                   {player.isHost && <span className="player-badge">HOST</span>}
                   {isHost && player.id !== playerId && (
