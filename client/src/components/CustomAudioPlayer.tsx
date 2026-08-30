@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface CustomAudioPlayerProps {
   src: string;
+  autoPlay?: boolean;
 }
 
-export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
+export function CustomAudioPlayer({ src, autoPlay }: CustomAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -43,6 +44,10 @@ export function CustomAudioPlayer({ src }: CustomAudioPlayerProps) {
 
     if (audio.readyState >= 1) {
       handleLoadedMetadata();
+    }
+
+    if (autoPlay) {
+      audio.play().then(() => setIsPlaying(true)).catch(e => console.error("Error auto-playing", e));
     }
 
     return () => {

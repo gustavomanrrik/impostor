@@ -11,6 +11,7 @@ export function NumbersGame() {
   const [guesses, setGuesses] = useState<Record<string, string>>({});
   const [damagedPlayers, setDamagedPlayers] = useState<Record<string, boolean>>({});
   const [personalNotes, setPersonalNotes] = useState('');
+  const [isNoteExpanded, setIsNoteExpanded] = useState(false);
 
   // Reset local state whenever a new round/game starts
   useEffect(() => {
@@ -59,7 +60,7 @@ export function NumbersGame() {
 
 
         {/* TOP SECTION: My Card (Left) and Notes (Right) */}
-        <div className={`responsive-row ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ flexShrink: 0, minHeight: 0 }}>
+        <div className="responsive-row" style={{ flexShrink: 0, minHeight: 0 }}>
           
           {/* LEFT: Seu Número */}
           <div className="responsive-col-left card text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
@@ -108,22 +109,31 @@ export function NumbersGame() {
           </div>
 
           {/* RIGHT: Nota Pessoal */}
-          <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '150px' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>📝</span> Nota Pessoal (Só você vê)
-            </h3>
-            <textarea
-              className="input"
-              value={personalNotes}
-              onChange={(e) => setPersonalNotes(e.target.value)}
-              placeholder="Ex: Fulano é menor que 50..."
-              style={{ width: '100%', flex: 1, resize: 'none', padding: '12px' }}
-            />
+          <div className="personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', margin: 0, minHeight: isNoteExpanded ? '150px' : 'auto' }}>
+            {!isNoteExpanded ? (
+              <button className="btn btn-ghost fade-in" onClick={() => setIsNoteExpanded(true)} style={{ width: '100%', border: '4px dashed var(--text-primary)', height: '100%', minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                📝 Abrir Nota Pessoal
+              </button>
+            ) : (
+              <div className="card fade-in" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
+                <h3 onClick={() => setIsNoteExpanded(false)} style={{ fontSize: '1rem', cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📝 Nota Pessoal (Só você vê)</span>
+                  <span>▼</span>
+                </h3>
+                <textarea
+                  className="input"
+                  value={personalNotes}
+                  onChange={(e) => setPersonalNotes(e.target.value)}
+                  placeholder="Ex: Fulano é menor que 50..."
+                  style={{ width: '100%', flex: 1, resize: 'none', padding: '12px', marginTop: '12px' }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
         {/* BOTTOM SECTION: Outros Jogadores */}
-        <div className={`card ${mobileTab !== 'others' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '16px 0 0 0' }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '16px 0 0 0' }}>
           <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
             Outros Jogadores
           </h3>
@@ -132,24 +142,65 @@ export function NumbersGame() {
               <div key={p.id} className="card" style={{ 
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
                 opacity: !p.isConnected ? 0.5 : 1,
-                border: p.hasBeenDiscovered ? '2px solid #ccc' : '2px solid var(--text-primary)',
+                border: '2px solid var(--text-primary)',
                 background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-                padding: '16px',
-                margin: 0,
                 position: 'relative',
-                flex: '1 1 150px',
-                maxWidth: '220px'
+                padding: '16px 12px 24px 12px',
+                margin: 0,
+                flex: '1 1 140px',
+                maxWidth: '180px'
               }}>
-                <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
                   <KickPlayerButton playerId={p.id} playerName={p.name} />
                 </div>
                 
-                <AvatarDisplay avatar={p.avatar} size="4.5rem" />
+                <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <AvatarDisplay avatar={p.avatar} size="5rem" />
+                  
+                  <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
+                    position: 'relative',
+                    background: p.hasBeenDiscovered ? '#e0e0e0' : '#fff9c4', 
+                    color: p.hasBeenDiscovered ? '#888' : '#000', 
+                    border: '2px solid #000',
+                    padding: '2px 8px', 
+                    textAlign: 'center',
+                    boxShadow: '2px 2px 0 rgba(0,0,0,0.2)', 
+                    width: '120px',
+                    minHeight: '24px',
+                    marginTop: '-12px',
+                    zIndex: 2,
+                    transform: 'rotate(2deg)'
+                  }}>
+                    {p.hasBeenDiscovered ? (
+                      <div style={{ fontWeight: 900, fontSize: '1.2rem', padding: '0px' }}>{p.numberValue}</div>
+                    ) : (
+                      <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0, justifyContent: 'center' }}>
+                        <input
+                          type="number"
+                          className="input"
+                          value={guesses[p.id] || ''}
+                          onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
+                          style={{ width: '40px', padding: '2px', textAlign: 'center', fontSize: '0.9rem', border: '2px solid #000', margin: 0 }}
+                          min={roomState.config.numbersMin || 1}
+                          max={roomState.config.numbersMax || 100}
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '0.75rem', margin: 0 }}>Enviar</button>
+                      </form>
+                    )}
+                    {damagedPlayers[p.id] && (
+                      <span style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        color: 'red', fontSize: '2.5rem', fontWeight: 'bold', textShadow: '2px 2px 0 #fff'
+                      }}>❌</span>
+                    )}
+                  </div>
+                </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
                   <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', textAlign: 'center' }}>
                     {p.name}
                   </p>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>🏆 {p.score} pts</span>
                   
                   {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 && !p.hasBeenDiscovered && (
                     <div style={{ display: 'flex', gap: '2px', marginTop: '4px' }}>
@@ -171,43 +222,6 @@ export function NumbersGame() {
                     }}>
                       ☠️ Morte Súbita!
                     </div>
-                  )}
-                </div>
-
-                <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
-                  position: 'relative',
-                  marginTop: '8px',
-                  background: p.hasBeenDiscovered ? '#e0e0e0' : '#fff9c4', 
-                  color: p.hasBeenDiscovered ? '#888' : '#000', 
-                  border: '2px solid #000',
-                  padding: '8px', 
-                  textAlign: 'center',
-                  boxShadow: '2px 2px 0 rgba(0,0,0,0.2)', 
-                  width: '100%',
-                  transform: 'rotate(-2deg)',
-                  borderRadius: '2px 12px 2px 12px'
-                }}>
-                  {p.hasBeenDiscovered ? (
-                    <div style={{ fontWeight: 900, fontSize: '1.8rem', padding: '4px' }}>{p.numberValue}</div>
-                  ) : (
-                    <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0, justifyContent: 'center' }}>
-                      <input
-                        type="number"
-                        className="input"
-                        value={guesses[p.id] || ''}
-                        onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
-                        style={{ width: '60px', padding: '4px', textAlign: 'center', fontSize: '1.1rem', border: '2px solid #000', margin: 0 }}
-                        min={roomState.config.numbersMin || 1}
-                        max={roomState.config.numbersMax || 100}
-                      />
-                      <button type="submit" className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.9rem', margin: 0 }}>Go</button>
-                    </form>
-                  )}
-                  {damagedPlayers[p.id] && (
-                    <span style={{
-                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                      color: 'red', fontSize: '2.5rem', fontWeight: 'bold', textShadow: '2px 2px 0 #fff'
-                    }}>❌</span>
                   )}
                 </div>
               </div>
@@ -233,33 +247,26 @@ export function NumbersGame() {
 
         {!roomState.abortedDueToDisconnect && <Podium players={roomState.players} />}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'flex-start' }}>
-          <div className="card" style={{ flex: '1 1 300px', margin: 0 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="card" style={{ flex: '1 1 100%', margin: 0, maxWidth: '600px' }}>
             <h2 style={{ marginBottom: '16px' }}>Números da Rodada:</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
               {roomState.players.map(p => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: 'var(--bg-glass)', borderRadius: 'var(--radius-sm)' }}>
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-glass)', border: '2px solid var(--text-primary)' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <AvatarDisplay avatar={p.avatar} size="1.5rem" />
-                    {p.name} {p.id === playerId && '(Você)'}
+                    <span style={{ fontWeight: 600, textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none' }}>
+                      {p.name} {p.id === playerId && '(Você)'}
+                    </span>
+                    {p.hasBeenDiscovered ? (
+                      <span style={{ fontSize: '0.75rem', background: '#ff3333', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>❌ Descoberto</span>
+                    ) : (
+                      <span style={{ fontSize: '0.75rem', background: '#33cc33', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>✅ Sobreviveu</span>
+                    )}
                   </span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold', fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', color: p.hasBeenDiscovered ? 'var(--text-muted)' : 'inherit' }}>
                     {p.numberValue}
                   </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: 'var(--bg-glass-strong)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
-            <h3 className="text-center" style={{ marginBottom: '16px' }}>Jogadores</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-              {[...roomState.players].sort((a, b) => b.score - a.score).map((p, i) => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed var(--border)', fontSize: '0.95rem' }}>
-                  <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>
-                    {i + 1}. {p.name}
-                  </span>
-                  <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{p.score} pts</span>
                 </div>
               ))}
             </div>

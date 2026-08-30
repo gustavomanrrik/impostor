@@ -22,7 +22,7 @@ export function Podium({ players }: PodiumProps) {
   const third = top3[2];
 
   const renderSpot = (player: PublicPlayer | undefined, place: 1 | 2 | 3, height: string, color: string) => {
-    if (!player) return <div style={{ flex: 1, minWidth: '80px' }} />;
+    if (!player) return null;
     
     return (
         <div style={{
@@ -32,8 +32,8 @@ export function Podium({ players }: PodiumProps) {
           alignItems: 'center',
           justifyContent: 'flex-end',
           position: 'relative',
-          minWidth: '70px',
-          maxWidth: '120px',
+          minWidth: '90px',
+          maxWidth: '150px',
           transform: show ? 'translateY(0)' : 'translateY(100%)',
           opacity: show ? 1 : 0,
           transition: `all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${place === 1 ? '0.6s' : place === 2 ? '0.3s' : '0s'}`,
@@ -102,12 +102,12 @@ export function Podium({ players }: PodiumProps) {
       alignItems: 'flex-end', 
       justifyContent: 'center', 
       gap: '0', 
-      height: '320px',
+      height: '420px',
       width: '100%',
       maxWidth: '600px',
       margin: '0 auto 32px',
       overflow: 'hidden',
-      paddingTop: '40px',
+      paddingTop: '80px',
       borderBottom: '4px solid var(--text-primary)'
     }}>
       {renderSpot(second, 2, '120px', '#e0e0e0')}

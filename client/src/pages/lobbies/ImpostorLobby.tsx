@@ -121,18 +121,15 @@ export function ImpostorLobby() {
           <p className="text-muted" style={{ marginBottom: '16px', fontSize: '0.9rem' }}>Descubra quem está com a palavra errada!</p>
 
           {/* Room Code */}
-          <div className="room-code" aria-label={`Código da sala: ${roomState.code}`}>
-            {roomState.code}
-          </div>
-
-          <div className="spacer-2" />
-
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ flex: 1 }}>
-              {copied ? '✅ Copiado' : '📋 Copiar'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center' }}>
+              {roomState.code}
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ padding: '4px 12px' }}>
+              {copied ? '✅' : '📋'}
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ flex: 1 }}>
-              📤 Compartilhar
+            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ padding: '4px 12px' }}>
+              📤
             </button>
           </div>
 
@@ -156,7 +153,7 @@ export function ImpostorLobby() {
                       {player.id === playerId && ' (você)'}
                     </span>
                     {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
-                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0 }}>{player.score} pts</span>
+                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
                   </span>
                   {player.isHost && <span className="player-badge">HOST</span>}
                   {isHost && player.id !== playerId && (
@@ -197,11 +194,6 @@ export function ImpostorLobby() {
             </div>
           )}
 
-          <div className="spacer-3" />
-
-          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-            🚪 Sair da sala
-          </button>
         </div>
 
         {/* LADO DIREITO: Configurações */}

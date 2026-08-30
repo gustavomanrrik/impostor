@@ -48,18 +48,15 @@ export function NumbersLobby() {
           <p className="text-muted" style={{ marginBottom: '24px' }}>Tente descobrir o número dos outros antes que descubram o seu!</p>
 
           {/* Room Code */}
-          <div className="room-code" aria-label={`Código da sala: ${roomState.code}`}>
-            {roomState.code}
-          </div>
-
-          <div className="spacer-3" />
-
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ flex: 1 }}>
-              {copied ? '✅ Copiado' : '📋 Copiar'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+            <div className="room-code" aria-label={`Código da sala: ${roomState.code}`} style={{ fontSize: '1.5rem', padding: '4px 12px', margin: 0, flex: 1, textAlign: 'center' }}>
+              {roomState.code}
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={handleCopyCode} style={{ padding: '4px 12px' }}>
+              {copied ? '✅' : '📋'}
             </button>
-            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ flex: 1 }}>
-              📤 Compartilhar
+            <button className="btn btn-secondary btn-sm" onClick={handleShare} style={{ padding: '4px 12px' }}>
+              📤
             </button>
           </div>
 
@@ -83,7 +80,7 @@ export function NumbersLobby() {
                       {player.id === playerId && ' (você)'}
                     </span>
                     {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
-                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0 }}>{player.score} pts</span>
+                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
                   </span>
                   {player.isHost && <span className="player-badge">HOST</span>}
                   {isHost && player.id !== playerId && (
@@ -124,11 +121,6 @@ export function NumbersLobby() {
             </div>
           )}
 
-          <div className="spacer-4" />
-
-          <button className="btn btn-ghost btn-sm w-full" onClick={leaveRoom}>
-            🚪 Sair da sala
-          </button>
         </div>
 
         {/* LADO DIREITO: Configurações */}
@@ -238,6 +230,10 @@ export function NumbersLobby() {
           </div>
         </div>
       </div>
+      <div className="spacer-4" />
+      <button className="btn btn-ghost btn-sm w-full" style={{ marginBottom: '16px' }} onClick={leaveRoom}>
+        🚪 Sair da sala
+      </button>
     </div>
   );
 }

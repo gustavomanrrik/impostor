@@ -607,8 +607,9 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 .player-item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  position: relative;
+  gap: 8px;
+  padding: 8px 12px;
   background: var(--bg-glass);
   border-radius: var(--radius-md);
   animation: slideIn var(--transition-slow) ease-out;
@@ -1902,7 +1903,25 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 
 @media (max-width: 1023px) {
   .app-layout.with-bottom-nav {
+    padding-bottom: 0;
+  }
+  
+  .app-layout.with-bottom-nav .main-content,
+  .app-layout.with-bottom-nav .sidebar-content {
     padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+  
+  /* Prevent chat minimize on mobile */
+  .chat-container.minimized .chat-messages,
+  .chat-container.minimized .chat-input-area {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .chat-container.minimized {
+    height: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
   }
 }
 

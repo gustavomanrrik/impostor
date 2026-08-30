@@ -273,70 +273,73 @@ export function ImpostorGame() {
               Outros Jogadores
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
-                  display: 'flex', flexDirection: 'column',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
                   opacity: !p.isConnected ? 0.5 : 1,
                   border: '2px solid var(--text-primary)',
                   background: 'var(--bg-primary)',
-                  padding: '8px 12px',
-                  margin: 0,
                   position: 'relative',
-                  width: '100%',
+                  padding: '16px 12px 24px 12px',
+                  margin: 0,
+                  flex: '1 1 140px',
+                  maxWidth: '180px',
                   cursor: hasRequestedVote ? 'pointer' : 'default'
                 }}
                 onClick={() => {
                   if (hasRequestedVote) setSelectedVote(p.id);
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', width: '100%' }}>
+                  <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
                     <KickPlayerButton playerId={p.id} playerName={p.name} />
-                    
-                    <div style={{ flexShrink: 0, position: 'relative' }}>
-                      <AvatarDisplay avatar={p.avatar} size="3.5rem" />
-                      {selectedVote === p.id && (
-                        <div style={{
-                          position: 'absolute', top: -5, right: -5, background: 'var(--primary)',
-                          color: 'var(--bg-primary)', borderRadius: '50%', width: '20px', height: '20px',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px'
-                        }}>✓</div>
-                      )}
-                      {/* Whisper Bubble */}
-                      {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
-                        <div key={`${w.timestamp}-${index}`} style={{
-                          position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)',
-                          background: 'var(--primary)', color: 'var(--bg-primary)', padding: '4px 8px',
-                          borderRadius: '12px', borderBottomLeftRadius: '0', fontWeight: 'bold', fontSize: '0.9rem',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 20, whiteSpace: 'nowrap',
-                          animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                        }}>
-                          {w.text}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                      <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
-                      <div style={{ display: 'flex', gap: '4px', fontSize: '1rem', marginTop: '4px' }}>
-                        {p.isWinner && <span title="Vencedor">👑</span>}
-                        {p.id === roomState.hostId && <span title="Host">⭐</span>}
-                      </div>
-                    </div>
-
-                    {!hasRequestedVote && (
-                      <button 
-                        className="btn btn-secondary btn-sm"
-                        style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'auto' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setWhisperingTo(whisperingTo === p.id ? null : p.id);
-                          setWhisperInput('');
-                        }}
-                      >
-                        💬
-                      </button>
-                    )}
                   </div>
+
+                  <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <AvatarDisplay avatar={p.avatar} size="5rem" />
+                    {selectedVote === p.id && (
+                      <div style={{
+                        position: 'absolute', top: -5, right: -5, background: 'var(--primary)',
+                        color: 'var(--bg-primary)', borderRadius: '50%', width: '24px', height: '24px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', zIndex: 3
+                      }}>✓</div>
+                    )}
+                    {/* Whisper Bubble */}
+                    {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
+                      <div key={`${w.timestamp}-${index}`} style={{
+                        position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)',
+                        background: 'var(--primary)', color: 'var(--bg-primary)', padding: '4px 8px',
+                        borderRadius: '12px', borderBottomLeftRadius: '0', fontWeight: 'bold', fontSize: '0.9rem',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 20, whiteSpace: 'nowrap',
+                        animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                      }}>
+                        {w.text}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
+                    <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{p.name}</p>
+                    <div style={{ display: 'flex', gap: '4px', fontSize: '1rem', marginTop: '4px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '4px' }}>🏆 {p.score} pts</span>
+                      {p.isWinner && <span title="Vencedor">👑</span>}
+                      {p.id === roomState.hostId && <span title="Host">⭐</span>}
+                    </div>
+                  </div>
+
+                  {!hasRequestedVote && (
+                    <button 
+                      className="btn btn-secondary btn-sm"
+                      style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'auto', position: 'absolute', top: '4px', right: '4px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setWhisperingTo(whisperingTo === p.id ? null : p.id);
+                        setWhisperInput('');
+                      }}
+                    >
+                      💬
+                    </button>
+                  )}
+                </div>
 
                   {/* Whisper Input */}
                   {whisperingTo === p.id && (
@@ -557,8 +560,7 @@ export function ImpostorGame() {
             ))}
           </div>
 
-          {/* Reveal */}
-          <div className="card" style={{ flex: '1 1 280px', margin: 0, padding: 'var(--space-4)' }}>
+          <div className="card" style={{ flex: '1 1 100%', margin: 0, padding: 'var(--space-4)', maxWidth: '600px' }}>
             <div style={{ marginBottom: '12px' }}>
               <span className="result-word-label">Tema</span>
               <p className="result-word" style={{ color: 'var(--text)' }}>
@@ -584,21 +586,6 @@ export function ImpostorGame() {
                 <span className="result-word-label">Palavra do impostor</span>
                 <p className="result-word" style={{ color: 'var(--danger)' }}>{gameResult.impostorWord}</p>
               </div>
-            </div>
-          </div>
-
-          {/* Ranking */}
-          <div className="card" style={{ flex: '1 1 200px', margin: 0, padding: 'var(--space-4)' }}>
-            <p style={{ fontWeight: 600, marginBottom: '12px' }}>🏆 Ranking</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {[...roomState.players].sort((a, b) => b.score - a.score).map((p, i) => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed var(--border)', fontSize: '0.95rem' }}>
-                  <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}>
-                    {i + 1}. {p.name}
-                  </span>
-                  <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{p.score} pts</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>

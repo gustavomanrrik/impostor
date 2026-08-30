@@ -4,7 +4,7 @@ import { AvatarDisplay } from './AvatarDisplay';
 import { CustomAudioPlayer } from './CustomAudioPlayer';
 
 export function Chat() {
-  const { chatMessages, sendChatMessage, sendChatImage, sendChatAudio, playerId, roomState, addToast, isChatMinimized: isMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage } = useGame();
+  const { chatMessages, sendChatMessage, sendChatImage, sendChatAudio, playerId, roomState, addToast, isChatMinimized, setIsChatMinimized: setIsMinimized, hasUnreadChat: hasUnread, setHasUnreadChat: setHasUnread, sendReaction, reactToChatMessage, mobileTab } = useGame();
   const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
@@ -15,6 +15,19 @@ export function Chat() {
   const prevMessagesLength = useRef(chatMessages.length);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
+  const initialMessagesCount = useRef(chatMessages.length);
+
+  const [autoPlayAudio, setAutoPlayAudio] = useState(() => {
+    return localStorage.getItem('impostor_autoplay_audio') !== 'false';
+  });
+
+  const toggleAutoPlayAudio = () => {
+    const val = !autoPlayAudio;
+    setAutoPlayAudio(val);
+    localStorage.setItem('impostor_autoplay_audio', val.toString());
+  };
+
+  const isMinimized = isChatMinimized && mobileTab !== 'chat';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -166,16 +179,27 @@ export function Chat() {
           </button>
           {!isMinimized && (
             <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'space-between' }}>
-              <h3 style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap' }}>💬 chat da sala</h3>
-              {hasUnread && (
-                <span style={{ 
-                  width: '10px', 
-                  height: '10px', 
-                  backgroundColor: 'var(--error)', 
-                  borderRadius: '50%',
-                  display: 'inline-block'
-                }} />
-              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', whiteSpace: 'nowrap' }}>💬 chat da sala</h3>
+                {hasUnread && (
+                  <span style={{ 
+                    width: '10px', 
+                    height: '10px', 
+                    backgroundColor: 'var(--error)', 
+                    borderRadius: '50%',
+                    display: 'inline-block'
+                  }} />
+                )}
+              </div>
+              
+              <button 
+                className="btn btn-ghost btn-sm" 
+                onClick={toggleAutoPlayAudio}
+                style={{ padding: '2px 6px', fontSize: '1.2rem', color: 'var(--text-primary)', border: 'none', background: 'transparent' }}
+                title={autoPlayAudio ? 'Áudios tocando automaticamente' : 'Auto-play de áudio desativado'}
+              >
+                {autoPlayAudio ? '🔊' : '🔇'}
+              </button>
             </div>
           )}
         </div>
@@ -184,7 +208,7 @@ export function Chat() {
         {chatMessages.length === 0 ? (
           <div className="chat-empty text-muted">nenhuma mensagem ainda...</div>
         ) : (
-          chatMessages.map((msg) => {
+          chatMessages.map((msg, index) => {
             const isMe = msg.playerId === playerId;
             return (
               <div key={msg.id} className={`chat-message ${isMe ? 'chat-message-me' : ''}`}>
@@ -227,7 +251,7 @@ export function Chat() {
                     />
                   )}
                   {msg.audioUrl && (
-                    <CustomAudioPlayer src={msg.audioUrl} />
+                    <CustomAudioPlayer src={msg.audioUrl} autoPlay={!isMe && autoPlayAudio && index >= initialMessagesCount.current} />
                   )}
                   
                   {/* Floating Reaction Trigger */}
