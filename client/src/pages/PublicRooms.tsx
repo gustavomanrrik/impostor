@@ -49,7 +49,7 @@ export function PublicRooms() {
 
   return (
     <div className="page fade-in" style={{ maxWidth: '800px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%', paddingBottom: '10vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', width: '100%' }}>
         <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
           ← Voltar
         </button>
@@ -62,7 +62,7 @@ export function PublicRooms() {
         <h2 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Salas Públicas</h2>
       </div>
 
-      <div className="card" style={{ marginBottom: '24px' }}>
+      <div className="card" style={{ marginBottom: '24px', maxWidth: '500px', width: '100%', margin: '0 auto 24px auto' }}>
         <div className="input-group">
           <label className="input-label">Seu Nome e Avatar (Obrigatório)</label>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

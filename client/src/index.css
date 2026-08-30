@@ -1978,3 +1978,19 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   border-color: var(--primary, #000);
   box-shadow: inset 4px 4px 0px rgba(0,0,0,0.15);
 }
+
+@media (min-width: 601px) {
+  .topbar-title {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: -1;
+  }
+}
+@media (max-width: 600px) {
+  .topbar-title {
+    flex: 1 1 100% !important;
+    text-align: center !important;
+    margin-bottom: 4px;
+  }
+}
