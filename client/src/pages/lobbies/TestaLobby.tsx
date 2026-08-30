@@ -90,7 +90,7 @@ export function TestaLobby() {
   };
 
   return (
-    <div className="page fade-in">
+    <div className="w-full">
       {/* GLOBAL 18+ MODAL */}
       {show18Modal && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>

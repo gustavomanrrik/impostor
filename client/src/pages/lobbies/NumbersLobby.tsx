@@ -38,7 +38,7 @@ export function NumbersLobby() {
   };
 
   return (
-    <div className="page fade-in">
+    <div className="w-full">
       <div className="lobby-layout">
         {/* LADO ESQUERDO: Info da Sala, Código e Jogadores */}
         <div className="lobby-left">
