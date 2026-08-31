@@ -31,7 +31,8 @@ export function NumbersLobby() {
           <RoomCodeBox />
 
           {/* Players */}
-          <div className="card" style={{ marginBottom: '16px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>`n            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div className="card" style={{ marginBottom: '16px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontWeight: 600 }}>Jogadores (Mín. 2)</span>
                 <span className="text-muted" style={{ fontSize: '0.875rem' }}>
@@ -206,6 +207,8 @@ export function NumbersLobby() {
     </div>
   );
 }
+
+
 
 
 
