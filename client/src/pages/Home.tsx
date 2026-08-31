@@ -1,25 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useGame } from '../context/GameContext';
 import { GameType } from '@shared/types';
 
 export function Home() {
   const { navigate, selectedGameType, setSelectedGameType } = useGame();
-  const titleRef = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (titleRef.current) {
-        // Gera valores verdadeiramente aleatórios a cada ciclo
-        const x = (Math.random() * 6 - 3).toFixed(1);
-        const y = (Math.random() * 8 - 4).toFixed(1);
-        const r = (Math.random() * 4 - 2).toFixed(1);
-        titleRef.current.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
-        titleRef.current.style.transition = 'transform 0.8s linear';
-      }
-    }, 750);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSelectGame = (game: GameType) => {
     setSelectedGameType(game);
@@ -32,7 +16,7 @@ export function Home() {
 
       {/* Logo & Slogan Area */}
       <div style={{ textAlign: 'center', marginBottom: '80px', marginTop: '-40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <h1 ref={titleRef} style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 4rem)', textShadow: '4px 4px 0px rgba(0,0,0,0.2)', marginBottom: '8px', lineHeight: 1 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 4rem)', textShadow: '4px 4px 0px rgba(0,0,0,0.2)', marginBottom: '8px', lineHeight: 1 }}>
           {'mfp games'.split('').map((char, index) => (
             <span key={index} style={{ display: 'inline-block', animation: `wave 1.5s infinite ${index * 0.1}s ease-in-out`, whiteSpace: 'pre' }}>
               {char}
