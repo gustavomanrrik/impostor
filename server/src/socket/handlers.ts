@@ -51,7 +51,7 @@ export function registerSocketHandlers(
     // ─── ENTRAR EM SALA ─────────────────────────
 
     socket.on('room:join', (data) => {
-      const { playerName, avatar, roomCode } = data;
+      const { playerName, avatar, roomCode, password } = data;
 
       if (!playerName || playerName.trim().length === 0) {
         socket.emit('error', { code: 'INVALID_NAME', message: 'Nome inválido.' });
@@ -73,6 +73,11 @@ export function registerSocketHandlers(
 
       if (room.playerCount >= 8) {
         socket.emit('error', { code: 'ROOM_FULL', message: 'A sala está cheia (8/8).' });
+        return;
+      }
+
+      if (room.config.password && room.config.password !== password) {
+        socket.emit('error', { code: 'INVALID_PASSWORD', message: 'Senha incorreta.' });
         return;
       }
 
