@@ -4,13 +4,15 @@ import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { KickPlayerButton } from '../../components/KickPlayerButton';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
+import { PlayerActions } from '../../components/PlayerActions';
+import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 import { Difficulty } from '@shared/types';
 
 export function TestaLobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
     themes, addCustomWord, removeCustomWord, customThemeWords,
-    updateConfig, resetScores, navigate, kickPlayer
+    updateConfig, resetScores, navigate, kickPlayer, mobileTab
   } = useGame();
   
   const [newWord, setNewWord] = useState('');
@@ -105,14 +107,14 @@ export function TestaLobby() {
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ fontWeight: 600 }}>Jogadores</span>
-              <span className="text-muted" style={{ fontSize: '0.875rem' }}>
-                {roomState.players.length}/8
-              </span>
-            </div>
-
-            <div className="player-list">
+            <div className={mobileTab === 'me' ? 'hide-on-mobile' : ''}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontWeight: 600 }}>Jogadores</span>
+                <span className="text-muted" style={{ fontSize: '0.875rem' }}>
+                  {roomState.players.length}/8
+                </span>
+              </div>
+              <div className="player-list">
               {roomState.players.map(player => (
                 <div key={player.id} className="player-item">
                   <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
@@ -132,8 +134,10 @@ export function TestaLobby() {
                   {!player.isConnected && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
                   )}
+                  <PlayerActions playerId={player.id} playerName={player.name} />
                 </div>
               ))}
+              </div>
             </div>
           </div>
 
@@ -155,22 +159,18 @@ export function TestaLobby() {
                 onClick={startGame}
                 disabled={!canStart || (config.theme === 'custom' && roomState.customThemeWordCount < 4)}
               >
-                🚀 Distribuir Palavras
+                🎲 Distribuir Palavras
               </button>
             </>
-          ) : (
-            <div className="status-badge waiting" style={{ marginBottom: '12px' }}>
-              ⏳ Aguardando o host iniciar...
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* LADO DIREITO: Configurações */}
-        <div className="lobby-right">
-          <div className="card w-full" style={{ marginBottom: '16px', padding: '16px', flex: 1 }}>
+        <div className={`lobby-right ${mobileTab !== 'chat' && mobileTab !== 'me' ? 'hide-on-mobile' : ''}`}>
+          <div className={`card w-full ${mobileTab === 'chat' ? 'hide-on-mobile' : ''}`} style={{ marginBottom: '16px', padding: '16px', flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontWeight: 600 }}>Sobre o Jogo</span>
-              {!isHost && <span className="badge" style={{ background: 'var(--bg-primary)' }}>Apenas Host edita</span>}
+              <RoomPrivacySettings />
             </div>
 
             {isHost ? (
@@ -312,6 +312,9 @@ export function TestaLobby() {
               </div>
             ) : (
                 <div className="read-only-config" style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
+                    <div className="status-badge waiting" style={{ marginBottom: '12px', width: '100%', boxSizing: 'border-box' }}>
+                      ⏳ Aguardando o host iniciar...
+                    </div>
                     <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
                       <strong>Partida:</strong> {config.totalRounds || 3} rodadas<br/>
                       <strong>Tema selecionado:</strong> {config.theme === 'custom' ? 'Inventado pela Galera' : selectedTheme?.name} {selectedTheme?.is18Plus && '🔞'}<br/>

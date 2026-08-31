@@ -4,13 +4,15 @@ import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { KickPlayerButton } from '../../components/KickPlayerButton';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
+import { PlayerActions } from '../../components/PlayerActions';
+import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 import { Difficulty, ImpostorMode } from '@shared/types';
 
 export function ImpostorLobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
     themes, addCustomWord, removeCustomWord, customThemeWords,
-    updateConfig, resetScores, navigate, kickPlayer
+    updateConfig, resetScores, navigate, kickPlayer, mobileTab
   } = useGame();
   
   const [newWord, setNewWord] = useState('');
@@ -104,36 +106,38 @@ export function ImpostorLobby() {
           <RoomCodeBox />
 
           {/* Players */}
-          <div className="card" style={{ marginBottom: '12px', padding: '12px 16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontWeight: 600 }}>Suspeitos (Jogadores)</span>
-              <span className="text-muted" style={{ fontSize: '0.875rem' }}>
-                {roomState.players.length}/8
-              </span>
-            </div>
-
-            <div className="player-list">
-              {roomState.players.map(player => (
-                <div key={player.id} className="player-item">
-                  <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
-                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
-                    <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
-                      {player.name}
-                      {player.id === playerId && ' (você)'}
+          <div className="card" style={{ marginBottom: '16px' }}>
+            <div className={mobileTab === 'me' ? 'hide-on-mobile' : ''}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontWeight: 600 }}>Jogadores</span>
+                <span className="text-muted" style={{ fontSize: '0.875rem' }}>
+                  {roomState.players.length}/8
+                </span>
+              </div>
+              <div className="player-list">
+                {roomState.players.map(player => (
+                  <div key={player.id} className="player-item">
+                    <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
+                    <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                      <AvatarDisplay avatar={player.avatar} size="2.5rem" />
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
+                        {player.name}
+                        {player.id === playerId && ' (você)'}
+                      </span>
+                      {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
+                      <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
                     </span>
-                    {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
-                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
-                  </span>
-                  {player.isHost && <span className="player-badge">HOST</span>}
-                  {isHost && player.id !== playerId && (
-                    <KickPlayerButton playerId={player.id} playerName={player.name} />
-                  )}
-                  {!player.isConnected && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
-                  )}
-                </div>
-              ))}
+                    {player.isHost && <span className="player-badge">HOST</span>}
+                    {isHost && player.id !== playerId && (
+                      <KickPlayerButton playerId={player.id} playerName={player.name} />
+                    )}
+                    {!player.isConnected && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
+                    )}
+                    <PlayerActions playerId={player.id} playerName={player.name} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -155,23 +159,19 @@ export function ImpostorLobby() {
                 onClick={startGame}
                 disabled={!canStart || (config.theme === 'custom' && roomState.customThemeWordCount < 4)}
               >
-                🚀 Iniciar Investigação
+                🎲 Iniciar Investigação
               </button>
             </>
-          ) : (
-            <div className="status-badge waiting" style={{ marginBottom: '12px' }}>
-              ⏳ Aguardando o host iniciar...
-            </div>
-          )}
+          ) : null}
 
         </div>
 
         {/* LADO DIREITO: Configurações */}
-        <div className="lobby-right">
-          <div className="card w-full" style={{ marginBottom: '12px', padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '12px' }}>
+        <div className={`lobby-right ${mobileTab !== 'chat' && mobileTab !== 'me' ? 'hide-on-mobile' : ''}`}>
+          <div className={`card w-full ${mobileTab === 'chat' ? 'hide-on-mobile' : ''}`} style={{ marginBottom: '12px', padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontWeight: 600 }}>Configurações do Impostor</span>
-              {!isHost && <span className="badge" style={{ background: 'var(--bg-glass-strong)' }}>Apenas Host</span>}
+              <RoomPrivacySettings />
             </div>
 
             {isHost ? (
@@ -340,6 +340,9 @@ export function ImpostorLobby() {
               </div>
             ) : (
               <div className="read-only-config" style={{ background: 'var(--bg-glass)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
+                <div className="status-badge waiting" style={{ marginBottom: '12px', width: '100%', boxSizing: 'border-box' }}>
+                  ⏳ Aguardando o host iniciar...
+                </div>
                 <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
                   <strong>Partida:</strong> {config.totalRounds || 3} rodadas<br/>
                   <strong>Tema:</strong> {config.theme === 'custom' ? 'Colaborativo' : selectedTheme?.name} {selectedTheme?.is18Plus && '🔞'}<br/>

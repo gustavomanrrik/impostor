@@ -50,9 +50,7 @@ export function PublicRooms() {
   return (
     <div className="page fade-in" style={{ maxWidth: '800px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%', paddingBottom: '10vh' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '24px', width: '100%' }}>
-        <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar" style={{ marginRight: 'auto' }}>
-          ← Voltar
-        </button>
+        
         <button className="btn btn-ghost" onClick={() => fetchPublicRooms()} title="Atualizar">
           🔄 Atualizar
         </button>
@@ -139,3 +137,4 @@ export function PublicRooms() {
     </div>
   );
 }
+

@@ -14,9 +14,7 @@ export function History() {
 
   return (
     <div className="page page-wide">
-      <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
-        ← Voltar
-      </button>
+      
 
       <h2 className="text-gradient">Histórico</h2>
 
@@ -82,3 +80,4 @@ export function History() {
     </div>
   );
 }
+

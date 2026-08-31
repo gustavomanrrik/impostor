@@ -137,7 +137,7 @@ export function NumbersGame() {
           <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
             Outros Jogadores
           </h3>
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
             {roomState.players.filter(p => p.id !== playerId).map(p => (
               <div key={p.id} className="card" style={{ 
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -298,3 +298,4 @@ export function NumbersGame() {
 
   return null;
 }
+

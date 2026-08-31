@@ -16,6 +16,7 @@ import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
 import { ReactionsOverlay } from './components/ReactionsOverlay';
 import { BottomNav } from './components/BottomNav';
+import { ArrowLeft } from 'lucide-react';
 
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
@@ -42,7 +43,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
       flexShrink: 0,
     }}>
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', pointerEvents: 'auto' }}>
-        {roomState && (
+        {roomState ? (
           <button
             onClick={leaveRoom}
             style={{
@@ -64,6 +65,26 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
             title="Sair da Sala"
           >
             sair
+          </button>
+        ) : page !== 'home' && (
+          <button
+            onClick={() => navigate('home')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: '0',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: 'var(--text-primary)',
+            }}
+            title="Voltar"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Voltar
           </button>
         )}
 

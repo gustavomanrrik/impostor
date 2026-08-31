@@ -103,9 +103,7 @@ export function LocalSetup() {
 
   return (
     <div className="page">
-      <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
-        ← Voltar
-      </button>
+      
 
       <h2 className="text-gradient">Modo Local</h2>
       <p className="text-muted" style={{ marginTop: '4px' }}>Todos jogam no mesmo dispositivo</p>
@@ -219,3 +217,4 @@ export function LocalSetup() {
     </div>
   );
 }
+

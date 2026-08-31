@@ -4,6 +4,8 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { KickPlayerButton } from '../components/KickPlayerButton';
+import { PlayerActions } from '../components/PlayerActions';
+import { Podium } from '../components/Podium';
 
 export function ImpostorGame() {
   const { roomState, playerId, myWord, isImpostor, gameResult, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme, leaveRoom, addToast, themes, sendWhisper, activeWhispers, mobileTab } = useGame();
@@ -273,11 +275,13 @@ export function ImpostorGame() {
               Outros Jogadores
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
-              {roomState.players.filter(p => p.id !== playerId).map(p => (
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
+              {roomState.players.filter(p => p.id !== playerId).map(p => {
+                const isDead = !p.isConnected;
+                return (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-                  opacity: !p.isConnected ? 0.5 : 1,
+                  opacity: isDead ? 0.5 : 1,
                   border: '2px solid var(--text-primary)',
                   background: 'var(--bg-primary)',
                   position: 'relative',
@@ -318,8 +322,13 @@ export function ImpostorGame() {
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
-                    <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{p.name}</p>
-                    <div style={{ display: 'flex', gap: '4px', fontSize: '1rem', marginTop: '4px', alignItems: 'center' }}>
+                    <div style={{ fontWeight: 600, fontSize: '1.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: isDead ? 'line-through' : 'none', color: isDead ? 'var(--text-muted)' : 'inherit' }}>
+                      {p.name}
+                    </div>
+                    
+                    <PlayerActions playerId={p.id} playerName={p.name} />
+                    
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '4px' }}>🏆 {p.score} pts</span>
                       {p.isWinner && <span title="Vencedor">👑</span>}
                       {p.id === roomState.hostId && <span title="Host">⭐</span>}
@@ -629,3 +638,4 @@ export function ImpostorGame() {
     </div>
   );
 }
+

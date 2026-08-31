@@ -4,6 +4,7 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { KickPlayerButton } from '../components/KickPlayerButton';
+import { PlayerActions } from '../components/PlayerActions';
 import { Podium } from '../components/Podium';
 
 
@@ -62,9 +63,9 @@ export function TestaGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <>
-      <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
+      <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px', flexShrink: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <VoteSkipButton />
             <button onClick={() => setIsNoteExpanded(true)} className="btn btn-ghost btn-sm" style={{ fontSize: '1.2rem', padding: '4px 8px' }} title="Notas Pessoais">
@@ -242,12 +243,12 @@ export function TestaGame() {
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
-          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '16px 0 0 0' }}>
+          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '16px 0 0 0' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               na testa da galera:
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -275,17 +276,12 @@ export function TestaGame() {
                     <div style={{ 
                       background: p.hasGuessedTesta ? '#e0e0e0' : '#fff9c4',
                       color: p.hasGuessedTesta ? '#888' : '#000',
-                      padding: '2px 8px',
-                      fontFamily: 'var(--font-display)',
-                      border: '2px solid #000',
-                      fontSize: '1rem',
-                      boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
-                      maxWidth: '120px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      textAlign: 'center',
-                      minHeight: '24px',
+                        padding: '2px 8px',
+                        fontFamily: 'var(--font-display)',
+                        border: '2px solid #000',
+                        fontSize: '1rem',
+                        boxShadow: '2px 2px 0 rgba(0,0,0,0.2)',
+                        textAlign: 'center',
                       marginTop: '-12px',
                       zIndex: 2,
                       transform: 'rotate(2deg)'
@@ -298,7 +294,9 @@ export function TestaGame() {
                     <span style={{ fontWeight: 600, fontSize: '1.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: p.hasGuessedTesta ? 'line-through' : 'none' }}>
                       {p.name}
                     </span>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>🏆 {p.score} pts</span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>⭐ {p.score} pts</span>
+                    
+                    <PlayerActions playerId={p.id} playerName={p.name} />
                     
                     {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta && (
                       <div style={{ display: 'flex', gap: '4px', marginTop: '4px', fontSize: '1rem', justifyContent: 'center' }}>
@@ -320,7 +318,6 @@ export function TestaGame() {
             </div>
           </div>
         </div>
-      </div>
       {noteModalContent}
       </>
     );

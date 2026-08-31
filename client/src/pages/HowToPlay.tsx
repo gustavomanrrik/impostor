@@ -6,9 +6,7 @@ export function HowToPlay() {
 
   return (
     <div className="page page-wide">
-      <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
-        ← Voltar
-      </button>
+      
 
       <h2 className="text-gradient">Como Jogar</h2>
 
@@ -70,3 +68,4 @@ export function HowToPlay() {
     </div>
   );
 }
+

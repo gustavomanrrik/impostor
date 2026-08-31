@@ -30,9 +30,9 @@ export function Home() {
     <div className="page page-centered fade-in" style={{ justifyContent: 'center', width: '100%', maxWidth: '800px' }}>
 
 
-      {/* Logo & Slogan Area (Desktop Only) */}
-      <div className="hide-on-mobile" style={{ textAlign: 'center', marginBottom: '40px', marginTop: '16px' }}>
-        <h1 ref={titleRef} style={{ display: 'inline-block', fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0 8px 0', whiteSpace: 'nowrap' }}>
+      {/* Logo & Slogan Area */}
+      <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <h1 ref={titleRef} style={{ display: 'inline-block', fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0 8px 0', lineHeight: 1.1 }}>
           mfp games
         </h1>
         <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500, fontFamily: 'var(--font-display)' }}>

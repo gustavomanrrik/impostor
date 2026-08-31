@@ -3,11 +3,13 @@ import { useGame } from '../../context/GameContext';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { KickPlayerButton } from '../../components/KickPlayerButton';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
+import { PlayerActions } from '../../components/PlayerActions';
+import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 
 export function NumbersLobby() {
   const { 
     roomState, playerId, startGame, leaveRoom, addToast, 
-    updateConfig, resetScores, kickPlayer
+    updateConfig, resetScores, kickPlayer, mobileTab
   } = useGame();
 
   if (!roomState) return null;
@@ -31,35 +33,38 @@ export function NumbersLobby() {
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ fontWeight: 600 }}>Jogadores (Mín. 2)</span>
-              <span className="text-muted" style={{ fontSize: '0.875rem' }}>
-                {roomState.players.length}/8
-              </span>
-            </div>
+            <div className={mobileTab === 'me' ? 'hide-on-mobile' : ''}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontWeight: 600 }}>Jogadores (Mín. 2)</span>
+                <span className="text-muted" style={{ fontSize: '0.875rem' }}>
+                  {roomState.players.length}/8
+                </span>
+              </div>
 
-            <div className="player-list">
-              {roomState.players.map(player => (
-                <div key={player.id} className="player-item">
-                  <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
-                  <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
-                    <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
-                      {player.name}
-                      {player.id === playerId && ' (você)'}
+              <div className="player-list">
+                {roomState.players.map(player => (
+                  <div key={player.id} className="player-item">
+                    <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
+                    <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                      <AvatarDisplay avatar={player.avatar} size="2.5rem" />
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
+                        {player.name}
+                        {player.id === playerId && ' (você)'}
+                      </span>
+                      {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
+                      <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
                     </span>
-                    {player.isWinner && <span title="Vencedor da rodada anterior" style={{ flexShrink: 0 }}>👑</span>}
-                    <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
-                  </span>
-                  {player.isHost && <span className="player-badge">HOST</span>}
-                  {isHost && player.id !== playerId && (
-                    <KickPlayerButton playerId={player.id} playerName={player.name} />
-                  )}
-                  {!player.isConnected && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
-                  )}
-                </div>
-              ))}
+                    {player.isHost && <span className="player-badge">HOST</span>}
+                    {isHost && player.id !== playerId && (
+                      <KickPlayerButton playerId={player.id} playerName={player.name} />
+                    )}
+                    {!player.isConnected && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
+                    )}
+                    <PlayerActions playerId={player.id} playerName={player.name} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -188,6 +193,9 @@ export function NumbersLobby() {
               </div>
             ) : (
               <div className="read-only-config" style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
+                <div className="status-badge waiting" style={{ marginBottom: '12px', width: '100%', boxSizing: 'border-box' }}>
+                  ⏳ Aguardando o host iniciar...
+                </div>
                 <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
                     <strong>Partida:</strong> {config.totalRounds || 3} rodadas<br/>
                     <strong>Modo:</strong> {config.numbersMode === 'survival' ? 'Corações' : 'Pontos'}<br/>

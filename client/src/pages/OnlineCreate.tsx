@@ -33,7 +33,7 @@ export function OnlineCreate() {
       soundEnabled: true,
       useFlatMode: false,
       isPublic,
-      password: isPublic ? undefined : password,
+      password: password,
       roomName: roomName.trim(),
     };
 
@@ -44,9 +44,7 @@ export function OnlineCreate() {
 
   return (
     <div className="page fade-in" style={{ maxWidth: '500px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: '24px', minHeight: '100%', paddingBottom: '10vh' }}>
-      <button className="btn btn-ghost back-btn" onClick={() => navigate('home')} aria-label="Voltar">
-        ← Voltar
-      </button>
+      
 
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <h2 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>Criar Sala</h2>
@@ -107,19 +105,17 @@ export function OnlineCreate() {
             </button>
           </div>
           
-          {!isPublic && (
-            <div className="fade-in">
-              <input
-                className="input"
-                type="text"
-                placeholder="Senha (Opcional)"
-                value={password}
-                onChange={e => setPassword(e.target.value.trim())}
-                maxLength={10}
-                style={{ width: '100%', height: '40px' }}
-              />
-            </div>
-          )}
+          <div className="fade-in">
+            <input
+              className="input"
+              type="text"
+              placeholder="Senha (Opcional)"
+              value={password}
+              onChange={e => setPassword(e.target.value.trim())}
+              maxLength={10}
+              style={{ width: '100%', height: '40px' }}
+            />
+          </div>
         </div>
       </div>
 
@@ -152,3 +148,4 @@ export function OnlineCreate() {
     </div>
   );
 }
+
