@@ -104,11 +104,7 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
           }}
           title={(!roomState && page !== 'home') ? 'Voltar ao Início' : ''}
         >
-          {'mfp games'.split('').map((char, index) => (
-            <span key={index} style={{ display: 'inline-block', animation: `wave 1.5s infinite ${index * 0.1}s ease-in-out`, whiteSpace: 'pre' }}>
-              {char}
-            </span>
-          ))}
+          mfp games
         </div>
       </div>
 

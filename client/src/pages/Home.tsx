@@ -31,7 +31,7 @@ export function Home() {
 
 
       {/* Logo & Slogan Area */}
-      <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center', marginBottom: '80px', marginTop: '-40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h1 ref={titleRef} style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 4rem)', textShadow: '4px 4px 0px rgba(0,0,0,0.2)', marginBottom: '8px', lineHeight: 1 }}>
           {'mfp games'.split('').map((char, index) => (
             <span key={index} style={{ display: 'inline-block', animation: `wave 1.5s infinite ${index * 0.1}s ease-in-out`, whiteSpace: 'pre' }}>
