@@ -1235,6 +1235,8 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .lobby-left, .lobby-right {
@@ -1256,7 +1258,8 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
     flex-direction: column;
     min-width: 280px;
     max-width: 340px;
-  }
+  height: 100%;
+}
 
   .lobby-right {
     flex: 2;
@@ -2102,4 +2105,6 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   color: white;
   border-color: #000;
 }
+
+
 
