@@ -304,18 +304,6 @@ export function ImpostorGame() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', zIndex: 3
                       }}>✓</div>
                     )}
-                    {/* Whisper Bubble */}
-                    {activeWhispers.filter(w => w.senderId === p.id).map((w, index) => (
-                      <div key={`${w.timestamp}-${index}`} style={{
-                        position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)',
-                        background: 'var(--primary)', color: 'var(--bg-primary)', padding: '4px 8px',
-                        borderRadius: '12px', borderBottomLeftRadius: '0', fontWeight: 'bold', fontSize: '0.9rem',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 20, whiteSpace: 'nowrap',
-                        animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                      }}>
-                        {w.text}
-                      </div>
-                    ))}
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>

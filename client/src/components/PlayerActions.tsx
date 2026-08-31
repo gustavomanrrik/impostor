@@ -7,7 +7,7 @@ interface PlayerActionsProps {
 }
 
 export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
-  const { roomState, playerId: myId, kickPlayer, mutedPlayers, toggleMutePlayer, sendWhisper } = useGame();
+  const { roomState, playerId: myId, kickPlayer, mutedPlayers, toggleMutePlayer, sendWhisper, activeWhispers } = useGame();
   const [isOpen, setIsOpen] = useState(false);
   const [isWhispering, setIsWhispering] = useState(false);
   const [whisperText, setWhisperText] = useState('');
@@ -41,11 +41,24 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
   };
 
   return (
-    <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <>
+      {/* Whisper Bubbles */}
+      {activeWhispers.filter(w => w.senderId === playerId).map((w, index) => (
+        <div key={`${w.timestamp}-${index}`} style={{
+          position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)',
+          background: 'var(--primary)', color: 'var(--bg-primary)', padding: '4px 8px',
+          borderRadius: '12px', borderBottomLeftRadius: '0', fontWeight: 'bold', fontSize: '0.9rem',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)', zIndex: 110, whiteSpace: 'nowrap',
+          animation: 'bounceIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+        }}>
+          {w.text}
+        </div>
+      ))}
+      <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {isMuted && <span title="Silenciado" style={{ fontSize: '1.2rem', filter: 'drop-shadow(1px 1px 0px #000)' }}>🔇</span>}
       <button 
         className="btn btn-ghost" 
-        style={{ padding: '0 4px', fontSize: '1.2rem', lineHeight: 1, minWidth: 'auto', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '4px' }}
+        style={{ padding: '0 4px', fontSize: '1.2rem', lineHeight: 1, minWidth: 'auto', background: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '4px' }}
         title="Opções"
         onClick={(e) => {
           e.preventDefault();
@@ -140,5 +153,6 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
         </div>
       )}
     </div>
+    </>
   );
 }
