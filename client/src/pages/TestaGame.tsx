@@ -318,6 +318,7 @@ export function TestaGame() {
             </div>
           </div>
         </div>
+      </div>
       {noteModalContent}
       </>
     );

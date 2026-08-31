@@ -368,7 +368,8 @@ export function ImpostorGame() {
                     </form>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
