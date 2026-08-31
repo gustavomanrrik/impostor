@@ -11,7 +11,9 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWhispering, setIsWhispering] = useState(false);
   const [whisperText, setWhisperText] = useState('');
+  const [dropdownPos, setDropdownPos] = useState({ bottom: 0, right: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   
   const isHost = roomState?.hostId === myId;
   const isMuted = mutedPlayers.includes(playerId);
@@ -57,12 +59,20 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
       <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px' }}>
       {isMuted && <span title="Silenciado" style={{ fontSize: '1.2rem', filter: 'drop-shadow(1px 1px 0px #000)' }}>🔇</span>}
       <button 
+        ref={buttonRef}
         className="btn btn-ghost" 
         style={{ padding: '0 4px', fontSize: '1.2rem', lineHeight: 1, minWidth: 'auto', background: 'transparent', color: 'var(--text-primary)', border: 'none', borderRadius: '4px' }}
         title="Opções"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          if (!isOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setDropdownPos({
+              bottom: window.innerHeight - rect.top + 4,
+              right: window.innerWidth - rect.right
+            });
+          }
           setIsOpen(!isOpen);
           setIsWhispering(false);
         }}
@@ -74,10 +84,9 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
         <div 
           className="card fade-in"
           style={{ 
-            position: 'absolute',
-            bottom: '100%',
-            right: 0,
-            marginBottom: '4px',
+            position: 'fixed',
+            bottom: `${dropdownPos.bottom}px`,
+            right: `${dropdownPos.right}px`,
             background: 'var(--bg-primary)',
             padding: '4px',
             display: 'flex',
@@ -87,7 +96,7 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
             boxShadow: 'var(--shadow-md)',
             border: '2px solid var(--text-primary)',
             borderRadius: 'var(--radius-sm)',
-            zIndex: 100
+            zIndex: 99999
           }}
           onClick={(e) => e.stopPropagation()}
         >
