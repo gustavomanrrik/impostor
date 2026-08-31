@@ -15,7 +15,7 @@ export function Home() {
 
 
       {/* Logo & Slogan Area */}
-      <div style={{ textAlign: 'center', marginBottom: '80px', marginTop: '-40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center', marginBottom: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 4rem)', textShadow: '4px 4px 0px rgba(0,0,0,0.2)', marginBottom: '8px', lineHeight: 1 }}>
           {'mfp games'.split('').map((char, index) => (
             <span key={index} style={{ display: 'inline-block', animation: `wave 1.5s infinite ${index * 0.1}s ease-in-out`, whiteSpace: 'pre' }}>
@@ -30,10 +30,10 @@ export function Home() {
 
       {/* Games Grid */}
       <div className="home-games-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px', width: '100%' }}>
-        
+
         {/* Jogo 1: Impostor */}
-        <div 
-          className="card card-interactive home-game-card" 
+        <div
+          className="card card-interactive home-game-card"
           onClick={() => handleSelectGame(GameType.IMPOSTOR)}
         >
           <div className="home-game-header">
@@ -44,8 +44,8 @@ export function Home() {
         </div>
 
         {/* Jogo 2: Jogo da Testa */}
-        <div 
-          className="card card-interactive home-game-card" 
+        <div
+          className="card card-interactive home-game-card"
           onClick={() => handleSelectGame(GameType.TESTA)}
         >
           <div className="home-game-header">
@@ -56,8 +56,8 @@ export function Home() {
         </div>
 
         {/* Jogo 3: Jogo dos Números */}
-        <div 
-          className="card card-interactive home-game-card" 
+        <div
+          className="card card-interactive home-game-card"
           onClick={() => handleSelectGame(GameType.NUMBERS)}
         >
           <div className="home-game-header">
