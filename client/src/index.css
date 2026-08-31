@@ -611,6 +611,7 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 .player-item {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   position: relative;
   gap: 8px;
   padding: 8px 12px;
@@ -2101,3 +2102,4 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   color: white;
   border-color: #000;
 }
+

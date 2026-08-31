@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { VolumeX, Volume2, MessageCircle } from 'lucide-react';
+import { KickPlayerButton } from './KickPlayerButton';
 
 interface PlayerActionsProps {
   playerId: string;
@@ -8,13 +9,14 @@ interface PlayerActionsProps {
 }
 
 export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
-  const { mutedPlayers, toggleMutePlayer, sendWhisper, playerId: myId } = useGame();
+  const { mutedPlayers, toggleMutePlayer, sendWhisper, playerId: myId, roomState } = useGame();
   const [isWhispering, setIsWhispering] = useState(false);
   const [whisperText, setWhisperText] = useState('');
 
   if (playerId === myId) return null;
 
   const isMuted = mutedPlayers.includes(playerId);
+  const isHost = roomState?.hostId === myId;
 
   const handleWhisper = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,23 +44,23 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
         </form>
       ) : (
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+          {isHost && <KickPlayerButton playerId={playerId} playerName={playerName} />}
           <button 
             type="button"
-            className="btn btn-ghost btn-sm"
-            style={{ padding: '2px 6px', fontSize: '0.8rem' }}
+            className="btn btn-ghost btn-sm btn-icon"
             onClick={(e) => {
               e.stopPropagation();
               setIsWhispering(true);
             }}
             title="Sussurrar"
           >
-            <MessageCircle size={16} strokeWidth={2.5} /> Sussurrar
+            <MessageCircle size={16} strokeWidth={2.5} />
           </button>
           
           <button 
             type="button"
-            className={`btn ${isMuted ? 'btn-primary' : 'btn-ghost'} btn-sm`}
-            style={{ padding: '2px 6px', fontSize: '0.8rem', background: isMuted ? 'var(--error)' : 'transparent', color: isMuted ? 'white' : 'var(--text-primary)', border: isMuted ? '2px solid black' : 'none' }}
+            className={`btn ${isMuted ? 'btn-primary' : 'btn-ghost'} btn-sm btn-icon`}
+            style={{ background: isMuted ? 'var(--error)' : 'transparent', color: isMuted ? 'white' : 'var(--text-primary)', border: isMuted ? '2px solid black' : 'none' }}
             onClick={(e) => {
               e.stopPropagation();
               toggleMutePlayer(playerId);
@@ -72,3 +74,4 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
     </div>
   );
 }
+

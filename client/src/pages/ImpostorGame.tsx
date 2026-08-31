@@ -294,9 +294,7 @@ export function ImpostorGame() {
                 onClick={() => {
                   if (hasRequestedVote) setSelectedVote(p.id);
                 }}>
-                  <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
-                    <KickPlayerButton playerId={p.id} playerName={p.name} />
-                  </div>
+                  
 
                   <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <AvatarDisplay avatar={p.avatar} size="5rem" />
@@ -639,4 +637,5 @@ export function ImpostorGame() {
     </div>
   );
 }
+
 

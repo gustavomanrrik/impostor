@@ -107,7 +107,7 @@ export function ImpostorLobby() {
 
           {/* Players */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <div className={mobileTab === 'me' ? 'hide-on-mobile' : ''}>
+            <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontWeight: 600 }}>Jogadores</span>
                 <span className="text-muted" style={{ fontSize: '0.875rem' }}>
@@ -128,9 +128,7 @@ export function ImpostorLobby() {
                       <span className="text-muted" style={{ fontSize: '0.8rem', flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 {player.score} pts</span>
                     </span>
                     {player.isHost && <span className="player-badge">HOST</span>}
-                    {isHost && player.id !== playerId && (
-                      <KickPlayerButton playerId={player.id} playerName={player.name} />
-                    )}
+                    
                     {!player.isConnected && (
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: isHost && player.id !== playerId ? '8px' : 'auto' }}>offline</span>
                     )}
@@ -406,3 +404,4 @@ export function ImpostorLobby() {
     </div>
   );
 }
+
