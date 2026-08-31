@@ -3,7 +3,6 @@ import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
-import { KickPlayerButton } from '../components/KickPlayerButton';
 import { PlayerActions } from '../components/PlayerActions';
 import { Podium } from '../components/Podium';
 
@@ -637,5 +636,6 @@ export function ImpostorGame() {
     </div>
   );
 }
+
 
 

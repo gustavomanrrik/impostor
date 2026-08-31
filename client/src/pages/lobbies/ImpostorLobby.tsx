@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
-import { KickPlayerButton } from '../../components/KickPlayerButton';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { PlayerActions } from '../../components/PlayerActions';
 import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
@@ -403,5 +402,6 @@ export function ImpostorLobby() {
     </div>
   );
 }
+
 
 

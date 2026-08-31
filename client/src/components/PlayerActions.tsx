@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
-import { VolumeX, Volume2, MessageCircle, MoreVertical } from 'lucide-react';
-import { KickPlayerButton } from './KickPlayerButton';
 
 interface PlayerActionsProps {
   playerId: string;
@@ -9,27 +7,29 @@ interface PlayerActionsProps {
 }
 
 export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
-  const { mutedPlayers, toggleMutePlayer, sendWhisper, playerId: myId, roomState } = useGame();
+  const { roomState, playerId: myId, kickPlayer, mutedPlayers, toggleMutePlayer, sendWhisper } = useGame();
+  const [isOpen, setIsOpen] = useState(false);
   const [isWhispering, setIsWhispering] = useState(false);
   const [whisperText, setWhisperText] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  
+  const isHost = roomState?.hostId === myId;
+  const isMuted = mutedPlayers.includes(playerId);
+  
+  if (playerId === myId) return null;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
+        setIsOpen(false);
         setIsWhispering(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  if (playerId === myId) return null;
-
-  const isMuted = mutedPlayers.includes(playerId);
-  const isHost = roomState?.hostId === myId;
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   const handleWhisper = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,42 +37,49 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
     sendWhisper(playerId, whisperText.trim());
     setWhisperText('');
     setIsWhispering(false);
+    setIsOpen(false);
   };
 
   return (
-    <div style={{ position: 'relative' }} ref={menuRef}>
+    <div ref={menuRef} style={{ position: 'absolute', bottom: '8px', right: '8px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {isMuted && <span title="Silenciado" style={{ fontSize: '1.2rem', filter: 'drop-shadow(1px 1px 0px #000)' }}>🔇</span>}
       <button 
-        type="button"
-        className="btn btn-ghost btn-sm btn-icon"
-        style={{ padding: '4px' }}
+        className="btn btn-ghost" 
+        style={{ padding: '0 4px', fontSize: '1.2rem', lineHeight: 1, minWidth: 'auto', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '4px' }}
+        title="Opções"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
-          setMenuOpen(!menuOpen);
+          setIsOpen(!isOpen);
           setIsWhispering(false);
         }}
-        title="Opções"
       >
-        <MoreVertical size={20} strokeWidth={2.5} />
+        ⋮
       </button>
 
-      {menuOpen && (
-        <div style={{ 
-          position: 'absolute', 
-          right: 0, 
-          top: '100%', 
-          zIndex: 100, 
-          background: 'var(--bg-primary)', 
-          border: '2px solid var(--text-primary)', 
-          borderRadius: '8px', 
-          padding: '8px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '8px',
-          minWidth: '150px',
-          boxShadow: 'var(--shadow-md)'
-        }}>
+      {isOpen && (
+        <div 
+          className="card fade-in"
+          style={{ 
+            position: 'absolute',
+            bottom: '100%',
+            right: 0,
+            marginBottom: '4px',
+            background: 'var(--bg-primary)',
+            padding: '4px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+            minWidth: isWhispering ? '200px' : '120px',
+            boxShadow: 'var(--shadow-md)',
+            border: '2px solid var(--text-primary)',
+            borderRadius: 'var(--radius-sm)',
+            zIndex: 100
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
           {isWhispering ? (
-            <form onSubmit={handleWhisper} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <form onSubmit={handleWhisper} style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px' }}>
               <input 
                 type="text" 
                 autoFocus 
@@ -83,48 +90,55 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
                 onChange={e => setWhisperText(e.target.value)}
               />
               <div style={{ display: 'flex', gap: '4px' }}>
-                <button type="submit" className="btn btn-primary btn-sm" style={{ flex: 1 }}>Enviar</button>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setIsWhispering(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary btn-sm" style={{ flex: 1, padding: '2px' }}>Enviar</button>
+                <button type="button" className="btn btn-ghost btn-sm" style={{ padding: '2px' }} onClick={() => setIsWhispering(false)}>Cancelar</button>
               </div>
             </form>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {isHost && <KickPlayerButton playerId={playerId} playerName={playerName} />}
+            <>
+              {isHost && (
+                <button 
+                  className="btn btn-ghost btn-sm" 
+                  style={{ color: 'var(--error)', justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    kickPlayer(playerId);
+                    setIsOpen(false);
+                  }}
+                >
+                  👞 Expulsar
+                </button>
+              )}
               
               <button 
-                type="button"
-                className="btn btn-ghost btn-sm"
-                style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px' }}
+                className="btn btn-ghost btn-sm" 
+                style={{ justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   setIsWhispering(true);
                 }}
               >
-                <MessageCircle size={16} strokeWidth={2.5} /> Sussurrar
+                💬 Sussurrar
               </button>
               
               <button 
-                type="button"
-                className={`btn ${isMuted ? 'btn-primary' : 'btn-ghost'} btn-sm`}
-                style={{ 
-                  display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px',
-                  background: isMuted ? 'var(--error)' : 'transparent', 
-                  color: isMuted ? 'white' : 'var(--text-primary)', 
-                  border: isMuted ? '2px solid black' : 'none' 
-                }}
+                className="btn btn-ghost btn-sm" 
+                style={{ justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   toggleMutePlayer(playerId);
+                  setIsOpen(false);
                 }}
               >
-                {isMuted ? <VolumeX size={16} strokeWidth={2.5} /> : <Volume2 size={16} strokeWidth={2.5} />}
-                {isMuted ? 'Desmutar' : 'Mutar'}
+                {isMuted ? '🔊 Desmutar' : '🔇 Silenciar'}
               </button>
-            </div>
+            </>
           )}
         </div>
       )}
     </div>
   );
 }
-
