@@ -32,8 +32,12 @@ export function Home() {
 
       {/* Logo & Slogan Area */}
       <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <h1 ref={titleRef} style={{ display: 'inline-block', fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900, letterSpacing: '0.05em', margin: '4px 0 8px 0', lineHeight: 1.1 }}>
-          mfp games
+        <h1 ref={titleRef} style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 4rem)', textShadow: '4px 4px 0px rgba(0,0,0,0.2)', marginBottom: '8px', lineHeight: 1 }}>
+          {'mfp games'.split('').map((char, index) => (
+            <span key={index} style={{ display: 'inline-block', animation: `wave 1.5s infinite ${index * 0.1}s ease-in-out`, whiteSpace: 'pre' }}>
+              {char}
+            </span>
+          ))}
         </h1>
         <p className="text-muted" style={{ fontSize: '1.2rem', fontWeight: 500, fontFamily: 'var(--font-display)' }}>
           joguinhos clean pra quando nao tiver nada pra fazer

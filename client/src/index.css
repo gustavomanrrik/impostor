@@ -124,6 +124,10 @@ html {
   }
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg-primary);
@@ -233,6 +237,7 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 
 /* ——— Layout ————————————————————— */
 .app-container {
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -2108,3 +2113,9 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
 
 
 
+
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
