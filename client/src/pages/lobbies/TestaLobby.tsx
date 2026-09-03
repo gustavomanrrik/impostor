@@ -115,7 +115,7 @@ export function TestaLobby() {
               </div>
               <div className="player-list" style={{ flex: 1, overflowY: 'auto' }}>
               {roomState.players.map(player => (
-                <div key={player.id} className="player-item">
+                <div key={player.id} data-player-id={player.id} className="player-item">
                   <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
                   <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                     <div style={{ position: 'relative' }}>
