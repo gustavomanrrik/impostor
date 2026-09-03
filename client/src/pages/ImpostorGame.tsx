@@ -21,6 +21,7 @@ export function ImpostorGame() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [whisperingTo, setWhisperingTo] = useState<string | null>(null);
   const [whisperInput, setWhisperInput] = useState<string>('');
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const reactionImageInputRef = useRef<HTMLInputElement>(null);
 
   const handleWhisperSubmit = (e: React.FormEvent, targetId: string) => {
@@ -140,219 +141,171 @@ export function ImpostorGame() {
 
   // ─── DISCUSSION PHASE ───────────────────────
   if (roomState.state === GameState.DISCUSSION) {
+    const isMobile = window.innerWidth < 768;
+
     return (
-      <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px', overflowY: 'auto' }}>
-        
-        {/* TOP BAR */}
-        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '16px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
-            <div className="status-badge discussion" style={{ margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-              💬 HORA DE DISCUTIR!
-            </div>
-            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900, whiteSpace: 'nowrap' }}>Descubram o Impostor!</h2>
-            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-              Tema: {themeName}
-            </div>
+      <div
+        className="page"
+        style={{
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr 1fr',
+          height: '100%',
+          padding: '10px',
+          gap: '10px',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+        }}
+      >
+        {/* ── HEADER ── */}
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="status-badge discussion" style={{ margin: 0, fontSize: '0.75rem' }}>💬 DISCUSSÃO</span>
+            <VoteSkipButton />
           </div>
-          <VoteSkipButton />
+          <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, lineHeight: 1.1 }}>Descubram o Impostor!</h2>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tema: {themeName}</p>
         </div>
 
-        {/* MAIN CONTENT AREA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, width: '100%' }}>
-          
-          {/* TOP HALF: My Card & Notepad */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', width: '100%', alignItems: 'stretch' }}>
-            
-            {/* LEFT: Meu Personagem */}
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
-                <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
-                <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: 'inherit' }}>
-                  {myWord || (isImpostor ? 'Você é o impostor!' : '••••••••')}
-                </p>
+        {/* ── TOP ROW: Meu Card + Notas ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minHeight: 0 }}>
+
+          {/* Meu Card — palavra + pedido de votação */}
+          <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Sua palavra:</p>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1rem, 4vw, 1.6rem)', background: '#fff9c4', color: '#000', padding: '6px 10px', border: '2px solid #000', textAlign: 'center', flexShrink: 0 }}>
+              {myWord || (isImpostor ? '😈 Impostor!' : '••••••••')}
+            </div>
+
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', minHeight: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                <span>Pedidos de votação</span>
+                <span>{roomState.voteRequestCount}/{roomState.voteRequestsNeeded}</span>
+              </div>
+              <div className="progress-bar" style={{ flexShrink: 0 }}>
+                <div className="progress-fill" style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }} />
               </div>
 
-              <div className="card" style={{ padding: '16px', margin: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Pedidos de votação</span>
-                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-                    {roomState.voteRequestCount}/{roomState.voteRequestsNeeded}
-                  </span>
-                </div>
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }}
-                  />
-                </div>
-  
-                <div style={{ marginTop: '8px' }}>
-                  {roomState.players.filter(p => p.hasRequestedVote).map(p => (
-                    <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                      🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
-                    </span>
-                  ))}
-                </div>
-                
-                <div style={{ marginTop: '12px' }}>
-                  {!hasRequestedVote ? (
-                    <>
-                      {showConfirmVoteRequest ? (
-                        <div>
-                          <p className="text-center" style={{ marginBottom: '8px', fontSize: '0.9rem' }}>Iniciar votação?</p>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>
-                              Cancelar
-                            </button>
-                            <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => {
-                              requestVote();
-                              setHasRequestedVote(true);
-                              setShowConfirmVoteRequest(false);
-                            }}>
-                              Confirmar
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          className="btn btn-secondary w-full"
-                          onClick={() => setShowConfirmVoteRequest(true)}
-                        >
-                          🗳️ Pedir votação
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                      <div className="status-badge ready" style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem' }}>
-                        ✅ Votação solicitada
+              <div style={{ fontSize: '0.72rem', color: 'var(--accent-primary)', flexShrink: 0 }}>
+                {roomState.players.filter(p => p.hasRequestedVote).map(p => (
+                  <span key={p.id} style={{ marginRight: '6px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>🗳️ {p.name}</span>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+                {!hasRequestedVote ? (
+                  showConfirmVoteRequest ? (
+                    <div>
+                      <p style={{ textAlign: 'center', marginBottom: '6px', fontSize: '0.8rem' }}>Iniciar votação?</p>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>Cancelar</button>
+                        <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { requestVote(); setHasRequestedVote(true); setShowConfirmVoteRequest(false); }}>Confirmar</button>
                       </div>
-                      <button 
-                        className="btn btn-ghost btn-sm" 
-                        style={{ padding: '4px 12px', fontSize: '0.85rem' }}
-                        onClick={() => {
-                          cancelVoteRequest();
-                          setHasRequestedVote(false);
-                        }}
-                      >
-                        Cancelar pedido
-                      </button>
                     </div>
-                  )}
-                </div>
+                  ) : (
+                    <button className="btn btn-secondary w-full" style={{ fontSize: '0.85rem', padding: '6px' }} onClick={() => setShowConfirmVoteRequest(true)}>
+                      🗳️ Pedir votação
+                    </button>
+                  )
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    <div className="status-badge ready" style={{ margin: 0, fontSize: '0.75rem', padding: '4px 10px' }}>✅ Votação solicitada</div>
+                    <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => { cancelVoteRequest(); setHasRequestedVote(false); }}>Cancelar pedido</button>
+                  </div>
+                )}
               </div>
             </div>
-
-            {/* RIGHT: Bloco de Notas */}
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
-              <div className="card personal-note-section" style={{ display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
-                <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>📝</span> Nota Pessoal (Só você vê)
-                </h3>
-                <textarea
-                  className="input"
-                  value={personalNotes}
-                  onChange={(e) => setPersonalNotes(e.target.value)}
-                  placeholder="Anote dicas..."
-                  style={{ width: '100%', flex: 1, minHeight: '80px', resize: 'none', padding: '12px' }}
-                />
-              </div>
-            </div>
-
           </div>
 
-          {/* BOTTOM SECTION: Outros Jogadores */}
-          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '0' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
-              outros jogadores:
-            </h3>
-            
-            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', justifyContent: 'center', gap: '16px' }}>
-              {roomState.players.filter(p => p.id !== playerId).map(p => {
-                const isDead = !p.isConnected;
-                return (
-                <div key={p.id} className="card" style={{ 
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
-                  opacity: isDead ? 0.5 : 1,
-                  border: '2px solid var(--text-primary)',
-                  background: 'var(--bg-primary)',
-                  position: 'relative',
-                  padding: '16px 12px 24px 12px',
-                  margin: 0,
-                  flex: '1 1 140px',
-                  maxWidth: '180px',
-                  cursor: hasRequestedVote ? 'pointer' : 'default'
-                }}
-                onClick={() => {
-                  if (hasRequestedVote) setSelectedVote(p.id);
-                }}>
-                  
+          {/* Nota Pessoal */}
+          {isMobile ? (
+            <div className="card" style={{ border: '4px dashed var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <button className="btn btn-ghost" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', border: 'none' }} onClick={() => setShowNotesModal(true)}>
+                <span style={{ fontSize: '1.8rem' }}>📝</span>
+                <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>Nota Pessoal</span>
+                {personalNotes && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>{personalNotes.slice(0, 30)}...</span>}
+              </button>
+            </div>
+          ) : (
+            <div className="card" style={{ border: '4px dashed var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <p style={{ margin: '0 0 6px 0', fontWeight: 700, fontSize: '0.8rem' }}>📝 Nota Pessoal (só você vê)</p>
+              <textarea
+                className="input"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Anote dicas..."
+                style={{ flex: 1, resize: 'none', padding: '8px', fontSize: '0.85rem', overflow: 'auto', width: '100%', boxSizing: 'border-box', minHeight: 0 }}
+              />
+            </div>
+          )}
+        </div>
 
-                  <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <AvatarDisplay avatar={p.avatar} size="5rem" />
+        {/* ── BOTTOM ROW: Outros Jogadores ── */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', border: '4px solid var(--text-primary)', padding: '10px', margin: 0 }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', fontWeight: 900, borderBottom: '3px solid var(--text-primary)', paddingBottom: '6px', flexShrink: 0 }}>
+            Outros jogadores:
+          </h3>
+          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', justifyContent: 'center', gap: '10px', overflowY: 'auto', paddingBottom: '4px' }}>
+            {roomState.players.filter(p => p.id !== playerId).map(p => {
+              const isDead = !p.isConnected;
+              return (
+                <div
+                  key={p.id}
+                  data-player-id={p.id}
+                  className="card"
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', opacity: isDead ? 0.5 : 1, border: '2px solid var(--text-primary)', background: 'var(--bg-primary)', position: 'relative', padding: '10px 8px', margin: 0, width: '110px', flexShrink: 0, cursor: hasRequestedVote ? 'pointer' : 'default' }}
+                  onClick={() => { if (hasRequestedVote) setSelectedVote(p.id); }}
+                >
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <AvatarDisplay avatar={p.avatar} size="4rem" />
                     <PlayerReactions playerId={p.id} />
                     {selectedVote === p.id && (
-                      <div style={{
-                        position: 'absolute', top: -5, right: -5, background: 'var(--primary)',
-                        color: 'var(--bg-primary)', borderRadius: '50%', width: '24px', height: '24px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', zIndex: 3
-                      }}>✓</div>
+                      <div style={{ position: 'absolute', top: -4, right: -4, background: 'var(--primary)', color: 'var(--bg-primary)', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', zIndex: 3 }}>✓</div>
                     )}
                   </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 600, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: isDead ? 'line-through' : 'none', color: isDead ? 'var(--text-muted)' : 'inherit' }}>
-                      {p.name}
-                    </div>
-                    
-                    <PlayerActions playerId={p.id} playerName={p.name} />
-                    
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center', gap: '2px' }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: isDead ? 'line-through' : 'none', color: isDead ? 'var(--text-muted)' : 'inherit' }}>{p.name}</div>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '4px' }}>🏆 {p.score} pts</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 'bold' }}>🏆 {p.score} pts</span>
                       {p.isWinner && <span title="Vencedor">👑</span>}
                       {p.id === roomState.hostId && <span title="Host">⭐</span>}
                     </div>
                   </div>
 
+                  <PlayerActions playerId={p.id} playerName={p.name} />
+
                   {!hasRequestedVote && (
-                    <button 
+                    <button
                       className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px 8px', fontSize: '0.8rem', minHeight: 'auto', position: 'absolute', top: '4px', right: '4px' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setWhisperingTo(whisperingTo === p.id ? null : p.id);
-                        setWhisperInput('');
-                      }}
-                    >
-                      💬
-                    </button>
+                      style={{ padding: '2px 6px', fontSize: '0.7rem', minHeight: 'auto', position: 'absolute', top: '3px', right: '3px' }}
+                      onClick={(e) => { e.stopPropagation(); setWhisperingTo(whisperingTo === p.id ? null : p.id); setWhisperInput(''); }}
+                    >💬</button>
                   )}
-                  {/* Whisper Input */}
+
                   {whisperingTo === p.id && (
-                    <form 
-                      onSubmit={(e) => handleWhisperSubmit(e, p.id)} 
-                      style={{ display: 'flex', width: '100%', gap: '4px', marginTop: '8px' }}
-                    >
-                      <input
-                        autoFocus
-                        type="text"
-                        className="input"
-                        placeholder="Sussurro secreto..."
-                        value={whisperInput}
-                        onChange={e => setWhisperInput(e.target.value)}
-                        style={{ flex: 1, padding: '4px 8px', fontSize: '0.9rem' }}
-                        onBlur={() => setTimeout(() => setWhisperingTo(null), 150)}
-                      />
-                      <button type="submit" className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.9rem', minHeight: 'auto' }}>Enviar</button>
+                    <form onSubmit={(e) => handleWhisperSubmit(e, p.id)} style={{ display: 'flex', width: '100%', gap: '3px', marginTop: '4px' }}>
+                      <input autoFocus type="text" className="input" placeholder="Sussurro..." value={whisperInput} onChange={e => setWhisperInput(e.target.value)} style={{ flex: 1, padding: '3px 6px', fontSize: '0.8rem' }} onBlur={() => setTimeout(() => setWhisperingTo(null), 150)} />
+                      <button type="submit" className="btn btn-primary" style={{ padding: '3px 8px', fontSize: '0.8rem', minHeight: 'auto' }}>➤</button>
                     </form>
                   )}
                 </div>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
         </div>
+
+        {/* ── MODAL NOTAS (mobile) ── */}
+        {showNotesModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' }} onClick={() => setShowNotesModal(false)}>
+            <div style={{ background: 'var(--bg-primary)', border: '4px solid var(--text-primary)', width: '100%', padding: '16px', boxSizing: 'border-box', borderBottom: 'none', maxHeight: '70vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <h3 style={{ margin: 0 }}>📝 Nota Pessoal</h3>
+                <button className="btn btn-ghost btn-sm" onClick={() => setShowNotesModal(false)}>✕ Fechar</button>
+              </div>
+              <textarea className="input" value={personalNotes} onChange={e => setPersonalNotes(e.target.value)} placeholder="Anote dicas..." style={{ flex: 1, resize: 'none', minHeight: '150px', padding: '10px', fontSize: '1rem' }} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
