@@ -189,31 +189,31 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
         style={{
           position: 'fixed',
           bottom: 0,
-          right: 0,
-          width: '100px',
-          height: '100px',
+          left: 0,
+          width: '60px',
+          height: '60px',
           opacity: 0,
           zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
+          alignItems: 'flex-start',
           justifyContent: 'flex-end',
-          padding: '8px',
-          gap: '8px',
+          padding: '6px',
+          gap: '4px',
           transition: 'opacity 0.2s',
           backgroundColor: 'var(--bg-primary)'
         }}
         onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
         onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
       >
-        <span style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>DEBUG</span>
+        <span style={{ fontSize: '0.6rem', fontWeight: 'bold' }}>DEV</span>
         {roomState?.hostId === playerId && roomState?.state === 'LOBBY' && (
           <button 
             className="btn btn-primary btn-sm" 
-            style={{ fontSize: '0.7rem', padding: '4px 8px' }}
+            style={{ fontSize: '0.6rem', padding: '2px 6px' }}
             onClick={() => startGame(true)}
           >
-            Force Start
+            Start
           </button>
         )}
       </div>
