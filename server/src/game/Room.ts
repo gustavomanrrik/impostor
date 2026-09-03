@@ -125,15 +125,15 @@ export class Room {
 
     let newHostId: string | undefined;
 
-    // Se era o host, transferir
-    if (player.isHost && this.players.size > 0) {
-      const nextPlayer = this.players.values().next().value;
-      if (nextPlayer) {
-        nextPlayer.isHost = true;
-        this.hostId = nextPlayer.id;
-        newHostId = nextPlayer.id;
-      }
-    }
+    // O usuário solicitou que o host não seja transferido automaticamente para outra pessoa.
+    // if (player.isHost && this.players.size > 0) {
+    //   const nextPlayer = this.players.values().next().value;
+    //   if (nextPlayer) {
+    //     nextPlayer.isHost = true;
+    //     this.hostId = nextPlayer.id;
+    //     newHostId = nextPlayer.id;
+    //   }
+    // }
 
     this.checkAbortCondition();
 
@@ -149,25 +149,8 @@ export class Room {
 
     player.isConnected = false;
 
-    // Em lobby, remover imediatamente sem chance de reconectar (conforme regra do usuario)
-    if (this.state === GameState.LOBBY) {
-      return { playerId, shouldRemove: true };
-    }
-
-    // Em jogo, manter por 2 minutos
-    const timer = setTimeout(() => {
-      // Após 2 min, se ainda desconectado, marcar como bot/skip
-      const p = this.players.get(playerId);
-      if (p && !p.isConnected) {
-        // Auto-vote (votar em ninguém ou skip)
-        this.disconnectTimers.delete(playerId);
-      }
-    }, 120000);
-    this.disconnectTimers.set(playerId, timer);
-
-    this.checkAbortCondition();
-
-    return { playerId, shouldRemove: false };
+    // O usuário solicitou remoção imediata no momento do disconnect (Alt+F4).
+    return { playerId, shouldRemove: true };
   }
 
   checkAbortCondition(): boolean {
@@ -175,7 +158,8 @@ export class Room {
     const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
     if (activePlayers.length < 2) {
       this.abortedDueToDisconnect = true;
-      this.stateMachine.forceState(GameState.RESULT);
+      this.stateMachine.forceState(GameState.LOBBY);
+      this.clearRoundState();
       return true;
     }
     return false;

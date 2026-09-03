@@ -46,12 +46,12 @@ export function TestaGame() {
       <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px', overflowY: 'auto' }}>
         
         <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '16px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
-            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
               🧠 JOGO DA TESTA
             </div>
-            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900 }}>Quem sou eu?</h2>
-            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem' }}>
+            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900, whiteSpace: 'nowrap' }}>Quem sou eu?</h2>
+            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
               Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
             </div>
           </div>
@@ -140,7 +140,7 @@ export function TestaGame() {
                   </div>
 
                   {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '8px', fontSize: '1.2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginBottom: '8px', fontSize: '1.2rem', position: 'relative', zIndex: 11 }}>
                       {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
                         <span key={i} style={{ 
                           opacity: i < (currentPlayer?.testaLivesLeft || 0) ? 1 : 0.3, 
@@ -152,7 +152,7 @@ export function TestaGame() {
                     </div>
                   ) : null}
 
-                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '4px', display: 'inline-block' }}>
+                  <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '24px', display: 'inline-block' }}>
                     <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="6rem" />
                     <PlayerReactions playerId={playerId!} />
                     {activeTestaGuesses.filter(g => g.playerId === playerId).map(g => (
@@ -234,12 +234,12 @@ export function TestaGame() {
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
-          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '0' }}>
+          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '0' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               na testa da galera:
             </h3>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
+            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', justifyContent: 'center', gap: '16px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -255,6 +255,19 @@ export function TestaGame() {
                   
 
                   <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '16px' }}>
+                    
+                    {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta && (
+                      <div style={{ position: 'absolute', top: '-44px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '2px', fontSize: '0.8rem', justifyContent: 'center', zIndex: 11 }}>
+                        {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
+                          <span key={i} style={{ 
+                            opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
+                            color: 'red',
+                            textShadow: '0 0 2px rgba(255,0,0,0.4)',
+                            lineHeight: 1
+                          }}>❤️</span>
+                        ))}
+                      </div>
+                    )}
                     
                     <div style={{ 
                       position: 'absolute',
@@ -295,19 +308,6 @@ export function TestaGame() {
                     <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>⭐ {p.score} pts</span>
                     
                     <PlayerActions playerId={p.id} playerName={p.name} />
-                    
-                    {roomState.config.testaMode === 'survival' && roomState.config.testaLives && roomState.config.testaLives > 0 && !p.hasGuessedTesta && (
-                      <div style={{ display: 'flex', gap: '2px', marginTop: '4px', fontSize: '0.8rem', justifyContent: 'center' }}>
-                        {Array.from({ length: roomState.config.testaLives }).map((_, i) => (
-                          <span key={i} style={{ 
-                            opacity: i < (p.testaLivesLeft || 0) ? 1 : 0.3, 
-                            color: 'red',
-                            textShadow: '0 0 2px rgba(255,0,0,0.4)',
-                            lineHeight: 1
-                          }}>❤️</span>
-                        ))}
-                      </div>
-                    )}
                     
                     {p.hasGuessedTesta && <span className="text-muted" style={{ fontSize: '0.8rem' }}>Acertou! 🎉</span>}
                   </div>

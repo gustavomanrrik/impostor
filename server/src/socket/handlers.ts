@@ -737,7 +737,8 @@ export function registerSocketHandlers(
       });
       if (!result) return;
 
-      if (room.getConnectedPlayers().length === 0) {
+      const connectedCount = Array.from(room.players.values()).filter(p => p.isConnected).length;
+      if (connectedCount === 0) {
         gameManager.removeRoom(room.code);
         console.log(`[Room ${room.code}] deleted because it is empty.`);
         return;
