@@ -43,21 +43,19 @@ export function TestaGame() {
   if (roomState.state === GameState.IN_GAME) {
     return (
       <>
-      <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
+      <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px', overflowY: 'auto' }}>
         
-        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <VoteSkipButton />
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '2px 8px', fontSize: '0.8rem' }}>
+        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '16px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold' }}>
               🧠 JOGO DA TESTA
             </div>
-            <h2 className="text-center" style={{ fontSize: '1.4rem', margin: 0 }}>Quem sou eu?</h2>
-            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '2px 8px', fontSize: '0.8rem' }}>
+            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900 }}>Quem sou eu?</h2>
+            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem' }}>
               Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
             </div>
           </div>
+          <VoteSkipButton />
         </div>
 
         {currentPlayer?.inSuddenDeath && (
@@ -89,7 +87,7 @@ export function TestaGame() {
             {/* LEFT: Meu Personagem */}
             <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
               {currentPlayer?.hasGuessedTesta ? (
-                <div className="card text-center" style={{ border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div className="card text-center" style={{ border: '4px solid var(--text-primary)', padding: '16px', margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <h3 style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>A palavra na sua testa era:</h3>
                   <div style={{ 
                     margin: '16px auto', 
@@ -127,7 +125,7 @@ export function TestaGame() {
                   <p className="text-muted" style={{ fontWeight: 'bold' }}>Aguardando os outros jogadores...</p>
                 </div>
               ) : (
-                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0, height: '100%', position: 'relative' }}>
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0, position: 'relative' }}>
                   
                   {/* Menu do Jogador */}
                   <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}>
@@ -219,7 +217,7 @@ export function TestaGame() {
 
             {/* RIGHT: Bloco de Notas */}
             <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
-              <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0 }}>
+              <div className="card" style={{ display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0 }}>
                 <h3 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
                   <span>📝 Nota Pessoal (Só você vê)</span>
                 </h3>
@@ -236,12 +234,12 @@ export function TestaGame() {
           </div>
 
           {/* BOTTOM SECTION: Enemies */}
-          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '16px 0 0 0' }}>
+          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '0' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
               na testa da galera:
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => (
                 <div key={p.id} className="card" style={{ 
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', 
@@ -249,10 +247,10 @@ export function TestaGame() {
                   border: '2px solid var(--text-primary)',
                   background: p.hasGuessedTesta ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                   position: 'relative',
-                  padding: '16px 12px 24px 12px',
+                  padding: '16px 12px 12px 12px',
                   margin: 0,
-                  flex: '1 1 140px',
-                  maxWidth: '180px'
+                  width: '140px',
+                  flexShrink: 0
                 }}>
                   
 
