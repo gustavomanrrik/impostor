@@ -6,6 +6,15 @@ interface Props {
   globalMode?: boolean;
 }
 
+// Gera uma posição horizontal consistente baseada no ID da reação
+function hashToPercent(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) % 100;
+  }
+  return 10 + (hash % 80); // entre 10% e 90%
+}
+
 export function PlayerReactions({ playerId, globalMode }: Props) {
   const { activeReactions } = useGame();
   
@@ -15,13 +24,49 @@ export function PlayerReactions({ playerId, globalMode }: Props) {
   
   if (myReactions.length === 0) return null;
 
+  if (globalMode) {
+    return (
+      <div style={{ 
+        position: 'fixed', 
+        bottom: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 99999, 
+        pointerEvents: 'none', 
+      }}>
+        {myReactions.map(r => {
+          const isImage = r.reaction.startsWith('data:image/');
+          const leftPct = hashToPercent(r.id);
+          return (
+            <div
+              key={r.id}
+              style={{
+                position: 'absolute',
+                bottom: '10%',
+                left: `${leftPct}%`,
+                animation: 'floatReaction 4s ease-out forwards',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {isImage ? (
+                <img src={r.reaction} alt="Reaction" style={{ height: '2.5rem', width: '2.5rem', borderRadius: '8px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+              ) : (
+                <span style={{ fontSize: '2rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>{r.reaction}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
-      position: globalMode ? 'fixed' : 'absolute', 
-      bottom: globalMode ? '20px' : 'auto',
-      top: globalMode ? 'auto' : 0, 
+      position: 'absolute', 
+      top: 0, 
       left: '50%', 
-      transform: 'translateX(-50%)', 
+      transform: 'translateX(-50%)',
       zIndex: 99999, 
       pointerEvents: 'none', 
       display: 'flex', 
@@ -39,9 +84,9 @@ export function PlayerReactions({ playerId, globalMode }: Props) {
             }}
           >
             {isImage ? (
-              <img src={r.reaction} alt="Reaction" style={{ maxHeight: '48px', maxWidth: '48px', borderRadius: '8px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+              <img src={r.reaction} alt="Reaction" style={{ maxHeight: '40px', maxWidth: '40px', borderRadius: '8px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
             ) : (
-              <span style={{ fontSize: '2rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>{r.reaction}</span>
+              <span style={{ fontSize: '1.8rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>{r.reaction}</span>
             )}
           </div>
         );
