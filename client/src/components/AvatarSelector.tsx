@@ -68,7 +68,7 @@ export function AvatarSelector({ selected, onSelect }: Props) {
         }}
         title="Mudar Avatar"
       >
-        <AvatarDisplay avatar={selected} size="100%" />
+        <AvatarDisplay avatar={selected} size="48px" />
       </button>
 
       {isOpen && (
