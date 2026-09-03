@@ -14,7 +14,6 @@ import { PublicRooms } from './pages/PublicRooms';
 import { ToastContainer } from './components/ui/Toast';
 import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
-import { ReactionsOverlay } from './components/ReactionsOverlay';
 import { BottomNav } from './components/BottomNav';
 import { ArrowLeft } from 'lucide-react';
 
@@ -162,7 +161,6 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
 
       <div className={`app-layout ${showChat ? 'with-chat with-bottom-nav' : ''}`}>
         <div className={`main-content ${showChat && mobileTab === 'chat' ? 'hide-on-mobile' : ''}`}>
-          <ReactionsOverlay />
           <div key={page} className="page-transition" style={{ height: '100%', width: '100%' }}>
             {page === 'home' && <Home />}
             {page === 'online-create' && <OnlineCreate />}

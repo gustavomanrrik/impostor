@@ -4,7 +4,6 @@ import { GameType } from '@shared/types';
 import { ImpostorGame } from './ImpostorGame';
 import { TestaGame } from './TestaGame';
 import { NumbersGame } from './NumbersGame';
-import { ReactionsOverlay } from '../components/ReactionsOverlay';
 
 export function Game() {
   const { roomState } = useGame();

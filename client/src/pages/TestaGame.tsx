@@ -4,6 +4,7 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { PlayerActions } from '../components/PlayerActions';
+import { PlayerReactions } from '../components/PlayerReactions';
 import { Podium } from '../components/Podium';
 
 
@@ -155,6 +156,7 @@ export function TestaGame() {
 
                   <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', marginTop: '4px', display: 'inline-block' }}>
                     <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="6rem" />
+                    <PlayerReactions playerId={playerId!} />
                     {activeTestaGuesses.filter(g => g.playerId === playerId).map(g => (
                       <div key={g.id} className={`floating-guess ${g.correct ? 'correct' : 'incorrect'}`}>
                         {g.guess}
@@ -279,6 +281,7 @@ export function TestaGame() {
                     </div>
                     
                     <AvatarDisplay avatar={p.avatar} size="3.5rem" />
+                    <PlayerReactions playerId={p.id} />
                     
                     {activeTestaGuesses.filter(g => g.playerId === p.id).map(g => (
                       <div key={g.id} className={`floating-guess ${g.correct ? 'correct' : 'incorrect'}`}>

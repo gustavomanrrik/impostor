@@ -4,6 +4,7 @@ import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { PlayerActions } from '../components/PlayerActions';
+import { PlayerReactions } from '../components/PlayerReactions';
 import { Podium } from '../components/Podium';
 
 export function ImpostorGame() {
@@ -297,6 +298,7 @@ export function ImpostorGame() {
 
                   <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <AvatarDisplay avatar={p.avatar} size="5rem" />
+                    <PlayerReactions playerId={p.id} />
                     {selectedVote === p.id && (
                       <div style={{
                         position: 'absolute', top: -5, right: -5, background: 'var(--primary)',

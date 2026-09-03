@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { ThemeBuilderModal } from '../../components/ThemeBuilderModal';
 import { AvatarDisplay } from '../../components/AvatarDisplay';
+import { PlayerReactions } from '../../components/PlayerReactions';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { PlayerActions } from '../../components/PlayerActions';
 import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
@@ -118,7 +119,10 @@ export function TestaLobby() {
                 <div key={player.id} className="player-item">
                   <div className={`player-dot ${player.isConnected ? '' : 'offline'}`} />
                   <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
-                    <AvatarDisplay avatar={player.avatar} size="2.5rem" />
+                    <div style={{ position: 'relative' }}>
+                      <AvatarDisplay avatar={player.avatar} size="2.5rem" />
+                      <PlayerReactions playerId={player.id} />
+                    </div>
                     <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
                       {player.name}
                       {player.id === playerId && ' (você)'}

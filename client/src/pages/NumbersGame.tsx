@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { GameState } from '@shared/types';
 import { AvatarDisplay } from '../components/AvatarDisplay';
+import { PlayerActions } from '../components/PlayerActions';
+import { PlayerReactions } from '../components/PlayerReactions';
 import { VoteSkipButton } from '../components/VoteSkipButton';
 import { Podium } from '../components/Podium';
 
@@ -153,6 +155,7 @@ export function NumbersGame() {
                 
                 <div style={{ position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <AvatarDisplay avatar={p.avatar} size="5rem" />
+                  <PlayerReactions playerId={p.id} />
                   
                   <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
                     position: 'relative',
