@@ -69,6 +69,7 @@ interface GameContextType {
   resetScores: () => void;
   guessTesta: (guess: string) => Promise<boolean>;
   giveUpTesta: () => void;
+  lockNumbersGuesses: (guesses: Record<string, number>) => void;
   guessNumber: (targetId: string, guess: number) => Promise<boolean>;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   activeTestaGuesses: { id: string; playerId: string; guess: string; correct: boolean }[];
@@ -594,6 +595,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:giveUpTesta');
   }, []);
 
+  const lockNumbersGuesses = useCallback((guesses: Record<string, number>) => {
+    getSocket().emit('game:lockNumbersGuesses', guesses);
+  }, []);
+
   const guessNumber = useCallback((targetId: string, guess: number): Promise<boolean> => {
     return new Promise((resolve) => {
       getSocket().emit('game:guessNumber', { targetId, guess }, (res: { correct: boolean }) => {
@@ -641,7 +646,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
     createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
-    sendReaction, resetScores, guessTesta, giveUpTesta, guessNumber, activeReactions, activeTestaGuesses,
+    sendReaction, resetScores, guessTesta, giveUpTesta, lockNumbersGuesses, guessNumber, activeReactions, activeTestaGuesses,
     chatMessages, sendChatMessage, sendChatImage, sendChatAudio, reactToChatMessage,
     isChatMinimized, setIsChatMinimized,
     mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,

@@ -16,6 +16,7 @@ import { SuspenseReveal } from './components/SuspenseReveal';
 import { Chat } from './components/Chat';
 import { BottomNav } from './components/BottomNav';
 import { ArrowLeft } from 'lucide-react';
+import { WhisperOverlay } from './components/WhisperOverlay';
 
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
@@ -237,6 +238,7 @@ export default function App() {
   return (
     <GameProvider>
       <AppContent toggleTheme={toggleTheme} theme={theme} />
+      <WhisperOverlay />
     </GameProvider>
   );
 }

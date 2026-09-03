@@ -5,7 +5,6 @@ import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { PlayerReactions } from '../../components/PlayerReactions';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { PlayerActions } from '../../components/PlayerActions';
-import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 import { Difficulty } from '@shared/types';
 
 export function TestaLobby() {
@@ -121,7 +120,7 @@ export function TestaLobby() {
                   <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                     <div style={{ position: 'relative' }}>
                       <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                      <PlayerReactions playerId={player.id} />
+                      {/* PlayerReactions removido daqui */}
                     </div>
                     <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
                       {player.name}
@@ -171,7 +170,6 @@ export function TestaLobby() {
           <div className={`card w-full ${mobileTab === 'chat' ? 'hide-on-mobile' : ''}`} style={{ marginBottom: '16px', padding: '16px', flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontWeight: 600 }}>Sobre o Jogo</span>
-              <RoomPrivacySettings />
             </div>
 
             {isHost ? (
@@ -375,11 +373,10 @@ export function TestaLobby() {
           onRemoveWord={removeCustomWord}
         />
       )}
+      
+      {/* Global Reactions para o Lobby */}
+      <PlayerReactions globalMode />
     </div>
   );
-}
-
-
-
 
 

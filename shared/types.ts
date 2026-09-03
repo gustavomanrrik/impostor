@@ -81,6 +81,9 @@ export interface Player {
   inSuddenDeath?: boolean; // When another player wins, this player has 1 final guess to tie
   numbersLastChance?: boolean; // (Legacy/Specific) Has been discovered, but still has 1 final guess left
   numbersLivesLeft?: number; // Lives in survival mode
+  numbersGuessesLocked?: boolean;
+  numbersGuesses?: Record<string, number>;
+  numbersGuessTime?: number;
 }
 
 // Configuração da sala
@@ -228,6 +231,9 @@ export interface PublicPlayer {
   inSuddenDeath?: boolean;
   numbersLastChance?: boolean;
   numbersLivesLeft?: number;
+  numbersGuessesLocked?: boolean;
+  numbersGuesses?: Record<string, number>;
+  numbersGuessTime?: number;
 }
 
 // Histórico de partida (localStorage)
@@ -280,7 +286,7 @@ export interface ClientToServerEvents {
   // New Games
   'game:guessTesta': (guess: string, callback?: (res: { correct: boolean }) => void) => void;
   'game:giveUpTesta': () => void;
-  'game:guessNumber': (data: { targetId: string, guess: number }, callback?: (res: { correct: boolean }) => void) => void;
+  'game:lockNumbersGuesses': (guesses: Record<string, number>) => void;
 
   // Custom Theme
   'theme:setCustom': (theme: CustomTheme) => void;

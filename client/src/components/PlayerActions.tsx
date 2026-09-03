@@ -7,7 +7,7 @@ interface PlayerActionsProps {
 }
 
 export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
-  const { roomState, playerId: myId, kickPlayer, mutedPlayers, toggleMutePlayer, sendWhisper, activeWhispers } = useGame();
+  const { roomState, playerId: myId, kickPlayer, transferHost, mutedPlayers, toggleMutePlayer, sendWhisper, activeWhispers } = useGame();
   const [isOpen, setIsOpen] = useState(false);
   const [isWhispering, setIsWhispering] = useState(false);
   const [whisperText, setWhisperText] = useState('');
@@ -120,18 +120,32 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
           ) : (
             <>
               {isHost && (
-                <button 
-                  className="btn btn-ghost btn-sm" 
-                  style={{ color: 'var(--error)', justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    kickPlayer(playerId);
-                    setIsOpen(false);
-                  }}
-                >
-                  👞 Expulsar
-                </button>
+                <>
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    style={{ justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      transferHost(playerId);
+                      setIsOpen(false);
+                    }}
+                  >
+                    👑 Dar Host
+                  </button>
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    style={{ color: 'var(--error)', justifyContent: 'flex-start', padding: '4px 8px', fontSize: '0.85rem' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      kickPlayer(playerId);
+                      setIsOpen(false);
+                    }}
+                  >
+                    👞 Expulsar
+                  </button>
+                </>
               )}
               
               <button 

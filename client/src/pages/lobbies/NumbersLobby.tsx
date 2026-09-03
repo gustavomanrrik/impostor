@@ -4,7 +4,6 @@ import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { PlayerActions } from '../../components/PlayerActions';
 import { PlayerReactions } from '../../components/PlayerReactions';
-import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 
 export function NumbersLobby() {
   const { 
@@ -48,7 +47,7 @@ export function NumbersLobby() {
                     <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                       <div style={{ position: 'relative' }}>
                         <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                        <PlayerReactions playerId={player.id} />
+                        {/* PlayerReactions removido daqui */}
                       </div>
                       <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
                         {player.name}
@@ -208,6 +207,9 @@ export function NumbersLobby() {
           </div>
         </div>
       </div>
+      
+      {/* Global Reactions para o Lobby */}
+      <PlayerReactions globalMode />
     </div>
   );
 }

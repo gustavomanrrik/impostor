@@ -5,7 +5,6 @@ import { AvatarDisplay } from '../../components/AvatarDisplay';
 import { RoomCodeBox } from '../../components/RoomCodeBox';
 import { PlayerActions } from '../../components/PlayerActions';
 import { PlayerReactions } from '../../components/PlayerReactions';
-import { RoomPrivacySettings } from '../../components/RoomPrivacySettings';
 import { Difficulty, ImpostorMode } from '@shared/types';
 
 export function ImpostorLobby() {
@@ -121,7 +120,7 @@ export function ImpostorLobby() {
                     <span className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                       <div style={{ position: 'relative' }}>
                         <AvatarDisplay avatar={player.avatar} size="2.5rem" />
-                        <PlayerReactions playerId={player.id} />
+                        {/* PlayerReactions removido daqui */}
                       </div>
                       <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1 }}>
                         {player.name}
@@ -172,7 +171,6 @@ export function ImpostorLobby() {
           <div className={`card w-full ${mobileTab === 'chat' ? 'hide-on-mobile' : ''}`} style={{ marginBottom: '12px', padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <span style={{ fontWeight: 600 }}>Configurações do Impostor</span>
-              <RoomPrivacySettings />
             </div>
 
             {isHost ? (
@@ -404,11 +402,10 @@ export function ImpostorLobby() {
           onRemoveWord={removeCustomWord}
         />
       )}
+      
+      {/* Global Reactions para o Lobby */}
+      <PlayerReactions globalMode />
     </div>
   );
-}
-
-
-
 
 

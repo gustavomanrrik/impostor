@@ -156,7 +156,13 @@ export class Room {
   checkAbortCondition(): boolean {
     if (this.state === GameState.LOBBY || this.state === GameState.RESULT) return false;
     const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
-    if (activePlayers.length < 2) {
+    
+    let minPlayers = 2;
+    if (this.config.gameType === GameType.IMPOSTOR) {
+      minPlayers = 3;
+    }
+
+    if (activePlayers.length < minPlayers) {
       this.abortedDueToDisconnect = true;
       this.stateMachine.forceState(GameState.LOBBY);
       this.clearRoundState();
@@ -206,6 +212,18 @@ export class Room {
 
   isHost(playerId: string): boolean {
     return this.hostId === playerId;
+  }
+
+  transferHost(currentHostId: string, newHostId: string): boolean {
+    if (this.hostId !== currentHostId) return false;
+    const newHost = this.players.get(newHostId);
+    if (!newHost || !newHost.isConnected) return false;
+
+    const oldHost = this.players.get(currentHostId);
+    if (oldHost) oldHost.isHost = false;
+    newHost.isHost = true;
+    this.hostId = newHostId;
+    return true;
   }
 
   // ─── Config ─────────────────────────────
@@ -724,6 +742,9 @@ export class Room {
       p.hasBeenDiscovered = false;
       p.numbersLastChance = false;
       p.numbersLivesLeft = undefined;
+      p.numbersGuesses = undefined;
+      p.numbersGuessesLocked = false;
+      p.numbersGuessTime = undefined;
     }
   }
 
@@ -903,82 +924,63 @@ export class Room {
 
   // ─── Numbers Logic ─────────────────────────────
 
-  guessNumber(playerId: string, targetId: string, guess: number): boolean {
+  lockNumbersGuesses(playerId: string, guesses: Record<string, number>): boolean {
     if (this.state !== GameState.IN_GAME) return false;
     const player = this.players.get(playerId);
-    const target = this.players.get(targetId);
+    if (!player) return false;
+    if (player.numbersGuessesLocked) return false;
+
+    player.numbersGuesses = guesses;
+    player.numbersGuessesLocked = true;
+    player.numbersGuessTime = Date.now();
     
-    if (!player || !target || playerId === targetId) return false;
-    if (target.hasBeenDiscovered) return false;
-    if (player.hasBeenDiscovered && !player.inSuddenDeath) return false;
-
-    if (target.numberValue === guess) {
-      // Correct guess!
-      target.hasBeenDiscovered = true;
-      target.inSuddenDeath = true; // Target enters sudden death to make a final guess
-      
-      if (player.inSuddenDeath) {
-        player.inSuddenDeath = false; // Used their sudden death chance
-      }
-      
-      if (!player.discoveredNumbers) player.discoveredNumbers = [];
-      player.discoveredNumbers.push(targetId);
-      
-      // Points
-      player.score += 150;
-      target.score += 50;
-
-      this.checkNumbersGameOver();
-      return true;
-    } else {
-      // Wrong guess
-      if (player.inSuddenDeath) {
-        // Used sudden death chance and missed — they are fully eliminated
-        player.inSuddenDeath = false;
-        // player was already hasBeenDiscovered = true (set when they entered sudden death after losing all lives)
-        this.checkNumbersGameOver();
-      } else if (this.config.numbersMode === 'survival' && this.config.numbersLives && this.config.numbersLives > 0) {
-        if (player.numbersLivesLeft !== undefined && player.numbersLivesLeft > 0) {
-          player.numbersLivesLeft--;
-          if (player.numbersLivesLeft <= 0) {
-            // Eliminated — but give them a last sudden death guess at their targets
-            player.hasBeenDiscovered = true;
-            const hasTargetsLeft = Array.from(this.players.values()).some(
-              other => other.id !== player.id && !other.hasBeenDiscovered
-            );
-            if (hasTargetsLeft) {
-              player.inSuddenDeath = true; // Allow one last guess as sudden death
-            } else {
-              this.checkNumbersGameOver();
-            }
-          }
-        }
-      }
-      return false;
-    }
+    this.checkNumbersGameOver();
+    return true;
   }
 
   private checkNumbersGameOver() {
     const activePlayers = Array.from(this.players.values()).filter(p => p.isConnected && !p.isSpectator);
+    const allLocked = activePlayers.every(p => p.numbersGuessesLocked);
     
-    // Revoke sudden death if there's no one left to guess
+    if (allLocked) {
+      this.finishNumbersGame(activePlayers);
+    }
+  }
+
+  private finishNumbersGame(activePlayers: Player[]) {
+    const min = this.config.numbersMin || 1;
+    const max = this.config.numbersMax || 100;
+    const interval = max - min;
+    
     activePlayers.forEach(p => {
-      if (p.inSuddenDeath) {
-        const canGuess = activePlayers.some(other => other.id !== p.id && !other.hasBeenDiscovered);
-        if (!canGuess) {
-          p.inSuddenDeath = false;
-        }
-      }
+       p.isWinner = false; // Reset winner
+       // Calculate score for this player based on their guesses
+       if (p.numbersGuesses) {
+         let roundScore = 0;
+         Object.entries(p.numbersGuesses).forEach(([targetId, guess]) => {
+           const target = this.players.get(targetId);
+           if (target && target.numberValue !== undefined && !target.isSpectator && targetId !== p.id) {
+             const diff = Math.abs(target.numberValue - guess);
+             // Points = interval - diff. Exact guess = max points (interval) + 50 bonus
+             roundScore += Math.max(0, interval - diff);
+             if (diff === 0) roundScore += 50; 
+           }
+         });
+         p.score += roundScore;
+       }
     });
 
-    const undiscovered = activePlayers.filter(p => !p.hasBeenDiscovered);
-    const hasSuddenDeath = activePlayers.some(p => p.inSuddenDeath);
-
-    if (undiscovered.length <= 1 && !hasSuddenDeath) {
-      // Game over if 1 or 0 players left undiscovered and no one is taking a last chance!
-      undiscovered.forEach(p => p.isWinner = true); 
-      this.stateMachine.forceState(GameState.RESULT);
+    // Determine winner based on who has highest score
+    const sorted = [...activePlayers].sort((a, b) => {
+       if (b.score !== a.score) return b.score - a.score;
+       return (a.numbersGuessTime || 0) - (b.numbersGuessTime || 0);
+    });
+    
+    if (sorted.length > 0) {
+       sorted[0].isWinner = true;
     }
+    
+    this.stateMachine.forceState(GameState.RESULT);
   }
 
   // ─── Helpers ─────────────────────────────

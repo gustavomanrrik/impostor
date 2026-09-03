@@ -117,6 +117,22 @@ export function registerSocketHandlers(
       handleLeave(socket);
     });
 
+    socket.on('room:transferHost', (newHostId) => {
+      const room = findRoomBySocket(socket);
+      if (!room) return;
+
+      const playerId = room.getPlayerIdBySocket(socket.id);
+      if (!playerId) return;
+
+      if (room.transferHost(playerId, newHostId)) {
+        io.to(room.code).emit('room:hostChanged', newHostId);
+        io.to(room.code).emit('room:updated', room.getPublicState());
+        console.log(`[Room ${room.code}] Host transferido para ${newHostId}`);
+      } else {
+        socket.emit('error', { code: 'TRANSFER_FAILED', message: 'Não foi possível transferir o host.' });
+      }
+    });
+
     socket.on('room:kick', (playerIdToKick: string) => {
       const room = findRoomBySocket(socket);
       if (!room) return;
@@ -290,6 +306,19 @@ export function registerSocketHandlers(
       }
     });
 
+    socket.on('game:lockNumbersGuesses', (guesses: Record<string, number>) => {
+      const room = findRoomBySocket(socket);
+      if (room) {
+        const playerId = room.getPlayerIdBySocket(socket.id);
+        if (playerId) {
+          const locked = room.lockNumbersGuesses(playerId, guesses);
+          if (locked) {
+            io.to(room.code).emit('room:state', room.getPublicState());
+          }
+        }
+      }
+    });
+
     socket.on('game:giveUpTesta', () => {
       const room = findRoomBySocket(socket);
       if (!room) return;
@@ -301,20 +330,6 @@ export function registerSocketHandlers(
       }
     });
 
-    socket.on('game:guessNumber', (data: { targetId: string, guess: number }, callback?: (res: { correct: boolean }) => void) => {
-      const room = findRoomBySocket(socket);
-      if (!room) return;
-      const playerId = room.getPlayerIdBySocket(socket.id);
-      if (!playerId) return;
-      
-      const correct = room.guessNumber(playerId, data.targetId, data.guess);
-      
-      if (callback) {
-        callback({ correct });
-      }
-
-      io.to(room.code).emit('room:updated', room.getPublicState());
-    });
 
     // ─── PULAR RODADA ─────────────────────────
 
@@ -428,9 +443,22 @@ export function registerSocketHandlers(
       const senderId = room.getPlayerIdBySocket(socket.id);
       if (!senderId) return;
 
-      const targetSocketId = room.getSocketIdByPlayerId(targetPlayerId);
-      if (targetSocketId && targetSocketId !== socket.id) {
-        io.to(targetSocketId).emit('game:whisperReceived', { senderId, text: text.trim().substring(0, 200) });
+      const whisperId = Math.random().toString(36).substring(2, 9);
+      const socketsInRoom = io.sockets.adapter.rooms.get(room.code);
+      if (socketsInRoom) {
+        for (const sid of socketsInRoom) {
+          const s = io.sockets.sockets.get(sid) as TypedSocket;
+          if (s) {
+            const sPlayerId = room.getPlayerIdBySocket(sid);
+            const isPrivileged = sPlayerId === senderId || sPlayerId === targetPlayerId;
+            s.emit('room:whisperAnimation', {
+              id: whisperId,
+              senderId: senderId,
+              targetId: targetPlayerId,
+              text: isPrivileged ? text.trim().substring(0, 200) : '...'
+            });
+          }
+        }
       }
     });
 

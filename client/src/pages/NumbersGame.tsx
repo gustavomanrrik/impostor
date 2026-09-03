@@ -8,37 +8,31 @@ import { VoteSkipButton } from '../components/VoteSkipButton';
 import { Podium } from '../components/Podium';
 
 export function NumbersGame() {
-  const { roomState, playerId, guessNumber, nextRound, playAgain, leaveRoom, myNumber, mobileTab } = useGame();
+  const { roomState, playerId, lockNumbersGuesses, nextRound, playAgain, leaveRoom, myNumber, mobileTab } = useGame();
   const [guesses, setGuesses] = useState<Record<string, string>>({});
-  const [damagedPlayers, setDamagedPlayers] = useState<Record<string, boolean>>({});
   const [personalNotes, setPersonalNotes] = useState('');
   const [isNoteExpanded, setIsNoteExpanded] = useState(false);
 
   // Reset local state whenever a new round/game starts
   useEffect(() => {
     setGuesses({});
-    setDamagedPlayers({});
     setPersonalNotes('');
-  }, [roomState?.round]);
+  }, [roomState?.currentRound]);
 
   if (!roomState) return null;
 
   const currentPlayer = roomState.players.find(p => p.id === playerId);
   const isHost = roomState.hostId === playerId;
 
-  const handleGuess = async (e: React.FormEvent, targetId: string) => {
-    e.preventDefault();
-    const guessVal = parseInt(guesses[targetId]);
-    if (isNaN(guessVal)) return;
-
-    const isCorrect = await guessNumber(targetId, guessVal);
-    if (isCorrect === false) {
-      setDamagedPlayers(prev => ({ ...prev, [targetId]: true }));
-      setTimeout(() => {
-        setDamagedPlayers(prev => ({ ...prev, [targetId]: false }));
-      }, 500);
+  const handleLockGuesses = () => {
+    const validGuesses: Record<string, number> = {};
+    for (const pId of Object.keys(guesses)) {
+      if (guesses[pId] !== undefined && guesses[pId] !== '') {
+        const val = Number(guesses[pId]);
+        if (!isNaN(val)) validGuesses[pId] = val;
+      }
     }
-    setGuesses(prev => ({ ...prev, [targetId]: '' }));
+    lockNumbersGuesses(validGuesses);
   };
 
 
@@ -81,32 +75,15 @@ export function NumbersGame() {
               {myNumber}
             </div>
             
-            {currentPlayer?.hasBeenDiscovered && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
-                💀 Seu número foi descoberto!
+            {currentPlayer?.numbersGuessesLocked ? (
+              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#4CAF50', color: 'white', padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', marginTop: '16px', textAlign: 'center' }}>
+                ✅ Palpites Confirmados! Aguardando os outros...
               </div>
+            ) : (
+              <button className="btn btn-primary btn-xl fade-in" style={{ marginTop: '16px', padding: '8px 24px', fontSize: '1.2rem', boxShadow: '4px 4px 0 var(--border-main)' }} onClick={handleLockGuesses}>
+                Confirmar Palpites
+              </button>
             )}
-            {currentPlayer?.inSuddenDeath && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#ff3333', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
-                ☠️ MORTE SÚBITA! 1 palpite p/ salvar! ☠️
-              </div>
-            )}
-            {roomState.players.some(p => p.inSuddenDeath) && !currentPlayer?.inSuddenDeath && !currentPlayer?.hasBeenDiscovered && (
-              <div style={{ margin: '0 auto', display: 'block', maxWidth: 'fit-content', background: '#4CAF50', color: 'white', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', marginTop: '8px', textAlign: 'center' }}>
-                🎉 Você sobreviveu! (Aguardando oponentes)
-              </div>
-            )}
-            {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '1.2rem' }}>
-                {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
-                  <span key={i} style={{ 
-                    opacity: i < (currentPlayer?.numbersLivesLeft || 0) ? 1 : 0.3, 
-                    filter: i < (currentPlayer?.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                    color: 'red'
-                  }}>❤️</span>
-                ))}
-              </div>
-            ) : null}
           </div>
 
           {/* RIGHT: Nota Pessoal */}
@@ -124,9 +101,13 @@ export function NumbersGame() {
                 <textarea
                   className="input"
                   value={personalNotes}
-                  onChange={(e) => setPersonalNotes(e.target.value)}
+                  onChange={(e) => {
+                    setPersonalNotes(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
                   placeholder="Ex: Fulano é menor que 50..."
-                  style={{ width: '100%', flex: 1, resize: 'none', padding: '12px', marginTop: '12px' }}
+                  style={{ width: '100%', flex: 1, resize: 'none', padding: '12px', marginTop: '12px', overflow: 'hidden' }}
                 />
               </div>
             )}
@@ -157,7 +138,7 @@ export function NumbersGame() {
                   <AvatarDisplay avatar={p.avatar} size="5rem" />
                   <PlayerReactions playerId={p.id} />
                   
-                  <div className={damagedPlayers[p.id] ? 'damaged' : ''} style={{ 
+                  <div style={{ 
                     position: 'relative',
                     background: p.hasBeenDiscovered ? '#e0e0e0' : '#fff9c4', 
                     color: p.hasBeenDiscovered ? '#888' : '#000', 
@@ -165,62 +146,41 @@ export function NumbersGame() {
                     padding: '2px 8px', 
                     textAlign: 'center',
                     boxShadow: '2px 2px 0 rgba(0,0,0,0.2)', 
-                    width: '120px',
+                    minWidth: '80px',
                     minHeight: '24px',
                     marginTop: '-12px',
                     zIndex: 2,
                     transform: 'rotate(2deg)'
                   }}>
-                    {p.hasBeenDiscovered ? (
-                      <div style={{ fontWeight: 900, fontSize: '1.2rem', padding: '0px' }}>{p.numberValue}</div>
-                    ) : (
-                      <form onSubmit={(e) => handleGuess(e, p.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0, justifyContent: 'center' }}>
-                        <input
-                          type="number"
-                          className="input"
-                          value={guesses[p.id] || ''}
-                          onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
-                          style={{ width: '40px', padding: '2px', textAlign: 'center', fontSize: '0.9rem', border: '2px solid #000', margin: 0 }}
-                          min={roomState.config.numbersMin || 1}
-                          max={roomState.config.numbersMax || 100}
-                        />
-                        <button type="submit" className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '0.75rem', margin: 0 }}>Enviar</button>
-                      </form>
-                    )}
-                    {damagedPlayers[p.id] && (
-                      <span style={{
-                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                        color: 'red', fontSize: '2.5rem', fontWeight: 'bold', textShadow: '2px 2px 0 #fff'
-                      }}>❌</span>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', margin: 0, justifyContent: 'center' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Seu palpite:</span>
+                      <input
+                        type="number"
+                        className="input"
+                        value={guesses[p.id] || ''}
+                        onChange={(e) => setGuesses(prev => ({ ...prev, [p.id]: e.target.value }))}
+                        style={{ width: '60px', padding: '4px', textAlign: 'center', fontSize: '1.2rem', border: '2px solid #000', margin: 0 }}
+                        min={roomState.config.numbersMin || 1}
+                        max={roomState.config.numbersMax || 100}
+                        disabled={currentPlayer?.numbersGuessesLocked || p.isSpectator}
+                      />
+                    </div>
                   </div>
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
-                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', textAlign: 'center' }}>
+                  <p style={{ fontWeight: 600, margin: 0, fontSize: '1.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', textAlign: 'center' }}>
                     {p.name}
                   </p>
                   <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>🏆 {p.score} pts</span>
                   
-                  {roomState.config.numbersMode === 'survival' && roomState.config.numbersLives && roomState.config.numbersLives > 0 && !p.hasBeenDiscovered && (
-                    <div style={{ display: 'flex', gap: '2px', marginTop: '4px' }}>
-                      {Array.from({ length: roomState.config.numbersLives }).map((_, i) => (
-                        <span key={i} style={{ 
-                          opacity: i < (p.numbersLivesLeft || 0) ? 1 : 0.3, 
-                          filter: i < (p.numbersLivesLeft || 0) ? 'none' : 'grayscale(100%)',
-                          color: 'red', fontSize: '1rem'
-                        }}>❤️</span>
-                      ))}
-                    </div>
-                  )}
-
-                  {p.inSuddenDeath && (
+                  {p.numbersGuessesLocked && (
                     <div style={{ 
-                      background: '#ff3333', color: 'white', padding: '2px 6px', border: '2px solid black',
-                      borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px', fontSize: '0.75rem', 
+                      background: '#4CAF50', color: 'white', padding: '2px 6px', border: '2px solid black',
+                      borderRadius: '8px', fontSize: '0.75rem', 
                       fontWeight: 'bold', display: 'inline-block', marginTop: '4px'
                     }}>
-                      ☠️ Morte Súbita!
+                      ✅ Confirmado
                     </div>
                   )}
                 </div>
@@ -252,21 +212,22 @@ export function NumbersGame() {
             <h2 style={{ marginBottom: '16px' }}>Números da Rodada:</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
               {roomState.players.map(p => (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', background: p.hasBeenDiscovered ? 'var(--bg-secondary)' : 'var(--bg-glass)', border: '2px solid var(--text-primary)' }}>
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--bg-glass)', border: '2px solid var(--text-primary)' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <AvatarDisplay avatar={p.avatar} size="1.5rem" />
-                    <span style={{ fontWeight: 600, textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none' }}>
+                    <AvatarDisplay avatar={p.avatar} size="2rem" />
+                    <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>
                       {p.name} {p.id === playerId && '(Você)'}
                     </span>
-                    {p.hasBeenDiscovered ? (
-                      <span style={{ fontSize: '0.75rem', background: '#ff3333', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>❌ Descoberto</span>
-                    ) : (
-                      <span style={{ fontSize: '0.75rem', background: '#33cc33', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>✅ Sobreviveu</span>
+                    {p.isWinner && (
+                      <span style={{ fontSize: '0.85rem', background: '#f59e0b', color: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>👑 Vencedor</span>
                     )}
                   </span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold', fontSize: '1.2rem', textDecoration: p.hasBeenDiscovered ? 'line-through' : 'none', color: p.hasBeenDiscovered ? 'var(--text-muted)' : 'inherit' }}>
-                    {p.numberValue}
-                  </span>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#4CAF50' }}>{p.score} pts totais</span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'bold', fontSize: '1.8rem', background: '#fff9c4', padding: '4px 12px', border: '2px solid #000', borderRadius: '4px', transform: 'rotate(-2deg)' }}>
+                      {p.numberValue}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

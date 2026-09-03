@@ -45,17 +45,17 @@ export function TestaGame() {
       <>
       <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px', overflowY: 'auto' }}>
         
-        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '16px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
-            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap', display: 'inline-block' }}>
               🧠 JOGO DA TESTA
             </div>
-            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900, whiteSpace: 'nowrap' }}>Quem sou eu?</h2>
-            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-              Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
-            </div>
+            <VoteSkipButton />
           </div>
-          <VoteSkipButton />
+          <h2 style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900 }}>Quem sou eu?</h2>
+          <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem', display: 'inline-block', width: 'fit-content' }}>
+            Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
+          </div>
         </div>
 
         {currentPlayer?.inSuddenDeath && (
@@ -217,16 +217,20 @@ export function TestaGame() {
 
             {/* RIGHT: Bloco de Notas */}
             <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0 }}>
+              <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '24px 16px', margin: 0, minHeight: '300px' }}>
                 <h3 style={{ fontSize: '1.2rem', margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
                   <span>📝 Nota Pessoal (Só você vê)</span>
                 </h3>
                 <textarea
                   className="input"
                   value={personalNotes}
-                  onChange={(e) => setPersonalNotes(e.target.value)}
+                  onChange={(e) => {
+                    setPersonalNotes(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
                   placeholder="Anote suas deduções aqui..."
-                  style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'none', padding: '12px' }}
+                  style={{ width: '100%', flex: 1, minHeight: '120px', resize: 'none', padding: '12px', overflow: 'hidden' }}
                 />
               </div>
             </div>
