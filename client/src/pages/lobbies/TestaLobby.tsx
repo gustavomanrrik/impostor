@@ -378,5 +378,4 @@ export function TestaLobby() {
       <PlayerReactions globalMode />
     </div>
   );
-
-
+}

@@ -305,6 +305,7 @@ export interface ServerToClientEvents {
   'room:updated': (roomState: RoomPublicState) => void;
   'room:testaGuessAttempt': (data: { playerId: string; guess: string; correct: boolean }) => void;
   'room:playerJoined': (player: PublicPlayer) => void;
+  'room:whisperAnimation': (data: { id: string; senderId: string; targetId: string; text: string }) => void;
   'room:playerLeft': (playerId: string) => void;
   'room:playerDisconnected': (playerId: string) => void;
   'room:playerReconnected': (playerId: string) => void;

@@ -407,5 +407,4 @@ export function ImpostorLobby() {
       <PlayerReactions globalMode />
     </div>
   );
-
-
+}

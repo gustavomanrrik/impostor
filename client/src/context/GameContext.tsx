@@ -53,7 +53,8 @@ interface GameContextType {
   createRoom: (playerName: string, avatar: string, config: any, customTheme?: any) => void;
   joinRoom: (playerName: string, avatar: string, roomCode: string, password?: string) => void;
   leaveRoom: () => void;
-  kickPlayer: (playerId: string) => void;
+  kickPlayer: (targetId: string) => void;
+  transferHost: (newHostId: string) => void;
   updateConfig: (updates: any) => void;
   setCustomTheme: (theme: any) => void;
   startGame: (force?: any) => void;
@@ -70,7 +71,6 @@ interface GameContextType {
   guessTesta: (guess: string) => Promise<boolean>;
   giveUpTesta: () => void;
   lockNumbersGuesses: (guesses: Record<string, number>) => void;
-  guessNumber: (targetId: string, guess: number) => Promise<boolean>;
   activeReactions: { id: string; playerId: string; reaction: string; top: number }[];
   activeTestaGuesses: { id: string; playerId: string; guess: string; correct: boolean }[];
   fetchPublicRooms: () => void;
@@ -79,7 +79,7 @@ interface GameContextType {
   chatMessages: ChatMessage[];
   sendChatMessage: (text: string) => void;
   sendWhisper: (targetId: string, text: string) => void;
-  activeWhispers: { senderId: string; text: string; timestamp: number }[];
+  activeWhispers: { id: string; senderId: string; targetId: string; text: string; timestamp: number }[];
   sendChatImage: (imageUrl: string) => void;
   sendChatAudio: (audioUrl: string) => void;
   reactToChatMessage: (messageId: string, reaction: string) => void;
@@ -165,7 +165,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [activeReactions, setActiveReactions] = useState<{ id: string; playerId: string; reaction: string; top: number }[]>([]);
   const [activeTestaGuesses, setActiveTestaGuesses] = useState<{ id: string; playerId: string; guess: string; correct: boolean }[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [activeWhispers, setActiveWhispers] = useState<{ senderId: string; text: string; timestamp: number }[]>([]);
+  const [activeWhispers, setActiveWhispers] = useState<{ id: string; senderId: string; targetId: string; text: string; timestamp: number }[]>([]);
   const [isChatMinimized, setIsChatMinimized] = useState(window.innerWidth < 1024);
   const [mobileTab, setMobileTab] = useState<'me' | 'others' | 'chat'>('me');
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
@@ -427,15 +427,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       });
     });
 
-    socket.on('game:whisperReceived', (data) => {
-      const { senderId, text } = data;
+    socket.on('room:whisperAnimation', (data) => {
+      const { id, senderId, targetId, text } = data;
       setMutedPlayers(currentMuted => {
         if (!currentMuted.includes(senderId)) {
           playSuccessSound();
           const whisperTimestamp = Date.now();
-          setActiveWhispers(prev => [...prev, { senderId, text, timestamp: whisperTimestamp }]);
+          setActiveWhispers(prev => [...prev, { id, senderId, targetId, text, timestamp: whisperTimestamp }]);
           setTimeout(() => {
-            setActiveWhispers(current => current.filter(w => w.timestamp !== whisperTimestamp));
+            setActiveWhispers(current => current.filter(w => w.id !== id));
           }, 5000);
         }
         return currentMuted;
@@ -521,6 +521,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('room:kick', targetId);
   }, []);
 
+  const transferHost = useCallback((newHostId: string) => {
+    (getSocket() as any).emit('room:transferHost', newHostId);
+  }, []);
+
   const updateConfig = useCallback((updates: any) => {
     getSocket().emit('room:updateConfig', updates);
   }, []);
@@ -599,33 +603,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('game:lockNumbersGuesses', guesses);
   }, []);
 
-  const guessNumber = useCallback((targetId: string, guess: number): Promise<boolean> => {
-    return new Promise((resolve) => {
-      getSocket().emit('game:guessNumber', { targetId, guess }, (res: { correct: boolean }) => {
-        if (res.correct) {
-          playSuccessSound();
-        } else {
-          playErrorSound();
-          addToast('error', 'Número incorreto!');
-        }
-        resolve(res.correct);
-      });
-    });
-  }, [addToast]);
-
   const sendChatMessage = useCallback((text: string) => {
       getSocket().emit('chat:sendMessage', text);
   }, []);
 
   const sendWhisper = useCallback((targetId: string, text: string) => {
       getSocket().emit('game:sendWhisper', targetId, text);
-      // Optimistic update so the sender sees their own whisper bubble on the target's card
-      // To display it correctly on the UI, we pretend the sender is the target
-      // so the UI knows to render it on the target's card.
-      setActiveWhispers(prev => [...prev, { senderId: targetId, text, timestamp: Date.now() }]);
-      setTimeout(() => {
-        setActiveWhispers(current => current.filter(w => w.text !== text));
-      }, 5000);
   }, []);
 
   const sendChatImage = useCallback((imageUrl: string) => {
@@ -644,9 +627,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     page, navigate,
     selectedGameType, setSelectedGameType,
     roomState, playerId, myWord, myNumber, isImpostor, gameResult, isConnected, themes,
-    createRoom, joinRoom, leaveRoom, kickPlayer, updateConfig, setCustomTheme: () => {}, // mock for backward compat
+    createRoom, joinRoom, leaveRoom, kickPlayer, transferHost, updateConfig, setCustomTheme: () => {}, // mock for backward compat
     startGame, markWordSeen, requestVote, cancelVoteRequest, submitVote, voteSkip, nextRound, playAgain, changeTheme,
-    sendReaction, resetScores, guessTesta, giveUpTesta, lockNumbersGuesses, guessNumber, activeReactions, activeTestaGuesses,
+    sendReaction, resetScores, guessTesta, giveUpTesta, lockNumbersGuesses, activeReactions, activeTestaGuesses,
     chatMessages, sendChatMessage, sendChatImage, sendChatAudio, reactToChatMessage,
     isChatMinimized, setIsChatMinimized,
     mobileTab, setMobileTab, hasUnreadChat, setHasUnreadChat,
