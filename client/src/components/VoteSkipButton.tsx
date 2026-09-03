@@ -16,15 +16,19 @@ export function VoteSkipButton() {
       <button 
         onClick={() => voteSkip()}
         disabled={me.hasVotedSkip}
-        className="btn btn-ghost"
+        className="btn"
         style={{
           cursor: me.hasVotedSkip ? 'not-allowed' : 'pointer',
-          padding: '8px 12px',
-          fontSize: '0.9rem',
+          padding: '4px 12px',
+          fontSize: '0.8rem',
+          border: '2px dashed var(--text-primary)',
+          borderRadius: '20px',
+          background: 'var(--bg-primary)',
+          color: 'var(--text-primary)',
         }}
         title="Pular / Anular Rodada (todos precisam votar)"
       >
-        {me.hasVotedSkip ? '✅ Votado para anular' : '⏭️ Anular Rodada'}
+        {me.hasVotedSkip ? '✅ Anulando...' : '⏭️ Anular Rodada'}
       </button>
     </div>
   );

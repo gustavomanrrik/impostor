@@ -7,29 +7,9 @@ import { PlayerActions } from '../components/PlayerActions';
 import { PlayerReactions } from '../components/PlayerReactions';
 import { Podium } from '../components/Podium';
 
-const GAME_CONTAINER: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateRows: 'auto 1fr 1fr',
-  height: '100%',
-  padding: '10px',
-  gap: '10px',
-  boxSizing: 'border-box',
-  overflow: 'hidden',
-};
+const GAME_CONTAINER = { height: '100%', display: 'flex', flexDirection: 'column' as const, gap: '12px', padding: '16px', boxSizing: 'border-box' as const, overflow: 'hidden' };
 
-const TOP_ROW: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '10px',
-  minHeight: 0,
-};
-
-const BOTTOM_ROW: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-  overflow: 'hidden',
-};
+const BOTTOM_ROW = { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' as const };
 
 export function TestaGame() {
   const {
@@ -81,12 +61,12 @@ export function TestaGame() {
 
         {/* ── HEADER ── */}
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="status-badge voting" style={{ background: 'var(--text-primary)', color: 'var(--bg-primary)', margin: 0, fontSize: '0.75rem' }}>🧠 TESTA</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <span className="status-badge voting" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '16px' }}>🧠 TESTA</span>
             <VoteSkipButton />
           </div>
-          <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, lineHeight: 1.1 }}>Quem sou eu?</h2>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+          <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, lineHeight: 1.1, textAlign: 'center' }}>Quem sou eu?</h2>
+          <p style={{ margin: 0, fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'center' }}>
             Tema: {roomState.config.theme === 'custom' ? 'Customizado' : `${currentTheme?.icon || ''} ${currentTheme?.name || roomState.config.theme}`}
           </p>
           {currentPlayer?.inSuddenDeath && (
@@ -97,7 +77,7 @@ export function TestaGame() {
         </div>
 
         {/* ── TOP ROW: Meu Card + Notas ── */}
-        <div style={TOP_ROW}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0 }}>
 
           {/* Meu Card */}
           <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '6px', overflow: 'hidden', position: 'relative' }}>

@@ -157,17 +157,19 @@ export function ImpostorGame() {
         }}
       >
         {/* ── HEADER ── */}
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="status-badge discussion" style={{ margin: 0, fontSize: '0.75rem' }}>💬 DISCUSSÃO</span>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px', position: 'relative', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
+            <span className="status-badge discussion" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '16px' }}>💬 DISCUSSÃO</span>
+          </div>
+          <div style={{ position: 'absolute', right: 0, top: 0 }}>
             <VoteSkipButton />
           </div>
-          <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, lineHeight: 1.1 }}>Descubram o Impostor!</h2>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Tema: {themeName}</p>
+          <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, lineHeight: 1.1, textAlign: 'center' }}>Descubram o Impostor!</h2>
+          <p style={{ margin: 0, fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'center' }}>Tema: {themeName}</p>
         </div>
 
         {/* ── TOP ROW: Meu Card + Notas ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minHeight: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0 }}>
 
           {/* Meu Card — palavra + pedido de votação */}
           <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
