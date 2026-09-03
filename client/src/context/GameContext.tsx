@@ -56,7 +56,7 @@ interface GameContextType {
   kickPlayer: (playerId: string) => void;
   updateConfig: (updates: any) => void;
   setCustomTheme: (theme: any) => void;
-  startGame: () => void;
+  startGame: (force?: any) => void;
   markWordSeen: () => void;
   requestVote: () => void;
   cancelVoteRequest: () => void;
@@ -532,9 +532,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     getSocket().emit('theme:removeWord', word);
   }, []);
 
-  const startGame = useCallback(() => {
-    getSocket().emit('game:start');
-  }, []);
+  const startGame = (force?: any) => {
+    const isForce = force === true;
+    (getSocket() as any).emit('game:start', isForce);
+  };
 
   const markWordSeen = useCallback(() => {
     getSocket().emit('game:wordSeen');

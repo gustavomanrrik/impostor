@@ -195,14 +195,14 @@ export function registerSocketHandlers(
 
     // ─── INICIAR JOGO ─────────────────────────
 
-    socket.on('game:start', () => {
+    socket.on('game:start', (force?: boolean) => {
       const room = findRoomBySocket(socket);
       if (!room) return;
 
       const playerId = room.getPlayerIdBySocket(socket.id);
       if (!playerId) return;
 
-      const result = room.startGame(playerId);
+      const result = room.startGame(playerId, force);
       if (!result.success) {
         socket.emit('error', { code: 'START_FAILED', message: result.error || 'Falha ao iniciar.' });
         return;

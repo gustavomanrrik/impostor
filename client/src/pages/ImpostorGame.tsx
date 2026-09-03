@@ -141,141 +141,134 @@ export function ImpostorGame() {
   // ─── DISCUSSION PHASE ───────────────────────
   if (roomState.state === GameState.DISCUSSION) {
     return (
-      <div className="page" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px' }}>
-        <VoteSkipButton />
+      <div className="page" style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', padding: '16px', overflowY: 'auto' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-          <div className="status-badge discussion" style={{ margin: 0 }}>
-            💬 HORA DE DISCUTIR!
+        {/* TOP BAR */}
+        <div className={mobileTab === 'others' ? 'hide-on-mobile' : ''} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '16px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+            <div className="status-badge discussion" style={{ margin: 0, padding: '4px 12px', fontSize: '0.9rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+              💬 HORA DE DISCUTIR!
+            </div>
+            <h2 className="text-center" style={{ fontSize: '1.6rem', margin: 0, fontWeight: 900, whiteSpace: 'nowrap' }}>Descubram o Impostor!</h2>
+            <div className="status-badge" style={{ background: 'var(--bg-glass-strong)', margin: 0, padding: '4px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+              Tema: {themeName}
+            </div>
           </div>
-          <h2 className="text-center" style={{ fontSize: '1.8rem', margin: 0 }}>Descubram o Impostor!</h2>
+          <VoteSkipButton />
         </div>
-        
-        {roomState.config.showImpostorCount && (
-          <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginTop: 0, marginBottom: '16px' }}>
-            Há {roomState.config.customImpostorCount} impostor{roomState.config.customImpostorCount > 1 ? 'es' : ''} entre vocês.
-          </p>
-        )}
 
         {/* MAIN CONTENT AREA */}
-
-
-        <div className="responsive-row" style={{ flex: 1, minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, width: '100%' }}>
           
-          {/* LEFT COLUMN */}
-          <div className={`responsive-col-left fixed-width ${mobileTab !== 'me' ? 'hide-on-mobile' : ''}`} style={{ overflowY: 'auto', paddingRight: '4px' }}>
+          {/* TOP HALF: My Card & Notepad */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', width: '100%', alignItems: 'stretch' }}>
             
-            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
-              <p className="text-muted text-center" style={{ fontSize: '0.9rem', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Tema: <strong>{themeName}</strong>
-              </p>
-              <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
-              <p 
-                className={wordVisible ? 'word-visible' : 'word-hidden'}
-                style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: wordVisible ? 'inherit' : 'var(--text-muted)', transition: 'none' }}
-              >
-                {myWord || '••••••••'}
-              </p>
-              <button 
-                className="btn btn-ghost btn-sm" 
-                onClick={() => setWordVisible(!wordVisible)} 
-                style={{ marginTop: '12px' }}
-              >
-                {wordVisible ? '👁 Esconder' : '👁 Ver palavra'}
-              </button>
+            {/* LEFT: Meu Personagem */}
+            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '4px solid var(--text-primary)', padding: '16px', margin: 0 }}>
+                <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Sua palavra:</p>
+                <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.5rem', margin: 0, color: 'inherit' }}>
+                  {myWord || (isImpostor ? 'Você é o impostor!' : '••••••••')}
+                </p>
+              </div>
+
+              <div className="card" style={{ padding: '16px', margin: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Pedidos de votação</span>
+                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    {roomState.voteRequestCount}/{roomState.voteRequestsNeeded}
+                  </span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill"
+                    style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }}
+                  />
+                </div>
+  
+                <div style={{ marginTop: '8px' }}>
+                  {roomState.players.filter(p => p.hasRequestedVote).map(p => (
+                    <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
+                    </span>
+                  ))}
+                </div>
+                
+                <div style={{ marginTop: '12px' }}>
+                  {!hasRequestedVote ? (
+                    <>
+                      {showConfirmVoteRequest ? (
+                        <div>
+                          <p className="text-center" style={{ marginBottom: '8px', fontSize: '0.9rem' }}>Iniciar votação?</p>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>
+                              Cancelar
+                            </button>
+                            <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => {
+                              requestVote();
+                              setHasRequestedVote(true);
+                              setShowConfirmVoteRequest(false);
+                            }}>
+                              Confirmar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn btn-secondary w-full"
+                          onClick={() => setShowConfirmVoteRequest(true)}
+                        >
+                          🗳️ Pedir votação
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                      <div className="status-badge ready" style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem' }}>
+                        ✅ Votação solicitada
+                      </div>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        style={{ padding: '4px 12px', fontSize: '0.85rem' }}
+                        onClick={() => {
+                          cancelVoteRequest();
+                          setHasRequestedVote(false);
+                        }}
+                      >
+                        Cancelar pedido
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div className="card" style={{ padding: '16px', margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>Pedidos de votação</span>
-                <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-                  {roomState.voteRequestCount}/{roomState.voteRequestsNeeded}
-                </span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${(roomState.voteRequestCount / roomState.voteRequestsNeeded) * 100}%` }}
+            {/* RIGHT: Bloco de Notas */}
+            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column' }}>
+              <div className="card personal-note-section" style={{ display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, height: '100%' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📝</span> Nota Pessoal (Só você vê)
+                </h3>
+                <textarea
+                  className="input"
+                  value={personalNotes}
+                  onChange={(e) => setPersonalNotes(e.target.value)}
+                  placeholder="Anote dicas..."
+                  style={{ width: '100%', flex: 1, minHeight: '80px', resize: 'none', padding: '12px' }}
                 />
               </div>
-
-              <div style={{ marginTop: '8px' }}>
-                {roomState.players.filter(p => p.hasRequestedVote).map(p => (
-                  <span key={p.id} style={{ fontSize: '0.9rem', color: 'var(--accent-primary)', marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    🗳️ <AvatarDisplay avatar={p.avatar} size="1.2rem" /> {p.name}
-                  </span>
-                ))}
-              </div>
-              
-              <div style={{ marginTop: '12px' }}>
-                {!hasRequestedVote ? (
-                  <>
-                    {showConfirmVoteRequest ? (
-                      <div>
-                        <p className="text-center" style={{ marginBottom: '8px', fontSize: '0.9rem' }}>Iniciar votação?</p>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => setShowConfirmVoteRequest(false)}>
-                            Cancelar
-                          </button>
-                          <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => {
-                            requestVote();
-                            setHasRequestedVote(true);
-                            setShowConfirmVoteRequest(false);
-                          }}>
-                            Confirmar
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        className="btn btn-secondary w-full"
-                        onClick={() => setShowConfirmVoteRequest(true)}
-                      >
-                        🗳️ Pedir votação
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <div className="status-badge ready" style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem' }}>
-                      ✅ Votação solicitada
-                    </div>
-                    <button 
-                      className="btn btn-ghost btn-sm" 
-                      style={{ padding: '4px 12px', fontSize: '0.85rem' }}
-                      onClick={() => {
-                        cancelVoteRequest();
-                        setHasRequestedVote(false);
-                      }}
-                    >
-                      Cancelar pedido
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
 
-            <div className="card personal-note-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, minHeight: '120px' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>📝</span> Nota Pessoal (Só você vê)
-              </h3>
-              <textarea
-                className="input"
-                value={personalNotes}
-                onChange={(e) => setPersonalNotes(e.target.value)}
-                placeholder="Anote dicas..."
-                style={{ width: '100%', flex: 1, minHeight: '80px', resize: 'none', padding: '12px' }}
-              />
-            </div>
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div className={mobileTab !== 'others' ? 'hide-on-mobile' : ''} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, border: '4px solid var(--text-primary)', padding: '16px', borderRadius: '16px', overflow: 'hidden' }}>
+          {/* BOTTOM SECTION: Outros Jogadores */}
+          <div className={`card ${mobileTab === 'me' ? 'hide-on-mobile' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, width: '100%', border: '4px solid var(--text-primary)', padding: '16px', margin: '0' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', borderBottom: '3px solid var(--text-primary)', paddingBottom: '8px' }}>
-              Outros Jogadores
+              outros jogadores:
             </h3>
             
-            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', paddingRight: '8px' }}>
+            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', justifyContent: 'center', gap: '16px' }}>
               {roomState.players.filter(p => p.id !== playerId).map(p => {
                 const isDead = !p.isConnected;
                 return (
@@ -309,7 +302,7 @@ export function ImpostorGame() {
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', textAlign: 'center' }}>
-                    <div style={{ fontWeight: 600, fontSize: '1.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: isDead ? 'line-through' : 'none', color: isDead ? 'var(--text-muted)' : 'inherit' }}>
+                    <div style={{ fontWeight: 600, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textDecoration: isDead ? 'line-through' : 'none', color: isDead ? 'var(--text-muted)' : 'inherit' }}>
                       {p.name}
                     </div>
                     

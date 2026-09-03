@@ -20,7 +20,7 @@ import { ArrowLeft } from 'lucide-react';
 import { isSoundsEnabled, toggleSound } from './services/sounds';
 
 function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: string }) {
-  const { page, navigate, toasts, showSuspense, mobileTab, isChatMinimized, roomState, playerId, leaveRoom } = useGame();
+  const { page, navigate, toasts, showSuspense, mobileTab, isChatMinimized, roomState, playerId, leaveRoom, startGame } = useGame();
   const showChat = page === 'lobby' || page === 'game';
   const [soundEnabled, setSoundEnabled] = useState(isSoundsEnabled());
 
@@ -183,6 +183,40 @@ function AppContent({ toggleTheme, theme }: { toggleTheme: () => void, theme: st
         )}
       </div>
       {showChat && <BottomNav />}
+      {/* INVISIBLE DEBUG MENU */}
+      <div 
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          right: 0,
+          width: '100px',
+          height: '100px',
+          opacity: 0,
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+          padding: '8px',
+          gap: '8px',
+          transition: 'opacity 0.2s',
+          backgroundColor: 'var(--bg-primary)'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+        onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+      >
+        <span style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>DEBUG</span>
+        {roomState?.hostId === playerId && roomState?.state === 'LOBBY' && (
+          <button 
+            className="btn btn-primary btn-sm" 
+            style={{ fontSize: '0.7rem', padding: '4px 8px' }}
+            onClick={() => startGame(true)}
+          >
+            Force Start
+          </button>
+        )}
+      </div>
+
     </div>
   );
 }

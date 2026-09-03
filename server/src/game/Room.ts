@@ -260,9 +260,29 @@ export class Room {
 
   // ─── Game Flow ─────────────────────────────
 
-  startGame(playerId: string): { success: boolean; error?: string } {
-    if (!this.isHost(playerId)) {
-      return { success: false, error: 'Somente o host pode iniciar a partida.' };
+  startGame(playerId: string, force: boolean = false): { success: boolean; error?: string } {
+    if (this.hostId !== playerId) {
+      return { success: false, error: 'Apenas o host pode iniciar.' };
+    }
+
+    if (!force) {
+      if (this.config.gameType === GameType.IMPOSTOR) {
+        if (this.players.size < 3 || this.players.size > 8) {
+          return { success: false, error: 'Impostor requer de 3 a 8 jogadores.' };
+        }
+        const impostorCount = this.getImpostorCount();
+        if (impostorCount >= this.players.size) {
+          return { success: false, error: 'Muitos impostores para o número de jogadores.' };
+        }
+      } else if (this.config.gameType === GameType.TESTA) {
+        if (this.players.size < 2 || this.players.size > 8) {
+          return { success: false, error: 'Jogo da Testa requer de 2 a 8 jogadores.' };
+        }
+      } else if (this.config.gameType === GameType.NUMBERS) {
+        if (this.players.size < 2 || this.players.size > 8) {
+          return { success: false, error: 'Jogo dos Números requer de 2 a 8 jogadores.' };
+        }
+      }
     }
 
     if (!this.stateMachine.canTransition(GameState.STARTING)) {
@@ -271,23 +291,14 @@ export class Room {
 
     // Dispatch based on game type
     if (this.config.gameType === GameType.TESTA) {
-      if (this.players.size < 2 || this.players.size > 6) {
-        return { success: false, error: 'Jogo da Testa requer de 2 a 6 jogadores.' };
-      }
       return this.startTestaGame();
     } 
     
     if (this.config.gameType === GameType.NUMBERS) {
-      if (this.players.size < 2) {
-        return { success: false, error: 'Jogo dos Números requer pelo menos 2 jogadores.' };
-      }
       return this.startNumbersGame();
     }
 
     // Default: Impostor
-    if (this.players.size < 3) {
-      return { success: false, error: 'Impostor requer pelo menos 3 jogadores.' };
-    }
     return this.startImpostorGame();
   }
 
@@ -305,7 +316,8 @@ export class Room {
     }
 
     // Calcular número de impostores
-    const impostorCount = this.getImpostorCount();
+    const allIds = Array.from(this.players.keys());
+    const impostorCount = Math.min(this.getImpostorCount(), allIds.length);
     if (impostorCount >= this.players.size) {
       return { success: false, error: 'Muitos impostores para o número de jogadores.' };
     }
