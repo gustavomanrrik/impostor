@@ -298,8 +298,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       playJoinSound();
     });
 
-    socket.on('room:hostChanged', () => {
-      addToast('info', 'O host da sala mudou.');
+    socket.on('room:hostChanged', (newHostId: string) => {
+      // roomState is updated via room:updated; just show a notification
+      setRoomState(prev => {
+        if (!prev) return prev;
+        const newHost = prev.players.find(p => p.id === newHostId);
+        if (newHost) {
+          addToast('info', `👑 ${newHost.name} é o novo host da sala!`);
+        }
+        return { ...prev, hostId: newHostId };
+      });
     });
 
     socket.on('room:closed', () => {

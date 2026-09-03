@@ -313,7 +313,7 @@ export function registerSocketHandlers(
         if (playerId) {
           const locked = room.lockNumbersGuesses(playerId, guesses);
           if (locked) {
-            io.to(room.code).emit('room:state', room.getPublicState());
+            io.to(room.code).emit('room:updated', room.getPublicState());
           }
         }
       }
@@ -740,10 +740,21 @@ export function registerSocketHandlers(
       if (!result) return;
 
       s.leave(room.code);
+
+      if (result.shouldClose) {
+        // Host saiu do lobby — fechar sala para todos os outros
+        s.to(room.code).emit('room:closed');
+        gameManager.removeRoom(room.code);
+        console.log(`[Room ${room.code}] Sala encerrada pelo host (${result.player.name})`);
+        return;
+      }
+
+      // Notifica os outros que este jogador saiu
       s.to(room.code).emit('room:playerLeft', result.player.id);
 
       if (result.newHostId) {
         io.to(room.code).emit('room:hostChanged', result.newHostId);
+        console.log(`[Room ${room.code}] Host transferido automaticamente para ${result.newHostId}`);
       }
 
       // Se a sala ficou vazia, remover

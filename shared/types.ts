@@ -262,6 +262,7 @@ export interface ClientToServerEvents {
   'room:leave': () => void;
   'room:updateConfig': (config: Partial<RoomConfig>) => void;
   'room:kick': (playerId: string) => void;
+  'room:transferHost': (newHostId: string) => void;
   'room:resetScores': () => void;
 
   // Chat

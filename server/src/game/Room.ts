@@ -110,7 +110,7 @@ export class Room {
     return player;
   }
 
-  removePlayer(socketId: string): { player: Player; newHostId?: string } | null {
+  removePlayer(socketId: string): { player: Player; newHostId?: string; shouldClose?: boolean } | null {
     const playerId = this.socketToPlayer.get(socketId);
     if (!playerId) return null;
 
@@ -124,20 +124,28 @@ export class Room {
     this.voteRequests.delete(playerId);
 
     let newHostId: string | undefined;
+    let shouldClose = false;
 
-    // O usuário solicitou que o host não seja transferido automaticamente para outra pessoa.
-    // if (player.isHost && this.players.size > 0) {
-    //   const nextPlayer = this.players.values().next().value;
-    //   if (nextPlayer) {
-    //     nextPlayer.isHost = true;
-    //     this.hostId = nextPlayer.id;
-    //     newHostId = nextPlayer.id;
-    //   }
-    // }
+    if (player.isHost) {
+      if (this.state === GameState.LOBBY) {
+        // Host deixou o lobby → fechar a sala para todos
+        shouldClose = true;
+      } else {
+        // Host deixou durante o jogo → transferir para próximo jogador conectado
+        player.isHost = false;
+        this.hostId = '';
+        const nextPlayer = Array.from(this.players.values()).find(p => p.isConnected && !p.isSpectator);
+        if (nextPlayer) {
+          nextPlayer.isHost = true;
+          this.hostId = nextPlayer.id;
+          newHostId = nextPlayer.id;
+        }
+      }
+    }
 
     this.checkAbortCondition();
 
-    return { player, newHostId };
+    return { player, newHostId, shouldClose };
   }
 
   handleDisconnect(socketId: string, onRemove?: () => void): { playerId: string; shouldRemove: boolean } | null {
