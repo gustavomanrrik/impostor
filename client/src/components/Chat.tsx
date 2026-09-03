@@ -363,16 +363,7 @@ export function Chat() {
 
       <div className="chat-input-area" style={{ flexDirection: 'column', padding: 0 }}>
         {/* Predefined Reactions */}
-        <div className="chat-reactions-scroll" style={{ 
-          padding: '8px 16px', 
-          display: 'flex', 
-          gap: '8px', 
-          flexWrap: 'nowrap', 
-          justifyContent: 'flex-start', 
-          overflowX: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          paddingBottom: '12px'
-        }}>
+        <div className="chat-reactions-scroll">
           {['👀 Suspeito', '🤔 Quem foi?', '🧐 Tô de olho', '🚨 Ih, rapaz', '👍 Concordo', '👎 Discordo'].map(phrase => (
             <button
               key={phrase}

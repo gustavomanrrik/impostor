@@ -2119,3 +2119,25 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.75rem); }
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+.chat-reactions-scroll {
+  padding: 8px 16px 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .chat-reactions-scroll {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .chat-reactions-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
