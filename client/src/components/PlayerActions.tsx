@@ -93,6 +93,7 @@ export function PlayerActions({ playerId, playerName }: PlayerActionsProps) {
             flexDirection: 'column',
             gap: '2px',
             minWidth: isWhispering ? '200px' : '120px',
+            maxWidth: isWhispering ? '250px' : '140px',
             boxShadow: 'var(--shadow-md)',
             border: '2px solid var(--text-primary)',
             borderRadius: 'var(--radius-sm)',
