@@ -150,15 +150,14 @@ export function TestaGame() {
               </button>
             </div>
           ) : (
-            <div className="card" style={{ border: '4px dashed var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <p style={{ margin: '0 0 6px 0', fontWeight: 700, fontSize: '0.8rem' }}>📝 Nota Pessoal (só você vê)</p>
+            <div className="card" style={{ border: '4px dashed var(--text-primary)', padding: '16px', margin: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <p style={{ margin: '0 0 12px 0', fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>📝 Nota Pessoal (só você vê)</p>
               <textarea
                 ref={notesRef}
-                className="input"
                 value={personalNotes}
                 onChange={autoGrow}
                 placeholder="Anote suas deduções..."
-                style={{ flex: 1, resize: 'none', padding: '8px', fontSize: '0.85rem', overflow: 'auto', width: '100%', boxSizing: 'border-box', minHeight: 0 }}
+                style={{ flex: 1, resize: 'none', padding: 0, fontSize: '0.9rem', overflow: 'auto', width: '100%', boxSizing: 'border-box', minHeight: 0, background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', fontFamily: 'inherit' }}
               />
             </div>
           )}
