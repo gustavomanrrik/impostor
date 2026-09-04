@@ -77,7 +77,7 @@ export function TestaGame() {
         </div>
 
         {/* ── TOP ROW: Meu Card + Notas ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0, width: '100%' }}>
 
           {/* Meu Card */}
           <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '6px', overflow: 'hidden', position: 'relative' }}>
@@ -119,7 +119,7 @@ export function TestaGame() {
 
                 {/* Avatar + label da palavra */}
                 <div className={isDamaged ? 'damaged' : ''} style={{ position: 'relative', display: 'inline-block', marginTop: '16px', flexShrink: 0 }}>
-                  <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="5rem" />
+                  <AvatarDisplay avatar={currentPlayer?.avatar || ''} size="7.5rem" />
                   <PlayerReactions playerId={playerId!} />
                   {activeTestaGuesses.filter(g => g.playerId === playerId).map(g => (
                     <div key={g.id} className={`floating-guess ${g.correct ? 'correct' : 'incorrect'}`}>{g.guess}</div>
