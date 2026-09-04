@@ -27,32 +27,6 @@ export function Lobby() {
       {renderLobby()}
       
       {/* Invisible Debug Mode Button */}
-      <div 
-        style={{ 
-          position: 'fixed', 
-          bottom: 0, 
-          right: 0, 
-          width: '50px', 
-          height: '50px', 
-          opacity: 0, 
-          cursor: 'pointer',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(255,0,0,0.8)',
-          color: 'white',
-          fontWeight: 'bold',
-          transition: 'opacity 0.2s',
-          borderRadius: '10px 0 0 0'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-        onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
-        onClick={() => startGame(true)}
-        title="Forçar Início (Debug)"
-      >
-        FORÇAR
-      </div>
     </div>
   );
 }
