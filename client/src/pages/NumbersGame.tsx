@@ -66,7 +66,7 @@ export function NumbersGame() {
         </div>
 
         {/* ── TOP ROW: Meu Número + Notas ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0, width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0 }}>
 
           {/* Meu Número */}
           <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '12px', margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', overflow: 'hidden' }}>
