@@ -142,18 +142,26 @@ export function ImpostorGame() {
   // ─── DISCUSSION PHASE ───────────────────────
   if (roomState.state === GameState.DISCUSSION) {
     const isMobile = window.innerWidth < 768;
+    const GAME_CONTAINER = {
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '12px',
+      padding: '16px',
+      boxSizing: 'border-box' as const,
+      overflow: 'hidden',
+      width: '100%'
+    };
 
     return (
       <div
         className="page"
         style={{
+          ...GAME_CONTAINER,
           display: 'grid',
           gridTemplateRows: 'auto 1fr 1fr',
-          height: '100%',
           padding: '10px',
-          gap: '10px',
-          boxSizing: 'border-box',
-          overflow: 'hidden',
+          gap: '10px'
         }}
       >
         {/* ── HEADER ── */}
@@ -172,7 +180,7 @@ export function ImpostorGame() {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '12px', flex: 1, minHeight: 0, width: '100%' }}>
 
           {/* Meu Card — palavra + pedido de votação */}
-          <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden' }}>
+          <div className="card" style={{ border: '4px solid var(--text-primary)', padding: '10px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', overflow: 'hidden', width: '100%' }}>
             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Sua palavra:</p>
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(1rem, 4vw, 1.6rem)', background: '#fff9c4', color: '#000', padding: '6px 10px', border: '2px solid #000', textAlign: 'center', flexShrink: 0 }}>
               {myWord || (isImpostor ? '😈 Impostor!' : '••••••••')}

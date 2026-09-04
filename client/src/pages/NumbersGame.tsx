@@ -8,7 +8,7 @@ import { VoteSkipButton } from '../components/VoteSkipButton';
 import { Podium } from '../components/Podium';
 
 /* ─── Shared layout styles ─────────────────────────────────────── */
-const GAME_CONTAINER = { height: '100%', display: 'flex', flexDirection: 'column' as const, gap: '12px', padding: '16px', boxSizing: 'border-box' as const, overflow: 'hidden' };
+const GAME_CONTAINER = { height: '100%', display: 'flex', flexDirection: 'column' as const, gap: '12px', padding: '16px', boxSizing: 'border-box' as const, overflow: 'hidden', width: '100%' };
 const BOTTOM_ROW = { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' as const };
 
 export function NumbersGame() {
