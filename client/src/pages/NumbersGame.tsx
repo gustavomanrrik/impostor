@@ -54,9 +54,11 @@ export function NumbersGame() {
       <div className="page" style={GAME_CONTAINER}>
 
         {/* ── HEADER ── */}
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <span className="status-badge error" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '16px' }}>🔢 NÚMEROS</span>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span className="status-badge error" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px' }}>🔢 NÚMEROS</span>
+          </div>
+          <div style={{ position: 'absolute', right: 0, top: 0 }}>
             <VoteSkipButton />
           </div>
           <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, lineHeight: 1.1, textAlign: 'center' }}>Adivinhe os Números!</h2>

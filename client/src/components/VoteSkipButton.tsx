@@ -22,7 +22,7 @@ export function VoteSkipButton() {
           padding: '4px 12px',
           fontSize: '0.8rem',
           border: '2px dashed var(--text-primary)',
-          borderRadius: '20px',
+          borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px',
           background: 'var(--bg-primary)',
           color: 'var(--text-primary)',
         }}

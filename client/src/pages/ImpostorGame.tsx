@@ -157,9 +157,9 @@ export function ImpostorGame() {
         }}
       >
         {/* ── HEADER ── */}
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px', position: 'relative', marginBottom: '8px' }}>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', marginBottom: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
-            <span className="status-badge discussion" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '16px' }}>💬 DISCUSSÃO</span>
+            <span className="status-badge discussion" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', margin: 0, fontSize: '0.8rem', border: '2px solid var(--text-primary)', borderRadius: '255px 15px 225px 15px/15px 225px 15px 255px' }}>💬 DISCUSSÃO</span>
           </div>
           <div style={{ position: 'absolute', right: 0, top: 0 }}>
             <VoteSkipButton />
